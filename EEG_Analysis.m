@@ -28,10 +28,10 @@ function EEG_Analysis(Preprocessing, ERP, GA, participant_list, filepath)
     eeglab; close;
     for participant_nr = participant_list
         if Preprocessing
-%             add_reaction_times(participant_nr, filepath)
-%             preICA(participant_nr, filepath)
-%             AMICA(participant_nr, filepath)
-            postICA(participant_nr, filepath)
+             add_reaction_times(participant_nr, filepath, 1)
+%              preICA(participant_nr, filepath)
+%              AMICA(participant_nr, filepath)
+%             postICA(participant_nr, filepath)
         end
         if ERP
             % pass

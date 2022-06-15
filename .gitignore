@@ -20,5 +20,5 @@ AMICA*/*
 *.vhdr
 *.vmrk
 *.wmf
-.bdf
+*.bdf
 Behavior*
