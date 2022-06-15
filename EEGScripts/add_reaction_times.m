@@ -1,0 +1,56 @@
+function add_reaction_times(id,filepath)
+    filename_raw = sprintf('EimerSub%i',id);
+    filename_vhdr = [filename_raw '.vhdr'];
+    filename = sprintf('participant%i_RT.set', id);
+    filename_behavior = sprintf('subject-%i.csv', id);
+    EEG = pop_loadbv([filepath filesep 'RawData'], filename_vhdr);
+    behavior = readtable([filepath filesep 'RawData' filesep filename_behavior]);
+    behavior = behavior(behavior.Practice == 0, :);
+    EEG.behavior = behavior;
+
+    eventlabels = {EEG.event(:).type}';
+    clean = cellfun(@(s)sscanf(s,'S%d'), eventlabels, 'UniformOutput', false);
+    latencies = {EEG.event(:).latency}';
+
+    idx_correct = ~cellfun(@isempty,clean);
+    clean = clean(idx_correct);
+    latencies = latencies(idx_correct);
+    idx_correct2 = ~cellfun(@(x) x==50 | x==255, clean);
+    clean = clean(idx_correct2);
+    latencies = latencies(idx_correct2);
+
+    response_times = round(EEG.behavior.response_time);
+
+    response_latencies = nan(size(response_times));
+    response_labels = ones(size(response_times))*70;
+    idx = 1;
+    for i = 1:length(clean)
+        if clean{i} >= 100
+            response_latencies(idx) = latencies{i} + response_times(idx);
+            response_labels(idx) = response_labels(idx) + clean{i+1};
+            idx = idx + 1;
+        end
+    end
+
+    valid_latencies = find(~isnan(response_latencies));
+    response_latencies = response_latencies(valid_latencies);
+    response_labels = response_labels(valid_latencies);
+
+    idx_correct3 = cellfun(@(x) x>70, clean);
+    clean = clean(idx_correct3);
+    latencies = latencies(idx_correct3);
+
+    newlabels = [clean; num2cell(response_labels)];
+    newlatencies = [latencies; num2cell(response_latencies)];
+    temptable = table(newlatencies, newlabels);
+    temptable = sortrows(temptable);
+
+    EEG.event = [];
+    [EEG.event(1:length(temptable.newlabels)).type] = temptable.newlabels{:};
+    [EEG.event(1:length(temptable.newlatencies)).latency] = temptable.newlatencies{:};
+    EEG = eeg_checkset(EEG);
+    EEG = eeg_checkset(EEG,'makeur');
+    EEG = eeg_checkset(EEG,'eventconsistency');
+    EEG = eeg_checkset(EEG);
+    EEG = pop_saveset(EEG, 'filename', filename, 'filepath', [filepath filesep 'EEG']);
+end

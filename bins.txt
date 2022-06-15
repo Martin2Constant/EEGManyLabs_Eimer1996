@@ -1,0 +1,47 @@
+bin 1
+Left M
+.{111}{71}
+
+bin 2
+Right M
+.{112}{71}
+
+bin 3
+Both M
+.{113}{71}
+
+bin 4
+Left W
+.{121}{71}
+
+bin 5
+Right W
+.{122}{71}
+
+bin 6
+Both W
+.{123}{71}
+
+bin 7
+Left Blue
+.{211}{71}
+
+bin 8
+Right Blue
+.{212}{71}
+
+bin 9
+Both Blue
+.{213}{71}
+
+bin 10
+Left Green
+.{221}{71}
+
+bin 11
+Right Green
+.{222}{71}
+
+bin 12
+Both Green
+.{223}{71}
