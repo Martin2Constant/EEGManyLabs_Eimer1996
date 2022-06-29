@@ -20,16 +20,16 @@ function EEG_Analysis(Preprocess, CreateAverage, ExtractResults, participant_lis
     cd(filepath);
     addpath([filepath filesep 'EEGScripts']);
     eeglab; close;
-    msg = 'Which team?';
-    opts = ["Liesefeld" "Asanowicz"];
-    choice = menu(msg, opts);
-    team = opts(choice);
     for participant_nr = participant_list
+        msg = 'Which team?';
+        opts = ["Liesefeld" "Asanowicz"];
+        choice = menu(msg, opts);
+        team = opts(choice);
         if Preprocess
-             add_reaction_times(participant_nr, filepath, team)
-              preICA(participant_nr, filepath, team)
-%              AMICA(participant_nr, filepath)
-             postICA(participant_nr, filepath, team)
+            add_reaction_times(participant_nr, filepath, team)
+            preICA(participant_nr, filepath, team)
+            %              AMICA(participant_nr, filepath)
+            postICA(participant_nr, filepath, team)
         end
         if CreateAverage
             % pass
