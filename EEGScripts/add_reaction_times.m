@@ -1,28 +1,33 @@
-function add_reaction_times(id,filepath, biosemi)
+function add_reaction_times(id,filepath, team)
     filename_raw = sprintf('EimerSub%i',id);
-    if biosemi
-        filename_bdf = [filepath filesep 'RawData' filesep filename_raw '.bdf'];
-        EEG = pop_biosig(filename_bdf);
-    else
-        filename_vhdr = [filename_raw '.vhdr'];
-
-        EEG = pop_loadbv([filepath filesep 'RawData'], filename_vhdr);
+    
+    switch team
+        case 'Asanowicz'
+            filename_bdf = [filepath filesep 'RawData' filesep filename_raw '.bdf'];
+            EEG = pop_biosig(filename_bdf);
+        case 'Liesefeld'
+            filename_vhdr = [filename_raw '.vhdr'];
+            EEG = pop_loadbv([filepath filesep 'RawData'], filename_vhdr);
     end
+
     filename = sprintf('participant%i_RT.set', id);
     filename_behavior = sprintf('subject-%i.csv', id);
     behavior = readtable([filepath filesep 'RawData' filesep filename_behavior]);
     behavior = behavior(behavior.Practice == 0, :);
     EEG.behavior = behavior;
-    if biosemi
-        eventlabels = {EEG.event(:).type}';
-        for i = 1:length(eventlabels)
-            eventlabels{i} = eventlabels{i} - (2^16 - 2^8);
-        end
-        clean = eventlabels;
-    else
-        eventlabels = {EEG.event(:).type}';
-        clean = cellfun(@(s)sscanf(s,'S%d'), eventlabels, 'UniformOutput', false);
+
+    switch team
+        case 'Asanowicz'
+            eventlabels = {EEG.event(:).type}';
+            for i = 1:length(eventlabels)
+                eventlabels{i} = eventlabels{i} - (2^16 - 2^8);
+            end
+            clean = eventlabels;
+        case 'Liesefeld'
+            eventlabels = {EEG.event(:).type}';
+            clean = cellfun(@(s)sscanf(s,'S%d'), eventlabels, 'UniformOutput', false);
     end
+
     latencies = {EEG.event(:).latency}';
 
     idx_correct = ~cellfun(@isempty,clean);

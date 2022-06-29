@@ -1,43 +1,41 @@
-function EEG_Analysis(Preprocessing, ERP, GA, participant_list, filepath)
+function EEG_Analysis(Preprocess, CreateAverage, ExtractResults, participant_list, filepath)
     %     Run with these default arguments if not provided
     path_here = mfilename('fullpath');
-    switch nargin
-        case 4
-            filepath = fileparts(path_here);
-        case 3
-            participant_list = [1];
-            filepath = fileparts(path_here);
-        case 2
-            GA = 1;
-            participant_list = [1];
-            filepath = fileparts(path_here);
-        case 1
-            ERP = 1;
-            GA = 1;
-            filepath = fileparts(path_here);
-            participant_list = [1];
-        case 0
-            Preprocessing = 1;
-            ERP = 1;
-            GA = 1;
-            filepath = fileparts(path_here);
-            participant_list = [1];
+    if nargin < 5
+        filepath = fileparts(path_here);
     end
+    if nargin < 4
+        participant_list = [1:2];
+    end
+    if nargin < 3
+        ExtractResults = true;
+    end
+    if nargin < 2
+        CreateAverage = true;
+    end
+    if nargin < 1
+        Preprocess = true;
+    end
+
     cd(filepath);
     addpath([filepath filesep 'EEGScripts']);
     eeglab; close;
+    msg = 'Which team?';
+    opts = ["Liesefeld" "Asanowicz"];
+    choice = menu(msg, opts);
+    team = opts(choice);
     for participant_nr = participant_list
-        if Preprocessing
-             add_reaction_times(participant_nr, filepath, 1)
-%              preICA(participant_nr, filepath)
+        if Preprocess
+             add_reaction_times(participant_nr, filepath, team)
+              preICA(participant_nr, filepath, team)
 %              AMICA(participant_nr, filepath)
-%             postICA(participant_nr, filepath)
+             postICA(participant_nr, filepath, team)
         end
-        if ERP
+        if CreateAverage
             % pass
         end
     end
-    if GA
+    if ExtractResults
         % pass
     end
 end

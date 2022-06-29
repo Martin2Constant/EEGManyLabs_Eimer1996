@@ -1,4 +1,4 @@
-function preICA(participant_nr, filepath)
+function preICA(participant_nr, filepath, team)
     %% Initialize and load
     ALLEEG = [];
     id = participant_nr;
@@ -6,47 +6,61 @@ function preICA(participant_nr, filepath)
     filename = sprintf('participant%i_RT.set', id);
     savename = sprintf('participant%i_preICA.set', id);
     EEG = pop_loadset(filename, [filepath filesep 'EEG']);
+    switch team
+        case 'Liesefeld'
+            % Change electrode names and load BESA locations
+            EEG = pop_chanedit(EEG, 'changefield', {5,'labels','LO1'}, 'changefield',{27,'labels','LO2'}, 'changefield',{64,'labels','IO2'},'append',64,'changefield',{65,'labels','FCz'},'lookup','standard-10-5-cap385.elp');
+            EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
+            EEG = pop_chanedit(EEG, 'eval','chans = pop_chancenter( chans, [],[]);');
+            EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
 
-        %% Ghost markers removal
-        % Convert our markers from strings to integers (e.g. 'S101' to 101)
-        EEG  = pop_creabasiceventlist( EEG , 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' } );
+            % Rereference to average of mastoids and add previous Ref (FCz) as a data channel
+            EEG = pop_reref( EEG, {'A1' 'A2'} ,'refloc',struct('labels',{'FCz'},'type',{'EEG'},'theta',{0},'radius',{0.12662},'X',{32.9279},'Y',{0},'Z',{78.363},'sph_theta',{0},'sph_phi',{67.208},'sph_radius',{85},'urchan',{65},'ref',{''},'datachan',{0}));
 
-        EEG = pop_chanedit(EEG, 'changefield',{5,'labels','LO1'}, 'changefield',{27,'labels','LO2'}, 'changefield',{64,'labels','IO2'}, 'changefield',{65,'labels','Fcz'},'append',65,'changefield',{66,'labels','Fpz'},'lookup','standard_1005.elc','setref',{'1:66','Fcz'});
+        case 'Asanowicz'
+            % Change electrode names and load BESA locations
+            EEG = pop_chanedit(EEG, 'changefield', {65,'labels','SO2'}, 'changefield', {66,'labels','IO2'}, 'changefield', {67,'labels','LO1'}, 'changefield', {68,'labels','LO2'}, 'changefield', {71,'labels','A1'}, 'changefield',{72,'labels','A2'},'lookup','standard-10-5-cap385.elp');
+            EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
+            EEG = pop_chanedit(EEG, 'eval','chans = pop_chancenter( chans, [],[]);');
+            EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
 
-        EEG = pop_chanedit(EEG, 'changefield',{5,'Z','-39.9051'},'changefield',{5,'Y','50.2186'},'changefield',{5,'X','55.7734'},'changefield',{27,'X','55.7734'},'changefield',{27,'Y','-50.2186'},'changefield',{27,'Z','-39.9051'},'changefield',{64,'X','62.0389'},'changefield',{64,'Y','-31.6104'},'changefield',{64,'Z','-48.754'}');
-        EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
-        EEG = pop_chanedit(EEG, 'eval','chans = pop_chancenter( chans, [],[]);');
-        EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
-
-        %% Downsampling
-        EEG = eeg_checkset( EEG );
-        %% High-pass filter
-        %       Onepass-zerophase, order 6876, blackman-windowed sinc FIR
-        %       Cutoff (-6 dB) 0.1 Hz
-        %       Transition width 0.2 Hz, stopband 0-0.0 Hz, passband 0.2-125 Hz
-        %       Max. passband deviation 0.0002 (0.02%), stopband attenuation -74 dB
-        EEG = pop_firws(EEG, 'fcutoff', 0.1, 'ftype', 'highpass', 'wtype', 'blackman', 'forder', 27500, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
-        
-        %% Low-pass filter
-        %       Lowpass filtering data: onepass-zerophase, order 550, blackman-windowed sinc FIR
-        %       Cutoff (-6 dB) 45 Hz
-        %       Transition width 10.0 Hz, passband 0-40.0 Hz, stopband 50.0-125 Hz
-        %       Max. passband deviation 0.0002 (0.02%), stopband attenuation -74 dB
-        EEG = pop_firws(EEG, 'fcutoff', 44.5, 'ftype', 'lowpass', 'wtype', 'blackman', 'forder', 550, 'minphase', 0, 'usefftfilt', 0, 'plotfresp', 0, 'causal', 0);
-
-    %% Rereference
-    % Rereference to average of mastoids and add previous Ref (Fcz) as a data channel
-    EEG = pop_reref( EEG, {'A1' 'A2'} ,'refloc',struct('labels',{'Fcz'},'type',{''},'theta',{-0.77507},'radius',{0.14877},'X',{44.048},'Y',{0.5959},'Z',{87.2868},'sph_theta',{0.77507},'sph_phi',{63.2207},'sph_radius',{97.773},'urchan',{65},'ref',{'Fcz'},'datachan',{0},'sph_theta_besa',{-26.7793},'sph_phi_besa',{-89.2249}));
-    EEG = eeg_checkset( EEG );
+            % Remove unused electrodes
+            EEG = pop_select( EEG, 'nochannel',{'EXG5','EXG6'});
+            % Rereference to average of mastoids, no ref to add back on Biosemi
+            EEG = pop_reref( EEG, {'A1' 'A2'} );
+    end
     
-    %% Final steps
-    % ICA needs independent sources. If we remove channels and then
-    % interpolate from the other channels, the interpolated are not
-    % independent anymore. So we need to tell that to the ICA.
+    % Filters
+    % "The amplifier bandpass was, 0.10-40 Hz."
+    %% High-pass filter
+    %       Onepass-zerophase, order 33000, hamming-windowed sinc FIR
+    %       Cutoff (-6 dB) 0.05 Hz
+    %       Transition width 0.1 Hz, stopband 0-0.0 Hz, passband 0.1-500 Hz
+    %       Max. passband deviation 0.0022 (0.22%), stopband attenuation -53 dB
+    EEG = eeg_checkset( EEG );
+    EEG = pop_eegfiltnew(EEG, 'locutoff', 0.1);
 
+    %% Low-pass filter (specifications given for 1000 Hz)
+    %       Lowpass filtering data: onepass-zerophase, order 330, hamming-windowed sinc FIR
+    %       Cutoff (-6 dB) 45 Hz
+    %       Transition width 10.0 Hz, passband 0-40.0 Hz, stopband 50.0-500 Hz
+    %       Max. passband deviation 0.0022 (0.22%), stopband attenuation -53 dB
+    EEG = eeg_checkset( EEG );
+    EEG = pop_eegfiltnew(EEG, 'hicutoff', 40);
+    
+    % Resample to 200 Hz
+    % "EEG and EOG were sampled with a digitization rate of 200 Hz."
+    EEG = eeg_checkset( EEG );
+    EEG = pop_resample( EEG, 200);
+
+    % ICA needs independent sources. We check that the data rank is equal to
+    % the number of channels. Only relevant if ICA is done.
     EEG.dataRank = sum(eig(cov(double(EEG.data'))) > 1E-6);
 
-    % Finally we save the file.
+    % Convert our markers to ERPLAB-compatible format
+    EEG  = pop_creabasiceventlist( EEG , 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' } );
+
+    % Save the file.
     EEG = eeg_checkset( EEG );
 
     EEG = pop_saveset(EEG, 'filename', savename, 'filepath', [filepath filesep 'EEG']);
