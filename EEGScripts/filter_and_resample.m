@@ -1,11 +1,11 @@
-function preICA(participant_nr, filepath, team)
+function filter_and_resample(participant_nr, filepath, team)
     %% Initialize and load
     ALLEEG = [];
-    id = participant_nr;
+
     % Create filenames
-    filename = sprintf('participant%i_RT.set', id);
-    savename = sprintf('participant%i_preICA.set', id);
-    EEG = pop_loadset(filename, [filepath filesep 'EEG']);
+    filename = sprintf('%s_participant%i_RT.set', team, participant_nr);
+    savename = sprintf('%s_participant%i_filtered.set', team, participant_nr);
+    EEG = pop_loadset(filename, [filepath filesep team filesep 'EEG']);
     switch team
         case 'Liesefeld'
             % Change electrode names and load BESA locations
@@ -29,7 +29,7 @@ function preICA(participant_nr, filepath, team)
             % Rereference to average of mastoids, no ref to add back on Biosemi
             EEG = pop_reref( EEG, {'A1' 'A2'} );
     end
-    
+
     % Filters
     % "The amplifier bandpass was, 0.10-40 Hz."
     %% High-pass filter
@@ -47,7 +47,7 @@ function preICA(participant_nr, filepath, team)
     %       Max. passband deviation 0.0022 (0.22%), stopband attenuation -53 dB
     EEG = eeg_checkset( EEG );
     EEG = pop_eegfiltnew(EEG, 'hicutoff', 40);
-    
+
     % Resample to 200 Hz
     % "EEG and EOG were sampled with a digitization rate of 200 Hz."
     EEG = eeg_checkset( EEG );
@@ -63,5 +63,5 @@ function preICA(participant_nr, filepath, team)
     % Save the file.
     EEG = eeg_checkset( EEG );
 
-    EEG = pop_saveset(EEG, 'filename', savename, 'filepath', [filepath filesep 'EEG']);
+    EEG = pop_saveset(EEG, 'filename', savename, 'filepath', [filepath filesep team filesep 'EEG']);
 end

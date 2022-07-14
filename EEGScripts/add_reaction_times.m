@@ -1,18 +1,19 @@
-function add_reaction_times(id,filepath, team)
-    filename_raw = sprintf('EimerSub%i',id);
-    
+function add_reaction_times(id, filepath, team)
+    filename_raw = sprintf('%s_EimerSub%i', team, id);
     switch team
         case 'Asanowicz'
-            filename_bdf = [filepath filesep 'RawData' filesep filename_raw '.bdf'];
-            EEG = pop_biosig(filename_bdf);
+            filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_raw '.bdf'];
+            % Importing with POz as temporary reference
+            % Re-referenced to average mastoids at a later point.
+            EEG = pop_biosig(filename_bdf, 'ref', 30);
         case 'Liesefeld'
             filename_vhdr = [filename_raw '.vhdr'];
-            EEG = pop_loadbv([filepath filesep 'RawData'], filename_vhdr);
+            EEG = pop_loadbv([filepath filesep filesep team filesep 'RawData'], filename_vhdr);
     end
 
-    filename = sprintf('participant%i_RT.set', id);
-    filename_behavior = sprintf('subject-%i.csv', id);
-    behavior = readtable([filepath filesep 'RawData' filesep filename_behavior]);
+    filename = sprintf('%s_participant%i_RT.set', team, id);
+    filename_behavior = sprintf('%s.csv', filename_raw);
+    behavior = readtable([filepath filesep team filesep 'RawData' filesep filename_behavior]);
     behavior = behavior(behavior.Practice == 0, :);
     EEG.behavior = behavior;
 
@@ -70,5 +71,5 @@ function add_reaction_times(id,filepath, team)
     EEG = eeg_checkset(EEG,'makeur');
     EEG = eeg_checkset(EEG,'eventconsistency');
     EEG = eeg_checkset(EEG);
-    EEG = pop_saveset(EEG, 'filename', filename, 'filepath', [filepath filesep 'EEG']);
+    EEG = pop_saveset(EEG, 'filename', filename, 'filepath', [filepath filesep team filesep 'EEG']);
 end

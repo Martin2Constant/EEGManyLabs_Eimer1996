@@ -1,4 +1,4 @@
-function EEG_Analysis(Preprocess, CreateAverage, ExtractResults, participant_list, filepath)
+function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participant_list, filepath)
     %     Run with these default arguments if not provided
     path_here = mfilename('fullpath');
     if nargin < 5
@@ -11,7 +11,7 @@ function EEG_Analysis(Preprocess, CreateAverage, ExtractResults, participant_lis
         ExtractResults = true;
     end
     if nargin < 2
-        CreateAverage = true;
+        CreateGrandAverage = true;
     end
     if nargin < 1
         Preprocess = true;
@@ -20,18 +20,25 @@ function EEG_Analysis(Preprocess, CreateAverage, ExtractResults, participant_lis
     cd(filepath);
     addpath([filepath filesep 'EEGScripts']);
     eeglab; close;
+    msg = 'Which team?';
+    opts = ["Liesefeld" "Asanowicz"];
+    choice = menu(msg, opts);
+    team = char(opts(choice));
+    if ~exist(team, 'dir')
+        mkdir(team);
+        mkdir(sprintf('%s%sERP',team, filesep))
+        mkdir(sprintf('%s%sEEG',team, filesep))
+        mkdir(sprintf('%s%sResults',team, filesep))
+        mkdir(sprintf('%s%sExcluded_ERP',team, filesep))
+    end
+
     for participant_nr = participant_list
-        msg = 'Which team?';
-        opts = ["Liesefeld" "Asanowicz"];
-        choice = menu(msg, opts);
-        team = opts(choice);
         if Preprocess
             add_reaction_times(participant_nr, filepath, team)
-            preICA(participant_nr, filepath, team)
-            %              AMICA(participant_nr, filepath)
-            postICA(participant_nr, filepath, team)
+            filter_and_resample(participant_nr, filepath, team)
+            epoch_and_average(participant_nr, filepath, team)
         end
-        if CreateAverage
+        if CreateGrandAverage
             % pass
         end
     end

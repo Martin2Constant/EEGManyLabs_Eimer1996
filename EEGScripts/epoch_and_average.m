@@ -1,19 +1,18 @@
 function postICA(participant_nr, filepath, team)
     %% Initialize and load
-    id = participant_nr;
-    post_ica = sprintf('participant%i_preICA.set', id);
-    processed = sprintf('participant%i_clean.set', id);
-    erp_name = sprintf('participant%i', id);
-    EEG = pop_loadset(post_ica, [filepath filesep 'EEG']);
+    filtered = sprintf('%s_participant%i_filtered.set', team, participant_nr);
+    epoched = sprintf('%s_participant%i_epoched.set', team, participant_nr);
+    erp_name = sprintf('%s_participant%i', team, participant_nr);
 
+    EEG = pop_loadset(filtered, [filepath filesep team filesep 'EEG']);
     EEG = eeg_checkset( EEG );
     EEG  = pop_binlister( EEG , 'BDF', [filepath filesep 'bins.txt'], 'IndexEL',  1, 'SendEL2', 'EEG', 'UpdateEEG', 'on', 'Voutput', 'EEG' );
     EEG = eeg_checkset( EEG );
 
-    % "EEG and EOG were epoched off-line into periods of 700 ms, starting 
-    % 100 ms prior to the onset of the letter stimulus, and ending 600 ms 
-    % after letter onset." 
-    % "All measures were taken relative to the mean voltage of the 100 ms 
+    % "EEG and EOG were epoched off-line into periods of 700 ms, starting
+    % 100 ms prior to the onset of the letter stimulus, and ending 600 ms
+    % after letter onset."
+    % "All measures were taken relative to the mean voltage of the 100 ms
     % interval preceding the onset of the stimulus array."
     EEG = pop_epochbin( EEG , [-100.0  600+(1000/EEG.srate)],  'pre');
     EEG = eeg_checkset( EEG );
@@ -21,11 +20,11 @@ function postICA(participant_nr, filepath, team)
     switch team
         case 'Liesefeld'
             % "Horizontal EOG was recorded bipolarly from electrodes at the
-            % outer canthi of both eyes, vertical EOG was recorded from 
+            % outer canthi of both eyes, vertical EOG was recorded from
             % electrodes above and beside the right eye."
             % Thus we re-create bipolar electrodes
             EEG = pop_eegchanoperator( EEG, {  'ch64 = ch30-ch62 label VEOG', 'ch65 = ch5-ch25 label HEOG'} , 'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on' );
-
+            LO_index = 5;
             % "Trials with eyeblinks (VEOG amplitude exceeding +/- 60 µV)"
             EEG  = pop_artextval( EEG , 'Channel',  64, 'Flag', [ 1 2], 'LowPass',  -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
             % "horizontal eye movements (HEOG amplitude exceeding +/- 25µV)"
@@ -33,7 +32,7 @@ function postICA(participant_nr, filepath, team)
 
         case 'Asanowicz'
             EEG = pop_eegchanoperator( EEG, {  'ch69 = ch65 - ch66 label VEOG',  'ch70 = ch67 - ch68 label HEOG'} , 'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on' );
-
+            LO_index = 67;
             EEG  = pop_artextval( EEG , 'Channel',  69, 'Flag', [ 1 2], 'LowPass',  -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
 
             EEG  = pop_artextval( EEG , 'Channel',  70, 'Flag', [ 1 3], 'LowPass',  -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
@@ -42,7 +41,7 @@ function postICA(participant_nr, filepath, team)
     EEG = eeg_checkset( EEG , 'eventconsistency' );
     EEG = eeg_checkset( EEG );
 
-    EEG = pop_saveset(EEG, 'filename', processed, 'filepath', [filepath filesep 'EEG']);
+    EEG = pop_saveset(EEG, 'filename', epoched, 'filepath', [filepath filesep 'EEG']);
 
     EEG = eeg_checkset( EEG );
     ERP = pop_averager( EEG , 'Criterion', 'good', 'DQ_custom_wins', 0, 'DQ_flag', 1, 'DQ_preavg_txt', 0, 'ExcludeBoundary', 'on', 'SEM', 'on' );
@@ -79,8 +78,18 @@ function postICA(participant_nr, filepath, team)
         'bin11 = bin5 - bin6 label Blue Contra-Ipsi',...
         'bin12 = bin7 - bin8 label Green Contra-Ipsi'});
 
-    ERP = pop_binoperator( ERP, {'bin13 = (bin9 + bin10)/2 label Letters Contra-Ipsi',...
-        'bin14 = (bin11 + bin12)/2 label Colors Contra-Ipsi'});
+    ERP = pop_binoperator( ERP, {'bin13 = (bin1 + bin3)/2 label Letters Contra', ...
+        'bin14 = (bin2 + bin4)/2 label Letters Ipsi', ...
+        'bin15 = (bin9 + bin10)/2 label Letters Contra-Ipsi',...
+        'bin16 = (bin5 + bin7)/2 label Colors Contra',...
+        'bin17 = (bin6 + bin8)/2 label Colors Ipsi',...
+        'bin18 = (bin11 + bin12)/2 label Colors Contra-Ipsi',...
+        'bin19 = (bin9 + bin10 + bin11 + bin12)/4 label All Contra-Ipsi'});
 
-    ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep 'ERP'], 'Warning', 'off');
+    if abs(mean(ERP.bindata(LO_index,:,19))) >= 2
+        ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name], 'filename', ['excluded_' erp_name '.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off');
+
+    else
+        ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP'], 'Warning', 'off');
+    end
 end
