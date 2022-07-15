@@ -1,14 +1,13 @@
 function filter_and_resample(participant_nr, filepath, team)
-    %% Initialize and load
-    ALLEEG = [];
-
-    % Create filenames
+    % Load dataset
     filename = sprintf('%s_participant%i_RT.set', team, participant_nr);
     savename = sprintf('%s_participant%i_filtered.set', team, participant_nr);
     EEG = pop_loadset(filename, [filepath filesep team filesep 'EEG']);
+
     switch team
         case 'Liesefeld'
-            % Change electrode names and load BESA locations
+            % Change electrode names to match names from the BESA template 
+            % and load BESA locations
             EEG = pop_chanedit(EEG, 'changefield', {5,'labels','LO1'}, 'changefield',{27,'labels','LO2'}, 'changefield',{64,'labels','IO2'},'append',64,'changefield',{65,'labels','FCz'},'lookup','standard-10-5-cap385.elp');
             EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
             EEG = pop_chanedit(EEG, 'eval','chans = pop_chancenter( chans, [],[]);');
@@ -18,7 +17,8 @@ function filter_and_resample(participant_nr, filepath, team)
             EEG = pop_reref( EEG, {'A1' 'A2'} ,'refloc',struct('labels',{'FCz'},'type',{'EEG'},'theta',{0},'radius',{0.12662},'X',{32.9279},'Y',{0},'Z',{78.363},'sph_theta',{0},'sph_phi',{67.208},'sph_radius',{85},'urchan',{65},'ref',{''},'datachan',{0}));
 
         case 'Asanowicz'
-            % Change electrode names and load BESA locations
+            % Change electrode names to match names from the BESA template 
+            % and load BESA locations
             EEG = pop_chanedit(EEG, 'changefield', {65,'labels','SO2'}, 'changefield', {66,'labels','IO2'}, 'changefield', {67,'labels','LO1'}, 'changefield', {68,'labels','LO2'}, 'changefield', {71,'labels','A1'}, 'changefield',{72,'labels','A2'},'lookup','standard-10-5-cap385.elp');
             EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
             EEG = pop_chanedit(EEG, 'eval','chans = pop_chancenter( chans, [],[]);');
@@ -33,15 +33,17 @@ function filter_and_resample(participant_nr, filepath, team)
     % Filters
     % "The amplifier bandpass was, 0.10-40 Hz."
     %% High-pass filter
-    %       Onepass-zerophase, order 33000, hamming-windowed sinc FIR
+    %       Onepass-zerophase Hamming-windowed sinc FIR
+    %       Order 33000 (depends on recording sampling rate)
     %       Cutoff (-6 dB) 0.05 Hz
     %       Transition width 0.1 Hz, stopband 0-0.0 Hz, passband 0.1-500 Hz
     %       Max. passband deviation 0.0022 (0.22%), stopband attenuation -53 dB
     EEG = eeg_checkset( EEG );
     EEG = pop_eegfiltnew(EEG, 'locutoff', 0.1);
 
-    %% Low-pass filter (specifications given for 1000 Hz)
-    %       Lowpass filtering data: onepass-zerophase, order 330, hamming-windowed sinc FIR
+    %% Low-pass filter
+    %       Lowpass filtering data: onepass-zerophase Hamming-windowed sinc FIR
+    %       Order 330 (depends on recording sampling rate)
     %       Cutoff (-6 dB) 45 Hz
     %       Transition width 10.0 Hz, passband 0-40.0 Hz, stopband 50.0-500 Hz
     %       Max. passband deviation 0.0022 (0.22%), stopband attenuation -53 dB

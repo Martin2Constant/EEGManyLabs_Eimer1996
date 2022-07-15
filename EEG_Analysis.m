@@ -1,11 +1,10 @@
 function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participant_list, filepath)
-    %     Run with these default arguments if not provided
     path_here = mfilename('fullpath');
     if nargin < 5
         filepath = fileparts(path_here);
     end
     if nargin < 4
-        participant_list = [1:2];
+        participant_list = [1];
     end
     if nargin < 3
         ExtractResults = true;
@@ -30,12 +29,15 @@ function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participan
         mkdir(sprintf('%s%sEEG',team, filesep))
         mkdir(sprintf('%s%sResults',team, filesep))
         mkdir(sprintf('%s%sExcluded_ERP',team, filesep))
+        mkdir(sprintf('%s%sRawData',team, filesep))  % Place raw EEG and behavior file here
     end
-
+    % Change EEGLAB default options to keep double precision throughout the pipeline.
+    pop_editoptions( 'option_savetwofiles', 0, 'option_single', 0);
     for participant_nr = participant_list
         if Preprocess
             add_reaction_times(participant_nr, filepath, team)
             filter_and_resample(participant_nr, filepath, team)
+            ICA(participant_nr, filepath, team)
             epoch_and_average(participant_nr, filepath, team)
         end
         if CreateGrandAverage
