@@ -1,4 +1,6 @@
 function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participant_list, filepath)
+    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    %
     path_here = mfilename('fullpath');
     if nargin < 5
         filepath = fileparts(path_here);
@@ -25,11 +27,11 @@ function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participan
     team = char(opts(choice));
     if ~exist(team, 'dir')
         mkdir(team);
-        mkdir(sprintf('%s%sERP',team, filesep))
-        mkdir(sprintf('%s%sEEG',team, filesep))
-        mkdir(sprintf('%s%sResults',team, filesep))
-        mkdir(sprintf('%s%sExcluded_ERP',team, filesep))
-        mkdir(sprintf('%s%sRawData',team, filesep))  % Place raw EEG and behavior file here
+        mkdir(sprintf('%s%sERP', team, filesep))
+        mkdir(sprintf('%s%sEEG', team, filesep))
+        mkdir(sprintf('%s%sResults', team, filesep))
+        mkdir(sprintf('%s%sExcluded_ERP', team, filesep))
+        mkdir(sprintf('%s%sRawData', team, filesep))  % Place raw EEG and behavior file here
     end
     % Change EEGLAB default options to keep double precision throughout the pipeline.
     pop_editoptions( 'option_savetwofiles', 0, 'option_single', 0);
@@ -40,9 +42,9 @@ function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participan
             ICA(participant_nr, filepath, team)
             epoch_and_average(participant_nr, filepath, team)
         end
-        if CreateGrandAverage
-            % pass
-        end
+    end
+    if CreateGrandAverage
+        % pass
     end
     if ExtractResults
         % pass

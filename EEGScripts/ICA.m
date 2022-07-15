@@ -1,4 +1,5 @@
 function ICA(participant_nr, filepath, team)
+    % Author: Martin Constant (martin.constant@uni-bremen.de)
     % We are computing ICA weights, but at least for the pure replication,
     % this step is useless since we're not using it.
 

@@ -1,4 +1,6 @@
 function add_reaction_times(id, filepath, team)
+    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    %
     filename_raw = sprintf('%s_EimerSub%i', team, id);
     filename_tosave = sprintf('%s_participant%i_RT.set', team, id);
     switch team
