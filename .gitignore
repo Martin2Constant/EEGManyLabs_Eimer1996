@@ -25,3 +25,6 @@ AMICA*/*
 *.mp4
 Behavior*
 *.zip
+*.cdt
+*.dpo
+*.ceo

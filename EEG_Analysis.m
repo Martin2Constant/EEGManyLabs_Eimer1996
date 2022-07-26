@@ -1,5 +1,13 @@
 function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participant_list, filepath)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Using:
+    % MATLAB R2022a
+    % EEGLAB version 2022.0
+    % ERPLAB v9.00
+    % For Asanowicz data import: Biosig v3.8.1
+    % For Liesefeld data import: bva-io v1.71
+    % For Essex data import: loadcurry v3.2.3
+    % firfilt v2.4
     %
     path_here = mfilename('fullpath');
     if nargin < 5
@@ -22,7 +30,7 @@ function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participan
     addpath([filepath filesep 'EEGScripts']);
     eeglab; close;
     msg = 'Which team?';
-    opts = ["Liesefeld" "Asanowicz"];
+    opts = ["Liesefeld" "Asanowicz" "Essex"];
     choice = menu(msg, opts);
     team = char(opts(choice));
     if ~exist(team, 'dir')

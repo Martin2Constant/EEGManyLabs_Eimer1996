@@ -44,6 +44,12 @@ function epoch_and_average(participant_nr, filepath, team)
 
             EEG  = pop_artextval( EEG , 'Channel',  69, 'Flag', [ 1 2], 'LowPass',  -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
             EEG  = pop_artextval( EEG , 'Channel',  70, 'Flag', [ 1 3], 'LowPass',  -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
+        case 'Essex'
+            EEG = pop_eegchanoperator( EEG, {  'ch30 = ch28 - ch3 label VEOG'} , 'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on' );
+            EEG  = pop_artextval( EEG , 'Channel',  30, 'Flag', [ 1 2], 'LowPass',  -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
+            EEG  = pop_artextval( EEG , 'Channel',  27, 'Flag', [ 1 3], 'LowPass',  -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
+            EEG.LO_index = 27;
+            EEG.PO7_index = 20;
     end
 
     EEG = eeg_checkset( EEG , 'eventconsistency' );
@@ -80,6 +86,18 @@ function epoch_and_average(participant_nr, filepath, team)
                 'nbin6 = 0.5*bin7@Lch + 0.5*bin8@Rch label Blue Ipsi',...
                 'nbin7 = 0.5*bin10@Rch + 0.5*bin11@Lch label Green Contra',...
                 'nbin8 = 0.5*bin10@Lch + 0.5*bin11@Rch label Green Ipsi'});
+        case 'Essex'
+            ERP = pop_binoperator( ERP, {'prepareContraIpsi',...
+                'Lch = [ 1 4 8 7 11 12 16 15 21 20 25 2 5 17 22 29 30];',...
+                'Rch = [ 3:3:9 10 14 13 18 19 23 24 26 2 5 17 22 29 30];',...
+                'nbin1 = 0.5*bin1@Rch + 0.5*bin2@Lch label M Contra',...
+                'nbin2 = 0.5*bin1@Lch + 0.5*bin2@Rch label M Ipsi',...
+                'nbin3 = 0.5*bin4@Rch + 0.5*bin5@Lch label W Contra',...
+                'nbin4 = 0.5*bin4@Lch + 0.5*bin5@Rch label W Ipsi',...
+                'nbin5 = 0.5*bin7@Rch + 0.5*bin8@Lch label Blue Contra',...
+                'nbin6 = 0.5*bin7@Lch + 0.5*bin8@Rch label Blue Ipsi',...
+                'nbin7 = 0.5*bin10@Rch + 0.5*bin11@Lch label Green Contra',...
+                'nbin8 = 0.5*bin10@Lch + 0.5*bin11@Rch label Green Ipsi'});
     end
 
     % Compute difference waves for each condition
@@ -100,9 +118,11 @@ function epoch_and_average(participant_nr, filepath, team)
         'bin20 = (bin2+bin4+bin6+bin8)/4 label All Ipsi',...
         'bin21 = (bin9 + bin10 + bin11 + bin12)/4 label All Contra-Ipsi'});
     
+    ERP.PO7_index = EEG.PO7_index;
+    ERP.LO_index = EEG.LO_index;
     % "A maximal residual EOG deviation exceeding +/- 2 µV would have led
     % to the disqualification of the subject."
-    if abs(mean(ERP.bindata(EEG.LO_index,:,21))) >= 2
+    if abs(mean(ERP.bindata(ERP.LO_index,:,21))) >= 2
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name], 'filename', ['excluded_' erp_name '.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off');
     else
         ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP'], 'Warning', 'off');

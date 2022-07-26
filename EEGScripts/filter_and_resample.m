@@ -7,7 +7,7 @@ function filter_and_resample(participant_nr, filepath, team)
 
     switch team
         case 'Liesefeld'
-            % Change electrode names to match names from the BESA template 
+            % Change electrode names to match names from the BESA template
             % and load BESA locations
             EEG = pop_chanedit(EEG, 'changefield', {5,'labels','LO1'}, 'changefield',{27,'labels','LO2'}, 'changefield',{64,'labels','IO2'},'append',64,'changefield',{65,'labels','FCz'},'lookup','standard-10-5-cap385.elp');
             EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
@@ -18,7 +18,7 @@ function filter_and_resample(participant_nr, filepath, team)
             EEG = pop_reref( EEG, {'A1' 'A2'} ,'refloc',struct('labels',{'FCz'},'type',{'EEG'},'theta',{0},'radius',{0.12662},'X',{32.9279},'Y',{0},'Z',{78.363},'sph_theta',{0},'sph_phi',{67.208},'sph_radius',{85},'urchan',{65},'ref',{''},'datachan',{0}));
 
         case 'Asanowicz'
-            % Change electrode names to match names from the BESA template 
+            % Change electrode names to match names from the BESA template
             % and load BESA locations
             EEG = pop_chanedit(EEG, 'changefield', {65,'labels','SO2'}, 'changefield', {66,'labels','IO2'}, 'changefield', {67,'labels','LO1'}, 'changefield', {68,'labels','LO2'}, 'changefield', {71,'labels','A1'}, 'changefield',{72,'labels','A2'},'lookup','standard-10-5-cap385.elp');
             EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
@@ -29,6 +29,18 @@ function filter_and_resample(participant_nr, filepath, team)
             EEG = pop_select( EEG, 'nochannel',{'EXG5','EXG6'});
             % Rereference to average of mastoids, no ref to add back on Biosemi
             EEG = pop_reref( EEG, {'A1' 'A2'} );
+        case 'Essex'
+            EEG = pop_select( EEG, 'nochannel',{'TRIGGER'});
+            EEG = pop_chanedit(EEG, 'changefield', {29,'labels','LO1'}, 'changefield', {30,'labels','IO2'}, 'append',30,'changefield',{31,'labels','A1'},'lookup','standard-10-5-cap385.elp');
+            % Change electrode names to match names from the BESA template
+            % and load BESA locations
+            EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
+            EEG = pop_chanedit(EEG, 'eval','chans = pop_chancenter( chans, [],[]);');
+            EEG = pop_chanedit(EEG, 'convert',{'cart2all'});
+
+            EEG = pop_reref( EEG, {'CZ'},'refloc',struct('labels',{'A1'},'type',{'EEG'},'theta',{-90},'radius',{0.75},'X',{3.6803e-15},'Y',{60.1041},'Z',{-60.1041},'sph_theta',{90},'sph_phi',{-45},'sph_radius',{85},'urchan',{31},'ref',{''},'datachan',{0}));
+            EEG = pop_reref( EEG, {'A1' 'A2'} ,'refloc',struct('labels',{'CZ'},'type',{'EEG'},'theta',{0},'radius',{0},'X',{5.2047e-15},'Y',{0},'Z',{85},'sph_theta',{0},'sph_phi',{90},'sph_radius',{85},'urchan',{13},'ref',{'CZ'},'datachan',{0}));
+
     end
 
     % Filters
