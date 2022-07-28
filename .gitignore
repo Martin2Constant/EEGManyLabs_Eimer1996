@@ -28,3 +28,5 @@ Behavior*
 *.cdt
 *.dpo
 *.ceo
+*.dpa
+*.py

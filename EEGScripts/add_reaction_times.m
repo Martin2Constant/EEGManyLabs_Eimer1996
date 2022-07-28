@@ -5,7 +5,7 @@ function add_reaction_times(id, filepath, team)
         case 'Asanowicz'
             filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i.bdf', team, id);
             filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, id);
-            filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg '.bdf'];
+            filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
             % Importing with POz as temporary reference
             % Re-referenced to average mastoids at a later point.
             EEG = pop_biosig(filename_bdf, 'ref', 30);

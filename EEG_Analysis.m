@@ -7,7 +7,7 @@ function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participan
     % For Asanowicz data import: Biosig v3.8.1
     % For Liesefeld data import: bva-io v1.71
     % For Essex data import: loadcurry v3.2.3
-    % firfilt v2.4
+    % firfilt v2.5.1
     %
     path_here = mfilename('fullpath');
     if nargin < 5
@@ -28,6 +28,9 @@ function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participan
 
     cd(filepath);
     addpath([filepath filesep 'EEGScripts']);
+    if ~isfile('./bins.txt')
+        createBins();
+    end
     eeglab; close;
     msg = 'Which team?';
     opts = ["Liesefeld" "Asanowicz" "Essex"];
@@ -45,9 +48,9 @@ function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participan
     pop_editoptions( 'option_savetwofiles', 0, 'option_single', 0);
     for participant_nr = participant_list
         if Preprocess
-            add_reaction_times(participant_nr, filepath, team)
-            filter_and_resample(participant_nr, filepath, team)
-            ICA(participant_nr, filepath, team)
+%             add_reaction_times(participant_nr, filepath, team)
+%             filter_and_resample(participant_nr, filepath, team)
+%             ICA(participant_nr, filepath, team)
             epoch_and_average(participant_nr, filepath, team)
         end
     end
