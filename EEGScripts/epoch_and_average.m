@@ -33,8 +33,6 @@ function epoch_and_average(participant_nr, filepath, team)
     end
     VEOG_index = nb_chans + 1;
     HEOG_index = nb_chans + 2;
-    %     switch team
-    %         case 'Liesefeld'
     % "Horizontal EOG was recorded bipolarly from electrodes at the
     % outer canthi of both eyes, vertical EOG was recorded from
     % electrodes above and beside the right eye."
@@ -48,21 +46,6 @@ function epoch_and_average(participant_nr, filepath, team)
     EEG  = pop_artextval(EEG, 'Channel', VEOG_index, 'Flag', [ 1 2], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
     % "horizontal eye movements (HEOG amplitude exceeding +/- 25 µV)"
     EEG  = pop_artextval(EEG, 'Channel', HEOG_index, 'Flag', [ 1 3], 'LowPass', -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
-
-    %         case 'Asanowicz'
-    %             EEG = pop_eegchanoperator(EEG, {  'ch69 = ch65 - ch66 label VEOG', 'ch70 = ch67 - ch68 label HEOG'}, 'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on' );
-    %             EEG.LO_index = 67;
-    %             EEG.PO7_index = 25;
-    %
-    %             EEG  = pop_artextval(EEG, 'Channel', 69, 'Flag', [ 1 2], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
-    %             EEG  = pop_artextval(EEG, 'Channel', 70, 'Flag', [ 1 3], 'LowPass', -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
-    %         case 'Essex'
-    %             EEG = pop_eegchanoperator(EEG, {  'ch30 = ch28 - ch3 label VEOG'}, 'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on' );
-    %             EEG  = pop_artextval(EEG, 'Channel', 30, 'Flag', [ 1 2], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
-    %             EEG  = pop_artextval(EEG, 'Channel', 27, 'Flag', [ 1 3], 'LowPass', -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
-    %             EEG.LO_index = 27;
-    %             EEG.PO7_index = 20;
-    %     end
 
     EEG = eeg_checkset(EEG, 'eventconsistency' );
     EEG = eeg_checkset(EEG);
@@ -121,6 +104,7 @@ function epoch_and_average(participant_nr, filepath, team)
     ERP.PO7_8_index = PO7_index;
     ERP.LO1_2_index = LO1_index;
     ERP.behavior = EEG.behavior;
+    ERP.rejected_trials = logical(EEG.reject.rejmanual);
     % "A maximal residual EOG deviation exceeding +/- 2 µV would have led
     % to the disqualification of the subject."
     if abs(mean(ERP.bindata(ERP.LO1_2_index, :, 21))) >= 2
