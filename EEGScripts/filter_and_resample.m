@@ -1,6 +1,5 @@
 function filter_and_resample(participant_nr, filepath, team)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
-    %
     filename = sprintf('%s_participant%i_RT.set', team, participant_nr);
     savename = sprintf('%s_participant%i_filtered.set', team, participant_nr);
     EEG = pop_loadset(filename, [filepath filesep team filesep 'EEG']);

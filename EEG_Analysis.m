@@ -2,13 +2,15 @@ function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participan
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     % Using:
     % MATLAB R2022a
+    % Statistics and Machine Learning Toolbox R2022a
+    % Optimization Toolbox R2022a
+    % Signal Processing Toolbox R2022a
     % EEGLAB version 2022.0
     % ERPLAB v9.00
     % For Asanowicz data import: Biosig v3.8.1
     % For Liesefeld data import: bva-io v1.71
     % For Essex data import: loadcurry v3.2.3
     % firfilt v2.5.1
-    %
     path_here = mfilename('fullpath');
     if nargin < 5
         filepath = fileparts(path_here);

@@ -1,6 +1,5 @@
 function add_reaction_times(id, filepath, team)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
-    %
     switch team
         case 'Asanowicz'
             filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i.bdf', team, id);
