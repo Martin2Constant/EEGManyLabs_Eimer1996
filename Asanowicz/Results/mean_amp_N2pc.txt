@@ -1,2 +1,3 @@
-bin15_PO7/PO8	bin18_PO7/PO8	     ERPset
--3.222352566	-0.666520511	Asanowicz_participant1
+bin16_PO7/PO8	bin17_PO7/PO8	     ERPset
+4.878817494	5.545338005	Asanowicz_participant1
+4.878817494	5.545338005	Asanowicz_participant1

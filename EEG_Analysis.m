@@ -1,4 +1,4 @@
-function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participant_list, filepath)
+function EEG_Analysis(Preprocess, ExtractResults, participant_list, filepath)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     % Using:
     % MATLAB R2022a
@@ -12,17 +12,14 @@ function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participan
     % For Essex data import: loadcurry v3.2.3
     % firfilt v2.5.1
     path_here = mfilename('fullpath');
-    if nargin < 5
+    if nargin < 4
         filepath = fileparts(path_here);
     end
-    if nargin < 4
+    if nargin < 3
         participant_list = [1];
     end
-    if nargin < 3
-        ExtractResults = true;
-    end
     if nargin < 2
-        CreateGrandAverage = true;
+        ExtractResults = true;
     end
     if nargin < 1
         Preprocess = true;
@@ -53,13 +50,10 @@ function EEG_Analysis(Preprocess, CreateGrandAverage, ExtractResults, participan
 %             add_reaction_times(participant_nr, filepath, team)
 %             filter_and_resample(participant_nr, filepath, team)
 %             ICA(participant_nr, filepath, team)
-            epoch_and_average(participant_nr, filepath, team)
+             epoch_and_average(participant_nr, filepath, team)
         end
     end
-    if CreateGrandAverage
-        % pass
-    end
     if ExtractResults
-        % pass
+        extract_results(filepath, team)
     end
 end
