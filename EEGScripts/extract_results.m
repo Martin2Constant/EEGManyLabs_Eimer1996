@@ -22,5 +22,11 @@ function extract_results(filepath, team)
     [mean_amps_letters, between_ci_amp_letters, within_ci_amp_letters, stats_amp_letters] = custom_paired_t_test(letters_contra_amp, letters_ipsi_amp);
     [mean_amps_colors, between_ci_amp_colors, within_ci_amp_colors, stats_amp_colors] = custom_paired_t_test(colors_contra_amp, colors_ipsi_amp);
     [mean_rt, between_ci_rt, within_ci_rt, stats_rt] = custom_paired_t_test(mean_rts.RT_letters, mean_rts.RT_colors);
-
+    save('results_letters.mat', 'mean_amps_letters', 'between_ci_amp_letters', 'within_ci_amp_letters', 'stats_amp_letters');
+    save('results_colors.mat', 'mean_amps_colors', 'between_ci_amp_colors', 'within_ci_amp_colors', 'stats_amp_colors');
+    save('results_rt.mat', "mean_rt", "between_ci_rt", "within_ci_rt", "stats_rt");
+    amplitudes_table = table(letters_ipsi_amp, letters_contra_amp, ...
+        colors_ipsi_amp, colors_contra_amp, ...
+        'VariableNames', {'Letters_ipsi', 'Letters_contra', 'Colors_ipsi', 'Colors_contra'});
+    writetable(amplitudes_table, 'amplitudes.csv');
 end

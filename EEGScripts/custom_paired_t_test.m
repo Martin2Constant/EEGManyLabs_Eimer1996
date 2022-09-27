@@ -18,8 +18,8 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     % ----------
     % The t value is computed from (x - y), so for contra - ipsi comparisons
     % x should be the vector of contralateral amplitudes and y the vector
-    % of ipsilateral amplitudes. 
-    % The same goes for the tail, "less" means that we will test 
+    % of ipsilateral amplitudes.
+    % The same goes for the tail, "less" means that we will test
     % whether x is less than y.
     %
     % Returns
@@ -27,7 +27,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     % mean_amps: vector of double
     %     Mean value (one per condition) of x and y.
     % between_confidence_intervals: vector of double
-    %     Between-participants confidence intervals for x and y. 
+    %     Between-participants confidence intervals for x and y.
     % within_confidence_intervals: vector of double
     %     Within-participants confidence intervals for x and y.
     % stats: struct
@@ -37,7 +37,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     %       stats.df: double
     %           Degrees of freedom used to compute BF and p value.
     %       stats.dz: vector of double -> [dz, low_dz, high_dz]
-    %           Contains Cohen's dz and its confidence intervals.             
+    %           Contains Cohen's dz and its confidence intervals.
     %       stats.gz: vector of double -> [gz, low_gz, high_gz]
     %           Contains Hedges's gz and its confidence intervals.
     %       stats.p: double
@@ -135,28 +135,28 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     high_gz = ulgt / sqN;
 
     t = mean_diff / (std_diff / sqN);
-    p = 1-tcdf(abs(t), df);
+    p = 1 - tcdf(abs(t), df);
     if strcmp(tail, "two-sided")
         p = p * 2;
     elseif strcmp(tail, "greater") && t < 0
         p = 1 - p;
-    elseif strcmp(tail, "less")  && t > 0
+    elseif strcmp(tail, "less") && t > 0
         p = 1 - p;
     end
 
     % Directed BF not implemented
     if strcmp(tail, "two-sided")
-    % Compute Bayes Factor (Rouder et al., 2009)
-    % Function to be integrated
-    fun = @(g, t, n, r) (1 + n .* g .* r.^2).^(-.5) .* ...
-        (1 + t.^2 ./ ((1 + n .* g .* r.^2) .* (n - 1))).^(-n./2) .* ...
-        (2 .* pi).^(-.5) .* g.^(-3. / 2) .* exp(-1 ./ (2 .* g));
-    % JZS Bayes factor calculation
-    r = sqrt(2) / 2;  % JZS prior
-    numerator = (1 + t^2 / df)^(-(df + 1) / 2);
-    integr = integral(@(g) fun(g, t, n, r), 0, Inf);
-    bf01 = numerator / integr;
-    bf10 = 1 / bf01;
+        % Compute Bayes Factor (Rouder et al., 2009)
+        % Function to be integrated
+        fun = @(g, t, n, r) (1 + n .* g .* r.^2).^(-.5) .* ...
+            (1 + t.^2 ./ ((1 + n .* g .* r.^2) .* (n - 1))).^(-n./2) .* ...
+            (2 .* pi).^(-.5) .* g.^(-3. / 2) .* exp(-1 ./ (2 .* g));
+        % JZS Bayes factor calculation
+        r = sqrt(2) / 2;  % JZS prior
+        numerator = (1 + t^2 / df)^(-(df + 1) / 2);
+        integr = integral(@(g) fun(g, t, n, r), 0, Inf);
+        bf01 = numerator / integr;
+        bf10 = 1 / bf01;
     else
         bf10 = NaN;
     end
