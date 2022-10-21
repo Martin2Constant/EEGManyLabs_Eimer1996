@@ -9,11 +9,11 @@ function mean_rts = get_rts(ERP, mean_rts, row)
     behavior = behavior(ERP.rejected_trials, :);
     % Only keep RTs for trials which contained only one target.
     behavior = behavior(behavior.distractor_array == 1, :);
-    
+
     % Split between letters and colors
     letters = behavior(strcmp(behavior.target_condition, 'letters'), :);
     colors = behavior(strcmp(behavior.target_condition, 'colors'), :);
-    
+
     % Split between congruent and incongruent
     letters_congruent = letters(letters.congruent_response == 1, :);
     letters_incongruent = letters(letters.congruent_response == 0, :);

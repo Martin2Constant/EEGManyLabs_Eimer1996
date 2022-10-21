@@ -1,4 +1,4 @@
-function [mean_amps, between_confidence_intervals, within_confidence_intervals, stats] = custom_paired_t_test(x, y, tail)
+function [mean_amps, between_confidence_intervals, within_confidence_intervals, stats] = custom_paired_t_test(x, y, alpha, tail)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     % Computes paired-sample two-sided t test, BF t test, 95% within-participant CIs,
     % Cohen's dz and its confidence intervals, Hedges' gz and its confidence intervals.
@@ -11,16 +11,18 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     % y: vector of double
     %     Second vector of values to compare, one value per participant.
     %     y(i) should refer to the same participant as x(i).
+    % alpha: double, optional 
+    %     Alpha level of your test. The default is .05.
     % tail : string, optional (one of: "two-sided", "greater", "less")
     %     t-test tail. The default is "two-sided".
     %
     % Notes
     % ----------
-    % The t value is computed from (x - y), so for contra - ipsi comparisons
+    % The t value is computed from (x - y), so for contra minus ipsi comparisons
     % x should be the vector of contralateral amplitudes and y the vector
     % of ipsilateral amplitudes.
     % The same goes for the tail, "less" means that we will test
-    % whether x is less than y.
+    % whether contra (x) is less than ipsi (y).
     %
     % Returns
     % ----------
@@ -68,13 +70,18 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     %
     % * Hedges, L. V. (1981). Distribution theory for Glass’s estimator of effect size and related estimators. Journal of Educational Statistics, 6(2), 107. https://doi.org/10/dbqn45
     %
+    % * Hedges, L. V., & Olkin, I. (1985). Statistical methods for meta-analysis. Academic Press.
+    %
     % * Morey, R. D. (2008). Confidence intervals from normalized data: A correction to Cousineau (2005). Tutorials in Quantitative Methods for psychology, 4(2), 61–64. https://doi.org/10/ggbnjg
     %
     % * Morey, R. D., & Wagenmakers, E.-J. (2014). Simple relation between Bayesian order-restricted and point-null hypothesis tests. Statistics & Probability Letters, 92, 121–124. https://doi.org/10/ggcpcq
     %
     % * Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G. (2009). Bayesian t tests for accepting and rejecting the null hypothesis. Psychonomic Bulletin & Review, 16(2), 225–237. https://doi.org/10/b3hsdp
-    if nargin < 3
-        tail = "two-sided";
+    arguments
+        x double;
+        y double;
+        alpha double = .05;
+        tail string = "two-sided";
     end
     if size(x,1) < size(x,2)
         x = x';
@@ -90,7 +97,6 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     n = length(x);
     df = n-1;
     sqN = sqrt(n);
-    alpha = .05;
 
     % Computing within CIs on normalized dataset (Cousineau, 2005; Morey, 2008; Cousineau & O'Brien, 2014)
     means_participant = means([x'; y'])';
@@ -122,7 +128,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     low_dz = lldt / sqN;
     high_dz = uldt / sqN;
 
-    % Correction factor (Hedges, 1981)
+    % Correction factor (Hedges, 1981, Hedges & Olkins, 1985)
     % Can also be approximated with: Jv = 1 - (3 / (4 * df - 1))
     Jv = exp(gammaln(df / 2) - (log(sqrt(df / 2)) + gammaln((df - 1) / 2)));
 

@@ -1,14 +1,14 @@
 function add_reaction_times(id, filepath, team)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     switch team
-        case 'Asanowicz'
+        case 'Krakow'
             filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i.bdf', team, id);
             filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, id);
             filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
-            % Importing with POz as temporary reference
+            % Importing with POz (chan 30) as temporary reference
             % Re-referenced to average mastoids at a later point.
             EEG = pop_biosig(filename_bdf, 'ref', 30);
-        case 'Liesefeld'
+        case 'Munich'
             filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i.vhdr', team, id);
             filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, id);
             EEG = pop_loadbv([filepath filesep filesep team filesep 'RawData'], filename_eeg);
@@ -36,7 +36,7 @@ function add_reaction_times(id, filepath, team)
         case 'Liesefeld'
             eventlabels = {EEG.event(:).type}';
             % Remove the leading "S"; S255 -> 255
-            clean = cellfun(@(s)sscanf(s,'S%d'), eventlabels, 'UniformOutput', false);
+            clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
         case 'Essex'
             eventlabels = {EEG.event(:).type}';
             clean = eventlabels;
@@ -107,8 +107,8 @@ function add_reaction_times(id, filepath, team)
 
     % Check several times to make sure it's all compliant with EEGLAB expectations
     EEG = eeg_checkset(EEG);
-    EEG = eeg_checkset(EEG,'makeur');
-    EEG = eeg_checkset(EEG,'eventconsistency');
+    EEG = eeg_checkset(EEG, 'makeur');
+    EEG = eeg_checkset(EEG, 'eventconsistency');
     EEG = eeg_checkset(EEG);
     EEG = pop_saveset(EEG, 'filename', filename_tosave, 'filepath', [filepath filesep team filesep 'EEG']);
 end

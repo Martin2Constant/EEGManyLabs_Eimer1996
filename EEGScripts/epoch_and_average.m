@@ -1,4 +1,4 @@
-function epoch_and_average(participant_nr, filepath, team)
+function epoch_and_average(participant_nr, filepath, team),
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     filtered = sprintf('%s_participant%i_filtered.set', team, participant_nr);
     epoched = sprintf('%s_participant%i_epoched.set', team, participant_nr);
@@ -8,7 +8,7 @@ function epoch_and_average(participant_nr, filepath, team)
     EEG = eeg_checkset(EEG);
 
     % Assign bins to each epoch based on ./bins.txt
-    EEG  = pop_binlister(EEG, 'BDF', [filepath filesep 'bins.txt'], 'IndexEL', 1, 'SendEL2', 'EEG', 'UpdateEEG', 'on', 'Voutput', 'EEG' );
+    EEG = pop_binlister(EEG, 'BDF', [filepath filesep 'bins.txt'], 'IndexEL', 1, 'SendEL2', 'EEG', 'UpdateEEG', 'on', 'Voutput', 'EEG' );
     EEG = eeg_checkset(EEG);
 
     % Create epochs from -100 ms to 600 ms and baseline correct to
@@ -18,7 +18,7 @@ function epoch_and_average(participant_nr, filepath, team)
     % after letter onset."
     % "All measures were taken relative to the mean voltage of the 100 ms
     % interval preceding the onset of the stimulus array."
-    EEG = pop_epochbin(EEG, [-100.0  600+(1000/EEG.srate)], 'pre');
+    EEG = pop_epochbin(EEG, [-100.0 600+(1000/EEG.srate)], 'pre');
     EEG = eeg_checkset(EEG);
     chanlocs = {EEG.chanlocs(:).labels}';
     nb_chans = size(EEG.data, 1);
@@ -42,9 +42,9 @@ function epoch_and_average(participant_nr, filepath, team)
         sprintf('ch%i = ch%i-ch%i label HEOG', HEOG_index, LO1_index, LO2_index)}, ...
         'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on', 'Saveas', 'off');
     % "Trials with eyeblinks (VEOG amplitude exceeding +/- 60 µV)"
-    EEG  = pop_artextval(EEG, 'Channel', VEOG_index, 'Flag', [ 1 2], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
+    EEG = pop_artextval(EEG, 'Channel', VEOG_index, 'Flag', [ 1 2], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
     % "horizontal eye movements (HEOG amplitude exceeding +/- 25 µV)"
-    EEG  = pop_artextval(EEG, 'Channel', HEOG_index, 'Flag', [ 1 3], 'LowPass', -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
+    EEG = pop_artextval(EEG, 'Channel', HEOG_index, 'Flag', [ 1 3], 'LowPass', -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
 
     EEG = eeg_checkset(EEG, 'eventconsistency' );
     EEG = eeg_checkset(EEG);
@@ -57,10 +57,10 @@ function epoch_and_average(participant_nr, filepath, team)
     ERP = pop_averager(EEG, 'Criterion', 'good', 'DQ_custom_wins', 0, 'DQ_flag', 1, 'DQ_preavg_txt', 0, 'ExcludeBoundary', 'on', 'SEM', 'on' );
 
     switch team
-        case 'Liesefeld'
+        case 'Munich'
             LeftChans = 'Lch = [ 1 34 3 35 4 5 7 37 6 38 8 39 9 11 41 10 42 13 43 14 15 32 31 36 40 45 44 2 12 16 22 33 46 51 63];';
             RightChans = 'Rch = [ 30 61 28 58 29 25 27 56 26 55 23 54 24 21 52 20 50 18 49 19 17 60 59 57 53 47 48 2 12 16 22 33 46 51 63];';
-        case 'Asanowicz'
+        case 'Krakow'
             LeftChans = 'Lch = [ 1 3 2 4:8 11:-1:9 12:16 19:-1:17 20:24 26 25 27 67 28:33 37 38 47 48 69 70];';
             RightChans = 'Rch = [ 34 36 35 39:43 46:-1:44 49:53 56:-1:54 57:61 63 62 64 68 28:33 37 38 47 48 69 70];';
         case 'Essex'

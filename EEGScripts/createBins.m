@@ -1,9 +1,9 @@
 function createBins()
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     % Create bins.txt file if it doesn't exist
-    FID = fopen('bins.txt','w');
-    for i = 1:12
-        switch i
+    FID = fopen('bins.txt', 'w');
+    for bin = 1:12
+        switch bin
             case 1
                 fprintf(FID, 'bin 1\nLeft M\n.{111}{71}\n\n');
             case 2
