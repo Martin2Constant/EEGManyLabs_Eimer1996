@@ -43,7 +43,7 @@ function epoch_and_average(participant_nr, filepath, team),
         {sprintf('ch%i = ch%i-ch%i label VEOG', VEOG_index, SO2_index, IO2_index), ...
         sprintf('ch%i = ch%i-ch%i label HEOG', HEOG_index, LO1_index, LO2_index)}, ...
         'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on', 'Saveas', 'off');
-
+    
     % Removing trials with flat PO7/PO8/EOGs
     % Deviates from original study.
     EEG  = pop_artflatline(EEG , 'Channel', [PO7_index PO8_index IO2_index LO1_index LO2_index SO2_index],...
@@ -82,8 +82,8 @@ function epoch_and_average(participant_nr, filepath, team),
             LeftChans = 'Lch = [ 1 3 2 4:8 11:-1:9 12:16 19:-1:17 20:24 26 25 27 67 28:33 37 38 47 48 69 70];';
             RightChans = 'Rch = [ 34 36 35 39:43 46:-1:44 49:53 56:-1:54 57:61 63 62 64 68 28:33 37 38 47 48 69 70];';
         case 'Essex'
-            LeftChans ='Lch = [ 1 4 8 7 11 12 16 15 21 20 25 2 5 17 22 29 30];';
-            RightChans ='Rch = [ 3:3:9 10 14 13 18 19 23 24 26 2 5 17 22 29 30];';
+            LeftChans ='Lch = [ 1 4 8 7 11 12 16 15 21 20 25 2 5 17 22 29];';
+            RightChans ='Rch = [ 3:3:9 10 14 13 18 19 23 24 26 2 5 17 22 29];';
     end
 
     % Create contra and ipsi waves

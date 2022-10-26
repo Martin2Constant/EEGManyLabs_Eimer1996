@@ -1,7 +1,7 @@
 function extract_results(filepath, team)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     files = dir(fullfile([filepath filesep team filesep 'ERP'], [team '_participant*.erp']));
-    mean_rts = table('Size',[length(files), 2], ...
+    mean_rts = table('Size',[length(files), 7], ...
         'VariableTypes', {'uint8', 'double', 'double', 'double', 'double', 'double', 'double'}, ...
         'VariableNames', {'ID', 'RT_letters', 'RT_colors',...
         'RT_congruent_letters', 'RT_incongruent_letters',...
@@ -25,8 +25,8 @@ function extract_results(filepath, team)
     colors_ipsi_amp = colors_amp(2,:)';
 
     % Run paired-sample t-test on amplitude values and RTs
-    [mean_amps_letters, between_ci_amp_letters, within_ci_amp_letters, stats_amp_letters] = custom_paired_t_test(x=letters_contra_amp, y=letters_ipsi_amp, alpha=0.02, tail="less");
-    [mean_amps_colors, between_ci_amp_colors, within_ci_amp_colors, stats_amp_colors] = custom_paired_t_test(x=colors_contra_amp, y=colors_ipsi_amp, alpha=0.02, tail="less");
+    [mean_amps_letters, between_ci_amp_letters, within_ci_amp_letters, stats_amp_letters] = custom_paired_t_test(letters_contra_amp, letters_ipsi_amp, 0.02, "less");
+    [mean_amps_colors, between_ci_amp_colors, within_ci_amp_colors, stats_amp_colors] = custom_paired_t_test(colors_contra_amp, colors_ipsi_amp, 0.02, "less");
     [mean_rt, between_ci_rt, within_ci_rt, stats_rt] = custom_paired_t_test(mean_rts.RT_letters, mean_rts.RT_colors);
     save(sprintf('%s%s%s%sResults%sresults_letters.mat', filepath, filesep, team, filesep, filesep), 'mean_amps_letters', 'between_ci_amp_letters', 'within_ci_amp_letters', 'stats_amp_letters');
     save(sprintf('%s%s%s%sResults%sresults_colors.mat', filepath, filesep, team, filesep, filesep), 'mean_amps_colors', 'between_ci_amp_colors', 'within_ci_amp_colors', 'stats_amp_colors');
