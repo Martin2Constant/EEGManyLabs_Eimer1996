@@ -26,14 +26,14 @@ function add_reaction_times(id, filepath, team)
     EEG.behavior = behavior;
 
     switch team
-        case 'Asanowicz'
+        case 'Krakow'
             eventlabels = {EEG.event(:).type}';
             % Remove marker offset; 65535 -> 255
             for i = 1:length(eventlabels)
                 eventlabels{i} = eventlabels{i} - (2^16 - 2^8);
             end
             clean = eventlabels;
-        case 'Liesefeld'
+        case 'Munich'
             eventlabels = {EEG.event(:).type}';
             % Remove the leading "S"; S255 -> 255
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
