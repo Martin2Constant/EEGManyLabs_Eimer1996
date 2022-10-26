@@ -1,4 +1,4 @@
-function eeg_analysis(preprocess, extract_results, participant_list, filepath)
+function eeg_analysis(preprocess, get_results, participant_list, filepath)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     % Running on GNU/Linux Debian 10 with:
     % MATLAB R2021a
@@ -15,7 +15,7 @@ function eeg_analysis(preprocess, extract_results, participant_list, filepath)
     % clean_rawdata v2.7.0
     arguments
         preprocess logical = true;
-        extract_results logical = true;
+        get_results logical = true;
         participant_list double = [1];
         filepath char = fileparts(mfilename('fullpath'));
     end
@@ -26,7 +26,7 @@ function eeg_analysis(preprocess, extract_results, participant_list, filepath)
     end
     eeglab; close;
     msg = 'Which team?';
-    opts = ["Munich" "Krakow" "Essex"];
+    opts = ["Munich", "Krakow", "Essex"];
     choice = menu(msg, opts);
     team = char(opts(choice));
     if ~exist(team, 'dir')
@@ -57,7 +57,7 @@ function eeg_analysis(preprocess, extract_results, participant_list, filepath)
             epoch_and_average(participant_nr, filepath, team)
         end
     end
-    if extract_results
+    if get_results
         extract_results(filepath, team)
     end
 end
