@@ -117,8 +117,17 @@ function filter_and_resample(participant_nr, filepath, team)
 
     % Convert our markers to ERPLAB-compatible format
     EEG = pop_creabasiceventlist( EEG, 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' } );
-
-    % Save the file.
     EEG = eeg_checkset( EEG );
+
+    % Try to save in MAT files in v6 format, if it doesn't work, save in v7.3
+    EEGs = EEG;
+    lastwarn('');
+    pop_editoptions('option_saveversion6', 1);
     EEG = pop_saveset(EEG, 'filename', savename, 'filepath', [filepath filesep team filesep 'EEG']);
+    if strcmpi(lastwarn, "Variable 'EEG' was not saved. For variables larger than 2GB use MAT-file version 7.3 or later.")
+        pop_editoptions('option_saveversion6', 0);
+        EEG = EEGs;
+        EEG = pop_saveset(EEG, 'filename', savename, 'filepath', [filepath filesep team filesep 'EEG']);
+        pop_editoptions('option_saveversion6', 1);
+    end
 end

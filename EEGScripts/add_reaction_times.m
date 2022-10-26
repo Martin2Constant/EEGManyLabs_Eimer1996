@@ -110,5 +110,16 @@ function add_reaction_times(id, filepath, team)
     EEG = eeg_checkset(EEG, 'makeur');
     EEG = eeg_checkset(EEG, 'eventconsistency');
     EEG = eeg_checkset(EEG);
+
+    % Try to save in MAT files in v6 format, if it doesn't work, save in v7.3
+    EEGs = EEG;
+    lastwarn('');
+    pop_editoptions('option_saveversion6', 1);
     EEG = pop_saveset(EEG, 'filename', filename_tosave, 'filepath', [filepath filesep team filesep 'EEG']);
+    if strcmpi(lastwarn, "Variable 'EEG' was not saved. For variables larger than 2GB use MAT-file version 7.3 or later.")
+        pop_editoptions('option_saveversion6', 0);
+        EEG = EEGs;
+        EEG = pop_saveset(EEG, 'filename', filename_tosave, 'filepath', [filepath filesep team filesep 'EEG']);
+        pop_editoptions('option_saveversion6', 1);
+    end
 end
