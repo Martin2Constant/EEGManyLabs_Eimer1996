@@ -1,4 +1,4 @@
-function EEG_Analysis(Preprocess, ExtractResults, participant_list, filepath)
+function eeg_analysis(preprocess, extract_results, participant_list, filepath)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     % Running on GNU/Linux Debian 10 with:
     % MATLAB R2021a
@@ -14,13 +14,13 @@ function EEG_Analysis(Preprocess, ExtractResults, participant_list, filepath)
     % firfilt v2.6.0
     % clean_rawdata v2.7.0
     arguments
-        Preprocess logical = true;
-        ExtractResults logical = true;
+        preprocess logical = true;
+        extract_results logical = true;
         participant_list double = [1];
         filepath char = fileparts(mfilename('fullpath'));
     end
     cd(filepath);
-    addpath([filepath filesep 'EEGScripts']);
+    addpath([filepath filesep 'Analysis_Scripts']);
     if ~isfile('./bins.txt')
         createBins();
     end
@@ -47,16 +47,17 @@ function EEG_Analysis(Preprocess, ExtractResults, participant_list, filepath)
     if ~exist(sprintf('%s%sRawData', team, filesep), 'dir')
         mkdir(sprintf('%s%sRawData', team, filesep));  % Place raw EEG and behavior file here
     end
-    % Change EEGLAB default options to keep double precision throughout the pipeline.
-    pop_editoptions('option_savetwofiles', 0, 'option_single', 0);
+    % Change EEGLAB default options to keep double precision throughout 
+    % the pipeline and use the ERPLAB compatibility option.
+    pop_editoptions('option_savetwofiles', 0, 'option_single', 0, 'option_boundary99', 1);
     for participant_nr = participant_list
-        if Preprocess
+        if preprocess
             add_reaction_times(participant_nr, filepath, team)
             filter_and_resample(participant_nr, filepath, team)
             epoch_and_average(participant_nr, filepath, team)
         end
     end
-    if ExtractResults
+    if extract_results
         extract_results(filepath, team)
     end
 end
