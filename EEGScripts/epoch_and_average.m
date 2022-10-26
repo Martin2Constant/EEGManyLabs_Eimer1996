@@ -23,6 +23,7 @@ function epoch_and_average(participant_nr, filepath, team),
     chanlocs = {EEG.chanlocs(:).labels}';
     nb_chans = size(EEG.data, 1);
     PO7_index = find(strcmpi(chanlocs, 'PO7'));
+    PO8_index = find(strcmpi(chanlocs, 'PO8'));
     IO2_index = find(strcmpi(chanlocs, 'IO2'));
     LO1_index = find(strcmpi(chanlocs, 'LO1'));
     LO2_index = find(strcmpi(chanlocs, 'LO2'));
@@ -41,6 +42,12 @@ function epoch_and_average(participant_nr, filepath, team),
         {sprintf('ch%i = ch%i-ch%i label VEOG', VEOG_index, SO2_index, IO2_index), ...
         sprintf('ch%i = ch%i-ch%i label HEOG', HEOG_index, LO1_index, LO2_index)}, ...
         'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on', 'Saveas', 'off');
+
+    % Removing trials with flat PO7/PO8/EOGs
+    EEG  = pop_artflatline(EEG , 'Channel', [PO7_index PO8_index IO2_index LO1_index LO2_index SO2_index],...
+        'Duration',  350, 'Flag', [ 1 4], 'LowPass',  -1,...
+        'Threshold', [ -1 1], 'Twindow', [ -100 600] );
+
     % "Trials with eyeblinks (VEOG amplitude exceeding +/- 60 µV)"
     EEG = pop_artextval(EEG, 'Channel', VEOG_index, 'Flag', [ 1 2], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
     % "horizontal eye movements (HEOG amplitude exceeding +/- 25 µV)"
