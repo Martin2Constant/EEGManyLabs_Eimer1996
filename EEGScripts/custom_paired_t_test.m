@@ -172,6 +172,8 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     between_confidence_intervals = [between_x_ci, between_y_ci];
     within_confidence_intervals = [within_x_ci, within_y_ci];
     stats.t = t;
+    stats.alpha = alpha;
+    stats.n = n;
     stats.df = df;
     stats.dz = [cohen_dz, low_dz, high_dz];
     stats.gz = [hedges_gz, low_gz, high_gz];
@@ -180,8 +182,8 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     stats.mean_diff = mean_diff;
     stats.diff_ci = diff_ci;
     if p <= alpha
-        stats.reject_null = true;
+        stats.reject_null = "rejected";
     else
-        stats.reject_null = false;
+        stats.reject_null = "not rejected";
     end
 end
