@@ -1,38 +1,41 @@
 function extract_results(filepath, team)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
-    files = dir(fullfile([team filesep 'ERP'], [team '_participant*.erp']));
+    files = dir(fullfile([filepath filesep team filesep 'ERP'], [team '_participant*.erp']));
     mean_rts = table('Size',[length(files), 2], ...
-        'VariableTypes', {'double', 'double'}, ...
-        'VariableNames', {'RT_letters', 'RT_colors'});
-    for sub = 1:length(files)
-        erp_name = files(sub).name;
-        ERP = pop_loaderp( 'filename', erp_name, 'filepath', files(sub).folder);
-        mean_rts = get_rts(ERP, mean_rts, sub);
-        ALLERP(sub) = ERP;
+        'VariableTypes', {'uint8', 'double', 'double', 'double', 'double', 'double', 'double'}, ...
+        'VariableNames', {'ID', 'RT_letters', 'RT_colors',...
+        'RT_congruent_letters', 'RT_incongruent_letters',...
+        'RT_congruent_colors', 'RT_incongruent_colors'});
+    for id = 1:length(files)
+        erp_name = files(id).name;
+        ERP = pop_loaderp( 'filename', erp_name, 'filepath', files(id).folder);
+        % Extract RTs from behavioral file stored in ERP struct
+        mean_rts = get_rts(ERP, mean_rts, id);
+        ALLERP(id) = ERP;
     end
-    
+
     % Extract amplitude values for each condition
     [ALLERP, letters_amp] = pop_geterpvalues( ALLERP, [220 300],  [13 14], [ERP.PO7_8_index], 'Baseline', 'pre', 'Erpsets', 1:length(ALLERP), 'FileFormat', 'wide', 'Filename',...
         [filepath filesep team filesep 'Results' filesep 'mean_amp_letters_N2pc.txt'], 'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'meanbl', 'PeakOnset',  1, 'Resolution',  9 );
     [ALLERP, colors_amp] = pop_geterpvalues( ALLERP, [220 300],  [16 17], [ERP.PO7_8_index], 'Baseline', 'pre', 'Erpsets', 1:length(ALLERP), 'FileFormat', 'wide', 'Filename',...
-            [filepath filesep team filesep 'Results' filesep 'mean_amp_colors_N2pc.txt'], 'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'meanbl', 'PeakOnset',  1, 'Resolution',  9 );
+        [filepath filesep team filesep 'Results' filesep 'mean_amp_colors_N2pc.txt'], 'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'meanbl', 'PeakOnset',  1, 'Resolution',  9 );
     letters_contra_amp = letters_amp(1,:)';
     letters_ipsi_amp = letters_amp(2,:)';
     colors_contra_amp = colors_amp(1,:)';
     colors_ipsi_amp = colors_amp(2,:)';
 
     % Run paired-sample t-test on amplitude values and RTs
-    [mean_amps_letters, between_ci_amp_letters, within_ci_amp_letters, stats_amp_letters] = custom_paired_t_test(letters_contra_amp, letters_ipsi_amp, 0.02, "less");
-    [mean_amps_colors, between_ci_amp_colors, within_ci_amp_colors, stats_amp_colors] = custom_paired_t_test(colors_contra_amp, colors_ipsi_amp, 0.02, "less");
+    [mean_amps_letters, between_ci_amp_letters, within_ci_amp_letters, stats_amp_letters] = custom_paired_t_test(x=letters_contra_amp, y=letters_ipsi_amp, alpha=0.02, tail="less");
+    [mean_amps_colors, between_ci_amp_colors, within_ci_amp_colors, stats_amp_colors] = custom_paired_t_test(x=colors_contra_amp, y=colors_ipsi_amp, alpha=0.02, tail="less");
     [mean_rt, between_ci_rt, within_ci_rt, stats_rt] = custom_paired_t_test(mean_rts.RT_letters, mean_rts.RT_colors);
-    save('results_letters.mat', 'mean_amps_letters', 'between_ci_amp_letters', 'within_ci_amp_letters', 'stats_amp_letters');
-    save('results_colors.mat', 'mean_amps_colors', 'between_ci_amp_colors', 'within_ci_amp_colors', 'stats_amp_colors');
-    save('results_rt.mat', 'mean_rt', 'between_ci_rt', 'within_ci_rt', 'stats_rt');
+    save(sprintf('%s%s%s%sResults%sresults_letters.mat', filepath, filesep, team, filesep, filesep), 'mean_amps_letters', 'between_ci_amp_letters', 'within_ci_amp_letters', 'stats_amp_letters');
+    save(sprintf('%s%s%s%sResults%sresults_colors.mat', filepath, filesep, team, filesep, filesep), 'mean_amps_colors', 'between_ci_amp_colors', 'within_ci_amp_colors', 'stats_amp_colors');
+    save(sprintf('%s%s%s%sResults%sresults_rt.mat', filepath, filesep, team, filesep, filesep), 'mean_rt', 'between_ci_rt', 'within_ci_rt', 'stats_rt');
     amplitudes_table = table(letters_ipsi_amp, letters_contra_amp, ...
         colors_ipsi_amp, colors_contra_amp, ...
         'VariableNames', {'Letters_ipsi', 'Letters_contra', 'Colors_ipsi', 'Colors_contra'});
     writetable(amplitudes_table, sprintf('%s%s%s%sResults%samplitudes_table.csv', filepath, filesep, team, filesep, filesep));
-    
+
     % Write results of t-tests to console and files.
     letters_output = sprintf("For the team %s, letters distractor arrays between 220 ms and 300 ms with correct responses:\n" + ...
         "The mean contralateral amplitude is %.2f µV ± %.2f.\n" + ...
@@ -50,7 +53,7 @@ function extract_results(filepath, team)
         stats_amp_letters.dz(1), stats_amp_letters.dz(2), stats_amp_letters.dz(3),...
         stats_amp_letters.gz(1), stats_amp_letters.gz(2), stats_amp_letters.gz(3),...
         stats_amp_letters.reject_null)
-    
+
     letters_fileID = fopen(sprintf('%s%s%s%sResults%sletters_output.txt', filepath, filesep, team, filesep, filesep), 'w');
     fprintf(letters_fileID, letters_output);
     fclose(letters_fileID);
@@ -71,7 +74,7 @@ function extract_results(filepath, team)
         stats_amp_colors.dz(1), stats_amp_colors.dz(2), stats_amp_colors.dz(3),...
         stats_amp_colors.gz(1), stats_amp_colors.gz(2), stats_amp_colors.gz(3),...
         stats_amp_colors.reject_null)
-    
+
     colors_fileID = fopen(sprintf('%s%s%s%sResults%scolors_output.txt', filepath, filesep, team, filesep, filesep), 'w');
     fprintf(colors_fileID, colors_output);
     fclose(colors_fileID);

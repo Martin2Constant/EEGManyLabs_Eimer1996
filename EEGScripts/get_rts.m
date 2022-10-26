@@ -20,6 +20,7 @@ function mean_rts = get_rts(ERP, mean_rts, row)
     colors_congruent = colors(colors.congruent_response == 1, :);
     colors_incongruent = colors(colors.congruent_response == 0, :);
 
+    mean_rts.ID(row) = unique(behavior.subject_nr);
     mean_rts.RT_letters(row) = mean(letters.response_time);
     mean_rts.RT_colors(row) = mean(colors.response_time);
     mean_rts.RT_congruent_letters(row) = mean(letters_congruent.response_time);
