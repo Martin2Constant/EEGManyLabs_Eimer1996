@@ -22,7 +22,7 @@ function eeg_analysis(preprocess, get_results, participant_list, filepath)
     cd(filepath);
     addpath([filepath filesep 'Analysis_Scripts']);
     if ~isfile('./bins.txt')
-        createBins();
+        create_bins();
     end
     eeglab; close;
     msg = 'Which team?';
