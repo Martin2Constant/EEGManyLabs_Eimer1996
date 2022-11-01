@@ -1,4 +1,4 @@
-function epoch_and_average(participant_nr, filepath, team),
+function epoch_and_average(participant_nr, filepath, team)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     filtered = sprintf('%s_participant%i_filtered.set', team, participant_nr);
     epoched = sprintf('%s_participant%i_epoched.set', team, participant_nr);
