@@ -1,31 +1,6 @@
-function add_reaction_times(id, filepath, team)
+function harmonize_markers(EEG, filepath)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
-    switch team
-        case 'Krakow'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i.bdf', team, id);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, id);
-            filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
-            % Importing with POz (chan 30) as temporary reference
-            % Re-referenced to average mastoids at a later point.
-            EEG = pop_biosig(filename_bdf, 'ref', 30);
-        case 'Munich'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i.vhdr', team, id);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, id);
-            EEG = pop_loadbv([filepath filesep filesep team filesep 'RawData'], filename_eeg);
-        case 'Essex'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i.cdt', team, id);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i.csv', team, id);
-            filename_cdt = [filepath filesep team filesep 'RawData' filesep filename_eeg];
-            EEG = loadcurry(filename_cdt, 'KeepTriggerChannel', 'True', 'CurryLocations', 'False');
-    end
-
-    filename_tosave = sprintf('%s_participant%i_RT.set', team, id);
-    % Add behavior table (without practice trials) to EEG object
-    behavior = readtable([filepath filesep team filesep 'RawData' filesep filename_behavior]);
-    behavior = behavior(behavior.Practice == 0, :);
-    EEG.behavior = behavior;
-
-    switch team
+    switch EEG.team
         case 'Krakow'
             eventlabels = {EEG.event(:).type}';
             % Remove marker offset; 65535 -> 255
@@ -115,11 +90,11 @@ function add_reaction_times(id, filepath, team)
     EEGs = EEG;
     lastwarn('');
     pop_editoptions('option_saveversion6', 1);
-    EEG = pop_saveset(EEG, 'filename', filename_tosave, 'filepath', [filepath filesep team filesep 'EEG']);
+    EEG = pop_saveset(EEG, 'filename', [EEG.setname '.set'], 'filepath', [filepath filesep EEG.team filesep 'EEG']);
     if strcmpi(lastwarn, "Variable 'EEG' was not saved. For variables larger than 2GB use MAT-file version 7.3 or later.")
         pop_editoptions('option_saveversion6', 0);
         EEG = EEGs;
-        EEG = pop_saveset(EEG, 'filename', filename_tosave, 'filepath', [filepath filesep team filesep 'EEG']);
+        EEG = pop_saveset(EEG, 'filename', [EEG.setname '.set'], 'filepath', [filepath filesep EEG.team filesep 'EEG']);
         pop_editoptions('option_saveversion6', 1);
     end
 end
