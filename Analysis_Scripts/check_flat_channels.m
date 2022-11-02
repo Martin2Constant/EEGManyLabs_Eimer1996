@@ -7,7 +7,7 @@ function check_flat_channels(EEG, channels)
     % Transition width 0.5 Hz, stopband 0-0.0 Hz, passband 0.5 Hz - Nyquist
     % Max. passband deviation 0.0022 (0.22%), stopband attenuation -53 dB
     %
-    % Then remove periods with no markers for more than 5 seconds.
+    % Then remove time segments with no markers for more than 5 seconds.
     % Then checks whether M1, M2, PO7 or PO8 are flat for more than 30 seconds.
     % Deviates from original study.
     arguments
