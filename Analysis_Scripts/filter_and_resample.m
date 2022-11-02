@@ -6,6 +6,7 @@ function filter_and_resample(participant_nr, filepath, team)
     switch team
         case 'Munich'
             % Check for flat M1, M2, PO7 or PO8.
+            % Throws an error if any are flat.
             % Deviates from original study.
             check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'});
 
@@ -17,6 +18,7 @@ function filter_and_resample(participant_nr, filepath, team)
 
         case 'Krakow'
             % Check for flat M1, M2, PO7 or PO8.
+            % Throws an error if any are flat.
             % Deviates from original study.
             check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'});
 
@@ -27,6 +29,7 @@ function filter_and_resample(participant_nr, filepath, team)
         case 'Essex'
             % Check for flat M2, PO7 or PO8.
             % M1 is online reference.
+            % Throws an error if any are flat.
             % Deviates from original study 
             check_flat_channels(EEG, {'PO7', 'PO8', 'M2'});
             
