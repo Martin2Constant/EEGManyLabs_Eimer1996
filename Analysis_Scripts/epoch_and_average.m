@@ -124,7 +124,7 @@ function epoch_and_average(participant_nr, filepath, team)
     ERP.rejected_trials = logical(EEG.reject.rejmanual);
     % "A maximal residual EOG deviation exceeding +/- 2 µV would have led
     % to the disqualification of the subject."
-    if abs(mean(ERP.bindata(ERP.LO1_2_index, :, 21))) >= 2
+    if abs(max(ERP.bindata(ERP.LO1_2_index, :, 21))) >= 2
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name], 'filename', ['excluded_' erp_name '.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<NASGU>
     else
         ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP'], 'Warning', 'off'); %#ok<NASGU>

@@ -12,7 +12,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     %     Second vector of values to compare, one value per participant.
     %     y(i) should refer to the same participant as x(i).
     % alpha: double, optional 
-    %     Alpha level of your test. The default is .05.
+    %     Significance threshold of the test. The default is .02.
     % tail : string, optional (one of: "two-sided", "greater", "less")
     %     t-test tail. The default is "two-sided".
     %
@@ -36,6 +36,10 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     %     Structure containing:
     %       stats.t: double
     %           T value.
+    %       stats.alpha: double
+    %           Significance threshold for that test.
+    %       stats.n: double
+    %           Number of data points
     %       stats.df: double
     %           Degrees of freedom used to compute BF and p value.
     %       stats.dz: vector of double -> [dz, low_dz, high_dz]
@@ -43,16 +47,16 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     %       stats.gz: vector of double -> [gz, low_gz, high_gz]
     %           Contains Hedges's gz and its confidence intervals.
     %       stats.p: double
-    %           P value.
+    %           Computed p value.
     %       stats.bf10: double or NaN (if tail is not two-sided)
     %           Bayes Factor for the alternative hypothesis.
     %       stats.mean_diff: double
     %           Mean difference of (x - y).
     %       stats.diff_ci: double
     %           Within-participant confidence interval of the (x - y) difference.
-    %       stats.reject_null: logical
+    %       stats.reject_null: string
     %           Whether the null hypothesis should be rejected.
-    %           true if p <= alpha else false.
+    %           "rejected" if p <= alpha else "not rejected".
     %
     % References
     % ----------
@@ -77,17 +81,17 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     % * Morey, R. D., & Wagenmakers, E.-J. (2014). Simple relation between Bayesian order-restricted and point-null hypothesis tests. Statistics & Probability Letters, 92, 121–124. https://doi.org/10/ggcpcq
     %
     % * Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G. (2009). Bayesian t tests for accepting and rejecting the null hypothesis. Psychonomic Bulletin & Review, 16(2), 225–237. https://doi.org/10/b3hsdp
-    arguments
-        x double;
-        y double;
-        alpha double = .05;
+    arguments (Input)
+        x (:, 1) double;
+        y (:, 1) double;
+        alpha double = .02;
         tail string = "two-sided";
     end
-    if size(x,1) < size(x,2)
-        x = x';
-    end
-    if size(y,1) < size(y,2)
-        y = y';
+    arguments (Output)
+        mean_amps (1, 2) double;
+        between_confidence_intervals (1, 2) double;
+        within_confidence_intervals (1, 2) double;
+        stats struct;
     end
 
     mean_x = mean(x);
