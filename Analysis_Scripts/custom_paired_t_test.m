@@ -122,10 +122,11 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     between_y_ci = (std(y) / sqN) * critical_t;
     within_x_ci = (std(norm_x) / sqN) * critical_t;
     within_y_ci = (std(norm_y) / sqN) * critical_t;
-    diff_ci = (std(norm_x - norm_y) / sqN) * critical_t;
+    diff_ci = (std_diff / sqN) * critical_t;
 
     cohen_dz = mean_diff / std_diff;  % Cohen's dz for difference scores, (Cohen, 1988)
 
+    % Fitts (2020); Goulet-Pelletier & Cousineau (2018, 2019)
     non_central_parameter_dz = cohen_dz * sqN;  % Non-central parameter
     lldt = nctinv(alpha / 2, df, non_central_parameter_dz);  % lower-limit non-central t
     uldt = nctinv(1 - alpha / 2, df, non_central_parameter_dz);  % upper-limit non-central t
@@ -138,6 +139,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
 
     hedges_gz = cohen_dz * Jv;  % Hedges' gz for unbiased estimation of the effect size
 
+    % Fitts (2020); Goulet-Pelletier & Cousineau (2018, 2019)
     non_central_parameter_gz = hedges_gz * sqN;  % Non-central parameter
     llgt = nctinv(alpha / 2, df, non_central_parameter_gz);  % lower-limit non-central t
     ulgt = nctinv(1 - alpha / 2, df, non_central_parameter_gz);  % upper-limit non-central t
