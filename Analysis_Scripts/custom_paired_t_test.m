@@ -149,23 +149,23 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     high_gz = ulgt / sqN;
     
     % Fitts (2020); Eq. 5
-    dz_var = (1/n) * (df / (df-2)) * (1 + n * dz^2) - (dz^2) / (Jv^2);
+    dz_var = (1/n) * (df / (df-2)) * (1 + n * cohen_dz^2) - (cohen_dz^2) / (Jv^2);
 
     % Fitts (2020); Eq. 8b
     gz_var = dz_var*Jv^2;
 
     t = mean_diff / (std_diff / sqN);
     p = 1 - tcdf(abs(t), df);
-    if strcmp(tail, "two-sided")
+    if tail == "two-sided"
         p = p * 2;
-    elseif strcmp(tail, "greater") && t < 0
+    elseif tail == "greater" && t < 0
         p = 1 - p;
-    elseif strcmp(tail, "less") && t > 0
+    elseif tail == "less" && t > 0
         p = 1 - p;
     end
 
     % Directed BF not implemented
-    if strcmp(tail, "two-sided")
+    if tail == "two-sided"
         % Compute Bayes Factor (Rouder et al., 2009)
         % Function to be integrated
         fun = @(g, t, n, r) (1 + n .* g .* r.^2).^(-.5) .* ...
