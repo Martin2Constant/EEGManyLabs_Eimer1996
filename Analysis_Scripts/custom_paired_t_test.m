@@ -42,10 +42,10 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     %           Number of data points
     %       stats.df: double
     %           Degrees of freedom used to compute BF and p value.
-    %       stats.dz: vector of double -> [dz, low_dz, high_dz]
-    %           Contains Cohen's dz and its confidence intervals.
-    %       stats.gz: vector of double -> [gz, low_gz, high_gz]
-    %           Contains Hedges's gz and its confidence intervals.
+    %       stats.dz: struct with fields -> eff, low_ci, high_ci, se
+    %           Contains Cohen's dz, its confidence intervals and its standard error.
+    %       stats.gz: struct with fields -> eff, low_ci, high_ci, se
+    %           Contains Hedges's gz, its confidence intervals and its standard error.
     %       stats.p: double
     %           Computed p value.
     %       stats.bf10: double or NaN (if tail is not two-sided)
@@ -108,11 +108,11 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     nb_cond = 2;
     correction = sqrt(nb_cond / (nb_cond - 1));
 
-    % Cousineau & O'Brien (2014) Eq. 2 -> Ysj = Xsj - mean(Xs) + mean(X)
+    % Cousineau & O'Brien (2014); Eq. 2 -> Ysj = Xsj - mean(Xs) + mean(X)
     norm_x = x - means_participant + grand_average;
     norm_y = y - means_participant + grand_average;
 
-    % Cousineau & O'Brien (2014) Eq. 4 -> Zsj = correction * (Ysj - mean(Yj)) + mean(Yj)
+    % Cousineau & O'Brien (2014); Eq. 4 -> Zsj = correction * (Ysj - mean(Yj)) + mean(Yj)
     norm_x = correction * (norm_x - mean(norm_x)) + mean(norm_x);
     norm_y = correction * (norm_y - mean(norm_y)) + mean(norm_y);
 
@@ -123,7 +123,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     within_x_ci = (std(norm_x) / sqN) * critical_t;
     within_y_ci = (std(norm_y) / sqN) * critical_t;
     diff_ci = (std_diff / sqN) * critical_t;
-
+    
     cohen_dz = mean_diff / std_diff;  % Cohen's dz for difference scores, (Cohen, 1988)
 
     % Fitts (2020); Goulet-Pelletier & Cousineau (2018, 2019)
@@ -134,9 +134,11 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     high_dz = uldt / sqN;
 
     % Correction factor (Hedges, 1981, Hedges & Olkins, 1985)
+    % Fitts (2020); Eq. 7
     % Can also be approximated with: Jv = 1 - (3 / (4 * df - 1))
     Jv = exp(gammaln(df / 2) - (log(sqrt(df / 2)) + gammaln((df - 1) / 2)));
-
+    
+    % Fitts (2020); Eq. 8a
     hedges_gz = cohen_dz * Jv;  % Hedges' gz for unbiased estimation of the effect size
 
     % Fitts (2020); Goulet-Pelletier & Cousineau (2018, 2019)
@@ -145,6 +147,12 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     ulgt = nctinv(1 - alpha / 2, df, non_central_parameter_gz);  % upper-limit non-central t
     low_gz = llgt / sqN;
     high_gz = ulgt / sqN;
+    
+    % Fitts (2020); Eq. 5
+    dz_var = (1/n) * (df / (df-2)) * (1 + n * dz^2) - (dz^2) / (Jv^2);
+
+    % Fitts (2020); Eq. 8b
+    gz_var = dz_var*Jv^2;
 
     t = mean_diff / (std_diff / sqN);
     p = 1 - tcdf(abs(t), df);
@@ -181,8 +189,8 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     stats.alpha = alpha;
     stats.n = n;
     stats.df = df;
-    stats.dz = [cohen_dz, low_dz, high_dz];
-    stats.gz = [hedges_gz, low_gz, high_gz];
+    stats.dz = struct("eff", cohen_dz, "low_ci", low_dz, "high_ci", high_dz, "se", sqrt(dz_var));
+    stats.gz = struct("eff", hedges_gz, "low_ci", low_gz, "high_ci", high_gz, "se", sqrt(gz_var));
     stats.p = p;
     stats.bf10 = bf10;
     stats.mean_diff = mean_diff;
