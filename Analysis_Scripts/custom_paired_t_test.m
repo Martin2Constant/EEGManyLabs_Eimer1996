@@ -99,7 +99,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     mean_diff = mean(x - y);
     std_diff = std(x - y);
     n = length(x);
-    df = n-1;
+    df = n - 1;
     sqN = sqrt(n);
 
     % Computing within CIs on normalized dataset (Cousineau, 2005; Morey, 2008; Cousineau & O'Brien, 2014)
