@@ -2,6 +2,7 @@ function epoch_and_average(participant_nr, filepath, team)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     filtered = sprintf('%s_participant%i_filtered.set', team, participant_nr);
     epoched = sprintf('%s_participant%i_epoched.set', team, participant_nr);
+    epoched_small = sprintf('%s_participant%i_epoched_small.set', team, participant_nr);
     erp_name = sprintf('%s_participant%i', team, participant_nr);
 
     EEG = pop_loadset(filtered, [filepath filesep team filesep 'EEG']);
@@ -43,7 +44,7 @@ function epoch_and_average(participant_nr, filepath, team)
         {sprintf('ch%i = ch%i-ch%i label VEOG', VEOG_index, SO2_index, IO2_index), ...
         sprintf('ch%i = ch%i-ch%i label HEOG', HEOG_index, LO1_index, LO2_index)}, ...
         'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on', 'Saveas', 'off');
-    
+
     % Removing trials with flat PO7/PO8/EOGs
     % Deviates from original study.
     EEG  = pop_artflatline(EEG , 'Channel', [PO7_index PO8_index IO2_index LO1_index LO2_index SO2_index],...
@@ -128,5 +129,20 @@ function epoch_and_average(participant_nr, filepath, team)
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name], 'filename', ['excluded_' erp_name '.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<NASGU>
     else
         ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP'], 'Warning', 'off'); %#ok<NASGU>
+        
+        % Creating a smaller dataset for permutation
+        EEG_small = pop_eegchanoperator(EEG, ...
+            {sprintf('nch1 = ch%i label PO7', PO7_index), ...
+            sprintf('nch2 = ch%i label PO8', PO8_index)}, ...
+            'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on', 'Saveas', 'off');
+        EEG_small = pop_rejepoch(EEG_small, EEG_small.reject.rejmanual, 0);
+        EEG_small  = pop_resetrej( EEG_small , 'ResetArtifactFields', 'on' );
+        EEG_small = pop_selectevent( EEG_small, ...
+            'bini', [1 2 4 5 7 8 10 11], ...
+            'deleteevents','off', ...
+            'deleteepochs','on', ...
+            'invertepochs','off');
+
+        EEG_small = pop_saveset(EEG_small, 'filename', epoched_small, 'filepath', [filepath filesep team filesep 'EEG']);
     end
 end
