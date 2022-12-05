@@ -1,17 +1,32 @@
 function create_permutated_erps(filepath, team)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     rng("shuffle");
+    alpha = 0.02;
+    do_plots = true;
+    participants = [1:3];
     n_permutations = 1e4;
     time_window = [100; 400];
     permuted_letters = zeros(1, n_permutations, 'double');
     permuted_colors = zeros(1, n_permutations, 'double');
-    participants = [1:3];
+
     lch = 1;
     rch = 2;
+
+    % Load 1st dataset to extract sampling rate and time indices
+    id = participants(1);
+    epoched = sprintf('%s_participant%i_epoched_small.set', team, id);
+    EEG = pop_loadset(epoched, [filepath filesep team filesep 'EEG']);
+    time_idx = dsearchn(EEG.times', time_window)';
+    Ts = 1/EEG.srate;
+
+    observed_letters_cipsi = zeros(length(participants), length(time_idx(1):time_idx(2)), 'double');
+    observed_colors_cipsi = zeros(length(participants), length(time_idx(1):time_idx(2)), 'double');
+
+    % Load each dataset and split for side and condition
     for id = participants
         epoched = sprintf('%s_participant%i_epoched_small.set', team, id);
         EEG = pop_loadset(epoched, [filepath filesep team filesep 'EEG']);
-        EEG_letters = pop_selectevent( EEG, ...
+        EEG_letters_left = pop_selectevent( EEG, ...
             'bini', [1 4], ...
             'deleteevents','off', ...
             'deleteepochs','on', ...
@@ -21,6 +36,9 @@ function create_permutated_erps(filepath, team)
             'deleteevents','off', ...
             'deleteepochs','on', ...
             'invertepochs','off');
+        all_eegs_letters_left(id) = EEG_letters_left;
+        all_eegs_letters_right(id) = EEG_letters_right;
+
         EEG_colors_left = pop_selectevent( EEG, ...
             'bini', [7 10], ...
             'deleteevents','off', ...
@@ -31,74 +49,89 @@ function create_permutated_erps(filepath, team)
             'deleteevents','off', ...
             'deleteepochs','on', ...
             'invertepochs','off');
-        time_idx = dsearchn(EEG.times', time_window)';
 
-        EEG_colors_contra = mean(EEG_colors_left(rch,time_idx(1):time_idx(2),:))*0.5 + mean(EEG_colors_right(lch,time_idx(1):time_idx(2),:))*0.5;
+        all_eegs_colors_left(id) = EEG_colors_left;
+        all_eegs_colors_right(id) = EEG_colors_right;
 
-        all_eegs(id) = EEG;
-        ERP = pop_averager(EEG, 'Criterion', 'all', 'DQ_custom_wins', 0, 'DQ_flag', 1, 'DQ_preavg_txt', 0, 'ExcludeBoundary', 'on', 'SEM', 'on' );
-        ERP = pop_binoperator( ERP, {'prepareContraIpsi', ...
-        'Lch = [1];', ...
-        'Rch = [2];', ...
-        'nbin1 = 0.5*bin1@Rch + 0.5*bin2@Lch label M Contra', ...
-        'nbin2 = 0.5*bin1@Lch + 0.5*bin2@Rch label M Ipsi', ...
-        'nbin3 = 0.5*bin4@Rch + 0.5*bin5@Lch label W Contra', ...
-        'nbin4 = 0.5*bin4@Lch + 0.5*bin5@Rch label W Ipsi', ...
-        'nbin5 = 0.5*bin7@Rch + 0.5*bin8@Lch label Blue Contra', ...
-        'nbin6 = 0.5*bin7@Lch + 0.5*bin8@Rch label Blue Ipsi', ...
-        'nbin7 = 0.5*bin10@Rch + 0.5*bin11@Lch label Green Contra', ...
-        'nbin8 = 0.5*bin10@Lch + 0.5*bin11@Rch label Green Ipsi'});
-        ERP = pop_binoperator( ERP, {'nbin1 = ((bin1 - bin2) + (bin3 - bin4))/2 label Letters Contra-Ipsi', ...
-            'nbin2 = ((bin5 - bin6) + (bin7 - bin8))/2 label Letters Contra-Ipsi'});
-        all_erps(id) = ERP;
+        ERP_letters_contra = mean(EEG_letters_left.data(rch, time_idx(1):time_idx(2), :), 3)*0.5 + mean(EEG_letters_right.data(lch,time_idx(1):time_idx(2),:), 3)*0.5;
+        ERP_letters_ipsi = mean(EEG_letters_left.data(lch, time_idx(1):time_idx(2), :), 3)*0.5 + mean(EEG_letters_right.data(rch,time_idx(1):time_idx(2),:), 3)*0.5;
+
+        ERP_colors_contra = mean(EEG_colors_left.data(rch, time_idx(1):time_idx(2), :), 3)*0.5 + mean(EEG_colors_right.data(lch,time_idx(1):time_idx(2),:), 3)*0.5;
+        ERP_colors_ipsi = mean(EEG_colors_left.data(lch, time_idx(1):time_idx(2), :), 3)*0.5 + mean(EEG_colors_right.data(rch,time_idx(1):time_idx(2),:), 3)*0.5;
+
+        observed_letters_cipsi(id, :) = ERP_letters_contra - ERP_letters_ipsi;
+        observed_colors_cipsi(id, :) = ERP_colors_contra - ERP_colors_ipsi;
     end
-    time_idx = dsearchn(EEG.times', time_window)';
-    Ts = 1/EEG.srate;
+    GA_letters = mean(observed_letters_cipsi, 1);
+    GA_colors = mean(observed_colors_cipsi, 1);
+    observed_AUC_letters = compute_AUC(GA_letters, Ts, "neg");
+    observed_AUC_colors = compute_AUC(GA_colors, Ts, "neg");
+    fprintf("\nStarting permutations\n")
 
-    GA = pop_gaverager( all_erps , 'DQ_flag', 1, 'Erpsets', 1:length(all_erps), 'ExcludeNullBin', 'on', 'SEM', 'on' );
+    parfor perm = 1:n_permutations
+        permuted_letters_cipsi = zeros(length(participants), length(time_idx(1):time_idx(2)), 'double');
+        permuted_colors_cipsi = zeros(length(participants), length(time_idx(1):time_idx(2)), 'double');
+        for id = participants
+            EEG_letters_left = shuffle(all_eegs_letters_left(id).data, 1);
+            EEG_letters_right = shuffle(all_eegs_letters_right(id).data, 1);
 
-    observed_AUC_letters = compute_AUC(GA, time_idx, Ts, "neg", 1);
-    observed_AUC_colors = compute_AUC(GA, time_idx, Ts, "neg", 2);
+            EEG_colors_left = shuffle(all_eegs_colors_left(id).data, 1);
+            EEG_colors_right = shuffle(all_eegs_colors_right(id).data, 1);
+
+            ERP_letters_contra = mean(EEG_letters_left(rch, time_idx(1):time_idx(2), :), 3)*0.5 + mean(EEG_letters_right(lch,time_idx(1):time_idx(2),:), 3)*0.5;
+            ERP_letters_ipsi = mean(EEG_letters_left(lch, time_idx(1):time_idx(2), :), 3)*0.5 + mean(EEG_letters_right(rch,time_idx(1):time_idx(2),:), 3)*0.5;
+
+            ERP_colors_contra = mean(EEG_colors_left(rch, time_idx(1):time_idx(2), :), 3)*0.5 + mean(EEG_colors_right(lch,time_idx(1):time_idx(2),:), 3)*0.5;
+            ERP_colors_ipsi = mean(EEG_colors_left(lch, time_idx(1):time_idx(2), :), 3)*0.5 + mean(EEG_colors_right(rch,time_idx(1):time_idx(2),:), 3)*0.5;
 
 
-    for perm = 1:n_permutations
-        for id = 1:participants
-            EEG = all_eegs(id);
-            EEG.data = shuffle(EEG.data, 1);
-            ERP = pop_averager(EEG, 'Criterion', 'all', 'DQ_custom_wins', 0, 'DQ_flag', 1, 'DQ_preavg_txt', 0, 'ExcludeBoundary', 'on', 'SEM', 'on' );
-            ERP = pop_binoperator( ERP, {'prepareContraIpsi', ...
-            'Lch = [1];', ...
-            'Rch = [2];', ...
-            'nbin1 = 0.5*bin1@Rch + 0.5*bin2@Lch label M Contra', ...
-            'nbin2 = 0.5*bin1@Lch + 0.5*bin2@Rch label M Ipsi', ...
-            'nbin3 = 0.5*bin4@Rch + 0.5*bin5@Lch label W Contra', ...
-            'nbin4 = 0.5*bin4@Lch + 0.5*bin5@Rch label W Ipsi', ...
-            'nbin5 = 0.5*bin7@Rch + 0.5*bin8@Lch label Blue Contra', ...
-            'nbin6 = 0.5*bin7@Lch + 0.5*bin8@Rch label Blue Ipsi', ...
-            'nbin7 = 0.5*bin10@Rch + 0.5*bin11@Lch label Green Contra', ...
-            'nbin8 = 0.5*bin10@Lch + 0.5*bin11@Rch label Green Ipsi'});
-            ERP = pop_binoperator( ERP, {'nbin1 = ((bin1 - bin2) + (bin3 - bin4))/2 label Letters Contra-Ipsi', ...
-                'nbin2 = ((bin5 - bin6) + (bin7 - bin8))/2 label Letters Contra-Ipsi'});
-            all_erps(id) = ERP;
+            permuted_letters_cipsi(id, :) = ERP_letters_contra - ERP_letters_ipsi;
+            permuted_colors_cipsi(id, :) = ERP_colors_contra - ERP_colors_ipsi;
         end
-        GA = pop_gaverager( all_erps , 'DQ_flag', 1, 'Erpsets', 1:length(all_erps), 'ExcludeNullBin', 'on', 'SEM', 'on' );
-        
+        GA_letters = mean(permuted_letters_cipsi, 1);
+        GA_colors = mean(permuted_colors_cipsi, 1);
         % AUC
-        permuted_letters(perm) = compute_AUC(GA, time_idx, Ts, "neg", 1); 
-        permuted_colors(perm) = compute_AUC(GA, time_idx, Ts, "neg", 2);
+        permuted_letters(perm) = compute_AUC(GA_letters, Ts, "neg");
+        permuted_colors(perm) = compute_AUC(GA_colors, Ts, "neg");
     end
 
-    histogram(permuted_letters);
 
-end
+    pval_letters = 1 - (sum(observed_AUC_letters > permuted_letters)/n_permutations)
+    pval_colors = 1 - (sum(observed_AUC_colors > permuted_colors)/n_permutations)
 
-function auc = compute_AUC(ERP, times, Ts, sign, bin)
-        amplitudes = ERP.bindata(1, times(1):times(2), bin);
-        if sign == "neg"
-            amplitudes = -amplitudes;
-        end
-        amplitudes(amplitudes < 0) = 0;
+    % Two kinds of plots
+    if do_plots
+        figure;
+        title("Letters")
+        histogram(permuted_letters, 100)
+        xline(permuted_letters(n_permutations*(1-alpha)))
+        xline(observed_AUC_letters, "r")
         
-        % AUC
-        auc = Ts*trapz(amplitudes); 
+        sorted_letters = sort(permuted_letters);
+        figure;
+        title("Letters")
+        plot(sorted_letters)
+        yline(observed_AUC_letters, "r")
+        yline(sorted_letters(n_permutations*(1-alpha)), "--")
+        xline(n_permutations*(1-alpha), "--")
+        xline(sum(observed_AUC_letters > sorted_letters))
+        xticks(sort([0:1000:9000, n_permutations*(1-alpha), sum(observed_AUC_letters > sorted_letters)]))
+
+        figure;
+        title("Colors")
+        histogram(permuted_colors, 100)
+        xline(permuted_colors(n_permutations*(1-alpha)))
+        xline(observed_AUC_colors, "r")
+        
+        sorted_colors = sort(permuted_colors);
+        figure;
+        title("Colors")
+        plot(sorted_colors)
+        yline(observed_AUC_colors, "r")
+        yline(sorted_colors(n_permutations*(1-alpha)), "--")
+        xline(n_permutations*(1-alpha), "--")
+        xline(sum(observed_AUC_colors > sorted_colors))
+        xticks(sort([0:1000:9000, n_permutations*(1-alpha), sum(observed_AUC_colors > sorted_colors)]))
+    end
+    
 end
