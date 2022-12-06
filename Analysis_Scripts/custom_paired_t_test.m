@@ -46,6 +46,12 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     %           Contains Cohen's dz, its confidence intervals and its standard error.
     %       stats.gz: struct with fields -> eff, low_ci, high_ci, se
     %           Contains Hedges's gz, its confidence intervals and its standard error.
+    %       stats.drm: struct with fields -> eff, low_ci, high_ci, se
+    %           Contains Cohen's drm, its confidence intervals and its standard error.
+    %           Use in meta-analyses when converting to other effect sizes.
+    %       stats.grm: struct with fields -> eff, low_ci, high_ci, se
+    %           Contains Hedges's grm, its confidence intervals and its standard error.
+    %           Use in meta-analyses when converting to other effect sizes.
     %       stats.p: double
     %           Computed p value.
     %       stats.bf10: double or NaN (if tail is not two-sided)
@@ -101,6 +107,11 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     n = length(x);
     df = n - 1;
     sqN = sqrt(n);
+    r = corr2(x, y);
+    % Lakens (2013) Eq. 8
+    std_diff_lakens = sqrt(std(x)^2 + std(y)^2 - 2 * r * std(x) * std(y));
+    % Lakens (2013, Eq. 9)
+    correction_factor = sqrt(2 * (1 - r));
 
     % Computing within CIs on normalized dataset (Cousineau, 2005; Morey, 2008; Cousineau & O'Brien, 2014)
     means_participant = means([x'; y'])';
@@ -153,6 +164,26 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
 
     % Fitts (2020); Eq. 8b
     gz_var = dz_var*Jv^2;
+    
+    cohen_drm = (mean_diff / std_diff_lakens) * correction_factor;
+    hedges_grm = cohen_drm * Jv;
+    
+    % Fitts (2020); Goulet-Pelletier & Cousineau (2018, 2019)
+    non_central_parameter_drm = cohen_drm * sqN;  % Non-central parameter
+    lldt = nctinv(alpha / 2, df, non_central_parameter_drm);  % lower-limit non-central t
+    uldt = nctinv(1 - alpha / 2, df, non_central_parameter_drm);  % upper-limit non-central t
+    low_drm = lldt / sqN;
+    high_drm = uldt / sqN;
+
+    drm_var = (1/n) * (df / (df-2)) * (1 + n * cohen_drm^2) - (cohen_drm^2) / (Jv^2);
+
+    % Fitts (2020); Goulet-Pelletier & Cousineau (2018, 2019)
+    non_central_parameter_grm = hedges_grm * sqN;  % Non-central parameter
+    lldt = nctinv(alpha / 2, df, non_central_parameter_grm);  % lower-limit non-central t
+    uldt = nctinv(1 - alpha / 2, df, non_central_parameter_grm);  % upper-limit non-central t
+    low_grm = lldt / sqN;
+    high_grm = uldt / sqN;
+    grm_var = drm_var*Jv^2;
 
     t = mean_diff / (std_diff / sqN);
     p = 1 - tcdf(abs(t), df);
@@ -191,6 +222,8 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     stats.df = df;
     stats.dz = struct("eff", cohen_dz, "low_ci", low_dz, "high_ci", high_dz, "se", sqrt(dz_var));
     stats.gz = struct("eff", hedges_gz, "low_ci", low_gz, "high_ci", high_gz, "se", sqrt(gz_var));
+    stats.drm = struct("eff", cohen_drm, "low_ci", low_drm, "high_ci", high_drm, "se", sqrt(drm_var));
+    stats.grm = struct("eff", hedges_grm, "low_ci", low_grm, "high_ci", high_grm, "se", sqrt(grm_var));
     stats.p = p;
     stats.bf10 = bf10;
     stats.mean_diff = mean_diff;

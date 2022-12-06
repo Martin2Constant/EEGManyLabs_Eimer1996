@@ -1,4 +1,4 @@
-function eeg_analysis(preprocess, get_results, participant_list, filepath)
+function eeg_analysis(preprocess, get_results, pipeline, participant_list, filepath)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     % Running on GNU/Linux Debian 10 with:
     % MATLAB R2021a
@@ -16,6 +16,7 @@ function eeg_analysis(preprocess, get_results, participant_list, filepath)
     arguments
         preprocess logical = true;
         get_results logical = true;
+        pipeline string = "Original"; % "Original", "Resample", "ICA" or "ICA+Resample"
         participant_list double = [1:28];
         filepath char = fileparts(mfilename('fullpath'));
     end
@@ -38,8 +39,8 @@ function eeg_analysis(preprocess, get_results, participant_list, filepath)
     if ~exist(sprintf('%s%sEEG', team, filesep), 'dir')
         mkdir(sprintf('%s%sEEG', team, filesep));
     end
-    if ~exist(sprintf('%s%sResults', team, filesep), 'dir')
-        mkdir(sprintf('%s%sResults', team, filesep));
+    if ~exist(sprintf('%s%sResults%s%s_Pipeline', team, filesep, filesep, pipeline), 'dir')
+        mkdir(sprintf('%s%sResults%s%s_Pipeline', team, filesep, filesep, pipeline));
     end
     if ~exist(sprintf('%s%sExcluded_ERP', team, filesep), 'dir')
         mkdir(sprintf('%s%sExcluded_ERP', team, filesep));
@@ -47,17 +48,27 @@ function eeg_analysis(preprocess, get_results, participant_list, filepath)
     if ~exist(sprintf('%s%sRawData', team, filesep), 'dir')
         mkdir(sprintf('%s%sRawData', team, filesep));  % Place raw EEG and behavior file here
     end
-    % Change EEGLAB default options to keep double precision throughout 
+    if ~exist(sprintf('%s%sAMICA', team, filesep), 'dir')
+        mkdir(sprintf('%s%sAMICA', team, filesep));
+    end
+    % Change EEGLAB default options to keep double precision throughout
     % the pipeline and use the ERPLAB compatibility option.
     pop_editoptions('option_savetwofiles', 0, 'option_single', 0, 'option_boundary99', 1);
     for participant_nr = participant_list
         if preprocess
-%             import_data(participant_nr, filepath, team)
-%             filter_and_resample(participant_nr, filepath, team)
-            epoch_and_average(participant_nr, filepath, team)
+            import_data(participant_nr, filepath, team)
+            filter_and_resample(participant_nr, filepath, team)
+            if pipeline == "ICA" || pipeline == "ICA+Resample"
+                AMICA(participant_nr, filepath, team, false)
+            end
+            epoch_and_average(participant_nr, filepath, team, pipeline)
         end
     end
     if get_results
-        extract_results(filepath, team)
+        if pipeline == "Original" || pipeline == "ICA"
+            extract_results(filepath, team, pipeline)
+        elseif pipeline == "Resample" || pipeline == "ICA+Resample"
+            create_resampled_erps(filepath, team, participant_list, pipeline)
+        end
     end
 end

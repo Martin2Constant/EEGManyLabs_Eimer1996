@@ -1,8 +1,9 @@
-function auc = compute_AUC(amplitudes, Ts, sign)
+function auc = compute_AUC(amplitudes, sampling_period, sign)
+    % Author: Martin Constant (martin.constant@uni-bremen.de)
     arguments
         amplitudes (1, :) double;
-        Ts double = 1/200;
-        sign string = "neg";
+        sampling_period double = 1/200; % 1/sampling rate
+        sign string = "neg"; % "neg" or "total" or "pos"
     end
     if sign == "neg"
         amplitudes = -amplitudes;
@@ -12,5 +13,5 @@ function auc = compute_AUC(amplitudes, Ts, sign)
     amplitudes(amplitudes < 0) = 0;
     
     % AUC
-    auc = Ts*trapz(amplitudes);
+    auc = sampling_period*trapz(amplitudes);
 end

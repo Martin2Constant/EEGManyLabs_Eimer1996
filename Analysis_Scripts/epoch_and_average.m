@@ -1,13 +1,23 @@
-function epoch_and_average(participant_nr, filepath, team)
+function epoch_and_average(participant_nr, filepath, team, pipeline)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     filtered = sprintf('%s_participant%i_filtered.set', team, participant_nr);
     epoched = sprintf('%s_participant%i_epoched.set', team, participant_nr);
-    epoched_small = sprintf('%s_participant%i_epoched_small.set', team, participant_nr);
-    erp_name = sprintf('%s_participant%i', team, participant_nr);
-
+    erp_name = sprintf('%s_pipeline_%s_participant%i', team, pipeline, participant_nr);
     EEG = pop_loadset(filtered, [filepath filesep team filesep 'EEG']);
     EEG = eeg_checkset(EEG);
+    if pipeline == "ICA" || pipeline == "ICA+Resample"
+        % Load ICA weights
+        outAmica = sprintf('%s%s%s%sAMICA%s%i', filepath, filesep, team, filesep, filesep, participant_nr);
+        EEG = pop_loadmodout(EEG, outAmica);
+        EEG = eeg_checkset( EEG );
+        EEG = eeg_checkset( EEG, 'ica' );
+        % Extract eye components
+        [eye_ics, labels] = extract_iclabel(EEG);
+        EEG.etc.ic_classification = labels;
 
+        % Doing that here will probably make most data rejection from the eye channels useless.
+        EEG = pop_subcomp(EEG, eye_ics);
+    end
     % Assign bins to each epoch based on ./bins.txt
     EEG = pop_binlister(EEG, 'BDF', [filepath filesep 'bins.txt'], 'IndexEL', 1, 'SendEL2', 'EEG', 'UpdateEEG', 'on', 'Voutput', 'EEG' );
     EEG = eeg_checkset(EEG);
@@ -56,6 +66,9 @@ function epoch_and_average(participant_nr, filepath, team)
     % "horizontal eye movements (HEOG amplitude exceeding +/- 25 µV)"
     EEG = pop_artextval(EEG, 'Channel', HEOG_index, 'Flag', [ 1 3], 'LowPass', -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
 
+    if pipeline == "ICA" || pipeline == "ICA+Resample"
+        EEG = pop_artextval(EEG, 'Channel', [PO7_index PO8_index], 'Flag', [ 1 5], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
+    end
     EEG = eeg_checkset(EEG, 'eventconsistency' );
     EEG = eeg_checkset(EEG);
 
@@ -126,23 +139,28 @@ function epoch_and_average(participant_nr, filepath, team)
     % "A maximal residual EOG deviation exceeding +/- 2 µV would have led
     % to the disqualification of the subject."
     if abs(max(ERP.bindata(ERP.LO1_2_index, :, 21))) >= 2
-        ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name], 'filename', ['excluded_' erp_name '.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<NASGU>
+        ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name], 'filename', ['excluded_' erp_name '.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off');
     else
-        ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP'], 'Warning', 'off'); %#ok<NASGU>
-        
-        % Creating a smaller dataset for permutation
-        EEG_small = pop_eegchanoperator(EEG, ...
-            {sprintf('nch1 = ch%i label PO7', PO7_index), ...
-            sprintf('nch2 = ch%i label PO8', PO8_index)}, ...
-            'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on', 'Saveas', 'off');
-        EEG_small = pop_rejepoch(EEG_small, EEG_small.reject.rejmanual, 0);
-        EEG_small  = pop_resetrej( EEG_small , 'ResetArtifactFields', 'on' );
-        EEG_small = pop_selectevent( EEG_small, ...
-            'bini', [1 2 4 5 7 8 10 11], ...
-            'deleteevents','off', ...
-            'deleteepochs','on', ...
-            'invertepochs','off');
+        if pipeline == "Original" || pipeline == "ICA"
+            ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');
 
-        EEG_small = pop_saveset(EEG_small, 'filename', epoched_small, 'filepath', [filepath filesep team filesep 'EEG']);
+        elseif pipeline == "Resample" || pipeline == "ICA+Resample"
+            epoched_small = sprintf('%s_pipeline_%s_participant%i_epoched_small.set', team, pipeline, participant_nr);
+
+            % Creating a smaller dataset for permutation
+            EEG_small = pop_eegchanoperator(EEG, ...
+                {sprintf('nch1 = ch%i label PO7', PO7_index), ...
+                sprintf('nch2 = ch%i label PO8', PO8_index)}, ...
+                'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on', 'Saveas', 'off');
+            EEG_small = pop_rejepoch(EEG_small, EEG_small.reject.rejmanual, 0);
+            EEG_small  = pop_resetrej( EEG_small , 'ResetArtifactFields', 'on' );
+            EEG_small = pop_selectevent( EEG_small, ...
+                'bini', [1 2 4 5 7 8 10 11], ...
+                'deleteevents','off', ...
+                'deleteepochs','on', ...
+                'invertepochs','off');
+
+            EEG_small = pop_saveset(EEG_small, 'filename', epoched_small, 'filepath', [filepath filesep team filesep 'EEG']);
+        end
     end
 end
