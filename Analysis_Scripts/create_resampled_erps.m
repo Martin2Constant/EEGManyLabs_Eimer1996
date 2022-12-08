@@ -4,6 +4,7 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
     close all
     % Initialize everything
     results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s',filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
+    participants_idx = 1:numel(participant_list);
     alpha = .02;
     print_results = true;
     n_resampling = 10000;
@@ -32,7 +33,8 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
     observed_colors_cipsi = zeros(length(participant_list), length(time_idx(1):time_idx(2)), 'double');
 
     % Load each dataset and split hemifield and condition
-    for id = participant_list
+    for idx = participants_idx
+        id = participant_list(idx);
         epoched = sprintf('%s_pipeline_%s_participant%i_epoched_small.set', team, pipeline, id);
         EEG = pop_loadset(epoched, [filepath filesep team filesep 'EEG']);
 
@@ -51,9 +53,9 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
 
         % Because we concatenate in the order [left_cond, right_cond] then
         % 1:n_letters_left = left condition
-        % n_letters_left(id)+1:end = right condition
-        all_eegs_letters(id).dat = cat(3, EEG_letters_left.data(:,time_idx(1):time_idx(2),:), EEG_letters_right.data(:,time_idx(1):time_idx(2),:)); %#ok<*AGROW>
-        n_letters_left(id) = size(EEG_letters_left.data, 3);
+        % n_letters_left(cnt)+1:end = right condition
+        all_eegs_letters(idx).dat = cat(3, EEG_letters_left.data(:,time_idx(1):time_idx(2),:), EEG_letters_right.data(:,time_idx(1):time_idx(2),:)); %#ok<*AGROW>
+        n_letters_left(idx) = size(EEG_letters_left.data, 3);
 
         % Colored squares presented in left hemifield
         EEG_colors_left = pop_selectevent( EEG, ...
@@ -67,24 +69,24 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
             'deleteevents','off', ...
             'deleteepochs','on', ...
             'invertepochs','off');
-        n_colors_left(id) = size(EEG_colors_left.data, 3);
-        all_eegs_colors(id).dat = cat(3, EEG_colors_left.data(:,time_idx(1):time_idx(2),:), EEG_colors_right.data(:,time_idx(1):time_idx(2),:));
+        n_colors_left(idx) = size(EEG_colors_left.data, 3);
+        all_eegs_colors(idx).dat = cat(3, EEG_colors_left.data(:,time_idx(1):time_idx(2),:), EEG_colors_right.data(:,time_idx(1):time_idx(2),:));
 
         % Get original (observed) contra/ipsi ERPs
         % Contra = (right chan for left condition + left chan for right condition) / 2
         % Ipsi = (left chan for left condition + right chan for right condition) / 2
-        ERP_letters_contra = mean(all_eegs_letters(id).dat(rch, :, 1:n_letters_left(id)), 3) * 0.5 ...
-            + mean(all_eegs_letters(id).dat(lch, :, n_letters_left(id)+1:end), 3) * 0.5;
-        ERP_letters_ipsi = mean(all_eegs_letters(id).dat(lch, :, 1:n_letters_left(id)), 3) * 0.5 ...
-            + mean(all_eegs_letters(id).dat(rch, :, n_letters_left(id)+1:end), 3) * 0.5;
+        ERP_letters_contra = mean(all_eegs_letters(idx).dat(rch, :, 1:n_letters_left(idx)), 3) * 0.5 ...
+            + mean(all_eegs_letters(idx).dat(lch, :, n_letters_left(idx)+1:end), 3) * 0.5;
+        ERP_letters_ipsi = mean(all_eegs_letters(idx).dat(lch, :, 1:n_letters_left(idx)), 3) * 0.5 ...
+            + mean(all_eegs_letters(idx).dat(rch, :, n_letters_left(idx)+1:end), 3) * 0.5;
 
-        ERP_colors_contra = mean(all_eegs_colors(id).dat(rch, :, 1:n_colors_left(id)), 3) * 0.5 ...
-            + mean(all_eegs_colors(id).dat(lch, :, n_colors_left(id)+1:end), 3) * 0.5;
-        ERP_colors_ipsi = mean(all_eegs_colors(id).dat(lch, :, 1:n_colors_left(id)), 3) * 0.5 ...
-            + mean(all_eegs_colors(id).dat(rch, :, n_colors_left(id)+1:end), 3) * 0.5;
+        ERP_colors_contra = mean(all_eegs_colors(idx).dat(rch, :, 1:n_colors_left(idx)), 3) * 0.5 ...
+            + mean(all_eegs_colors(idx).dat(lch, :, n_colors_left(idx)+1:end), 3) * 0.5;
+        ERP_colors_ipsi = mean(all_eegs_colors(idx).dat(lch, :, 1:n_colors_left(idx)), 3) * 0.5 ...
+            + mean(all_eegs_colors(idx).dat(rch, :, n_colors_left(idx)+1:end), 3) * 0.5;
 
-        observed_letters_cipsi(id, :) = ERP_letters_contra - ERP_letters_ipsi;
-        observed_colors_cipsi(id, :) = ERP_colors_contra - ERP_colors_ipsi;
+        observed_letters_cipsi(idx, :) = ERP_letters_contra - ERP_letters_ipsi;
+        observed_colors_cipsi(idx, :) = ERP_colors_contra - ERP_colors_ipsi;
     end
 
     observed_cond_diff_cipsi = observed_letters_cipsi - observed_colors_cipsi;
@@ -93,7 +95,7 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
     GA_colors = mean(observed_colors_cipsi, 1);
     observed_AUC_letters = compute_AUC(GA_letters, sampling_period, "neg");
     observed_AUC_colors = compute_AUC(GA_colors, sampling_period, "neg");
-    observed_t_diff = compute_t(observed_cond_diff_cipsi);
+    observed_t_diff = compute_t(observed_letters_cipsi, observed_colors_cipsi);
     methods = ["permutation", "bootstrap"];
     % Start meta-resampling (level 2 analysis), we do the resampling
     % many times. This way, we can select the median p-value of these 
