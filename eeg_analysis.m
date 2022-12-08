@@ -33,14 +33,14 @@ function eeg_analysis(preprocess, get_results, pipeline, participant_list, filep
     if ~exist(team, 'dir')
         mkdir(team);
     end
-    if ~exist(sprintf('%s%sERP', team, filesep), 'dir')
-        mkdir(sprintf('%s%sERP', team, filesep));
+    if ~exist(sprintf('%s%sERP%s%s', team, filesep, filesep, pipeline), 'dir')
+        mkdir(sprintf('%s%sERP%s%s', team, filesep, filesep, pipeline));
     end
     if ~exist(sprintf('%s%sEEG', team, filesep), 'dir')
         mkdir(sprintf('%s%sEEG', team, filesep));
     end
-    if ~exist(sprintf('%s%sResults%s%s_Pipeline', team, filesep, filesep, pipeline), 'dir')
-        mkdir(sprintf('%s%sResults%s%s_Pipeline', team, filesep, filesep, pipeline));
+    if ~exist(sprintf('%s%sResults%sPipeline%s%s', team, filesep, filesep, filesep, pipeline), 'dir')
+        mkdir(sprintf('%s%sResults%sPipeline%s%s', team, filesep, filesep, filesep, pipeline));
     end
     if ~exist(sprintf('%s%sExcluded_ERP', team, filesep), 'dir')
         mkdir(sprintf('%s%sExcluded_ERP', team, filesep));

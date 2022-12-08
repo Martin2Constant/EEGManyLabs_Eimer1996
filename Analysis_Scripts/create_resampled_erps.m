@@ -3,7 +3,7 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
     rng("shuffle"); % Make sure we don't use MATLAB default's rng behavior
     close all
     % Initialize everything
-    results_path = sprintf('%s%s%s%sResults%s%s_Pipeline%s', filepath, filesep, team, filesep, filesep, pipeline, filesep);
+    results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s',filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
     alpha = .02;
     print_results = true;
     n_resampling = 10000;
