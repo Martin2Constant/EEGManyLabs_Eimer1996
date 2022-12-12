@@ -1,4 +1,4 @@
-function filter_and_resample(participant_nr, filepath, team)
+function filter_and_downsample(participant_nr, filepath, team)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     filename = sprintf('%s_participant%i_harmonized.set', team, participant_nr);
     savename = sprintf('%s_participant%i_filtered.set', team, participant_nr);
@@ -71,7 +71,7 @@ function filter_and_resample(participant_nr, filepath, team)
     EEG = pop_creabasiceventlist( EEG, 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' } );
     EEG = eeg_checkset( EEG );
 
-    % Try to save in MAT files in v6 format, if it doesn't work, save in v7.3
+    % Try to save in MAT files in v6 format, if it doesn't work (because file is too big), save in v7.3
     % Given the resampling to 200 Hz, this should not happpen.
     EEGs = EEG;
     lastwarn('');

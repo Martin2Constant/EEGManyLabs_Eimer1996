@@ -57,7 +57,7 @@ function eeg_analysis(preprocess, get_results, pipeline, participant_list, filep
     for participant_nr = participant_list
         if preprocess
             import_data(participant_nr, filepath, team)
-            filter_and_resample(participant_nr, filepath, team)
+            filter_and_downsample(participant_nr, filepath, team)
             if pipeline == "ICA" || pipeline == "ICA+Resample"
                 AMICA(participant_nr, filepath, team, false)
             end
@@ -65,10 +65,6 @@ function eeg_analysis(preprocess, get_results, pipeline, participant_list, filep
         end
     end
     if get_results
-        if pipeline == "Original" || pipeline == "ICA"
-            extract_results(filepath, team, pipeline)
-        elseif pipeline == "Resample" || pipeline == "ICA+Resample"
-            create_resampled_erps(filepath, team, participant_list, pipeline)
-        end
+        extract_results(filepath, team, pipeline, participant_list)
     end
 end

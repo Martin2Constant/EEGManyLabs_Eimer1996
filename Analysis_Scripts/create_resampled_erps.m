@@ -1,15 +1,15 @@
-function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, participant_list, pipeline)
+function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, participant_list, pipeline, onset, offset)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     rng("shuffle"); % Make sure we don't use MATLAB default's rng behavior
     close all
     % Initialize everything
-    results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s',filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
+    results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s', filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
     participants_idx = 1:numel(participant_list);
     alpha = .02;
     print_results = true;
     n_resampling = 10000;
-    n_meta = 10;
-    time_window = [100; 400]; % In milliseconds
+    n_meta = 1000;
+    time_window = [onset; offset]; % In milliseconds
     resampled_letters = zeros(1, n_resampling, 'double');
     resampled_colors = zeros(1, n_resampling, 'double');
     resampled_t_diff = zeros(1, n_resampling, 'double');
@@ -97,6 +97,7 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
     observed_AUC_colors = compute_AUC(GA_colors, sampling_period, "neg");
     observed_t_diff = compute_t(observed_letters_cipsi, observed_colors_cipsi);
     methods = ["permutation", "bootstrap"];
+    
     % Start meta-resampling (level 2 analysis), we do the resampling
     % many times. This way, we can select the median p-value of these 
     % resamplings and consider it the true p-value. We can also check whether 
@@ -127,7 +128,7 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
             % Get the p-value for the current meta-resampling
             pval_letters(meta) = (sum(resampled_letters >= observed_AUC_letters) / n_resampling);
             pval_colors(meta) = (sum(resampled_colors >= observed_AUC_colors) / n_resampling);
-            pval_difference(meta) = (sum(resampled_t_diff >= observed_t_diff) / n_resampling);
+            pval_difference(meta) = (sum(abs(resampled_t_diff) >= abs(observed_t_diff)) / n_resampling);
         end
         save(sprintf('%spvalues_%s.mat', results_path, method), "pval_letters", "pval_colors", "pval_difference");
         save(sprintf('%slast_%s.mat', results_path, method),"resampled_letters", "resampled_colors", "resampled_t_diff");

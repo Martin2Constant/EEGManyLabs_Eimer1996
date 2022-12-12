@@ -14,9 +14,6 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         % Extract eye components
         [eye_ics, labels] = extract_iclabel(EEG);
         EEG.etc.ic_classification = labels;
-
-        % Doing that here will probably make most data rejection from the eye channels useless.
-        EEG = pop_subcomp(EEG, eye_ics);
     end
     % Assign bins to each epoch based on ./bins.txt
     EEG = pop_binlister(EEG, 'BDF', [filepath filesep 'bins.txt'], 'IndexEL', 1, 'SendEL2', 'EEG', 'UpdateEEG', 'on', 'Voutput', 'EEG' );
@@ -67,6 +64,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     EEG = pop_artextval(EEG, 'Channel', HEOG_index, 'Flag', [ 1 3], 'LowPass', -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
 
     if pipeline == "ICA" || pipeline == "ICA+Resample"
+        EEG = pop_subcomp(EEG, eye_ics);
         EEG = pop_artextval(EEG, 'Channel', [PO7_index PO8_index], 'Flag', [ 1 5], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
     end
     EEG = eeg_checkset(EEG, 'eventconsistency' );
@@ -113,7 +111,6 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         'nbin7 = 0.5*bin10@Rch + 0.5*bin11@Lch label Green Contra', ...
         'nbin8 = 0.5*bin10@Lch + 0.5*bin11@Rch label Green Ipsi'});
 
-
     % Compute difference waves for each condition
     ERP = pop_binoperator( ERP, {'bin9 = bin1 - bin2 label M Contra-Ipsi', ...
         'bin10 = bin3 - bin4 label W Contra-Ipsi', ...
@@ -145,6 +142,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
             ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');
 
         elseif pipeline == "Resample" || pipeline == "ICA+Resample"
+            ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');
             epoched_small = sprintf('%s_pipeline_%s_participant%i_epoched_small.set', team, pipeline, participant_nr);
 
             % Creating a smaller dataset for permutation

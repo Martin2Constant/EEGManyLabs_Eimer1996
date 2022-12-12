@@ -87,19 +87,12 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     % * Morey, R. D., & Wagenmakers, E.-J. (2014). Simple relation between Bayesian order-restricted and point-null hypothesis tests. Statistics & Probability Letters, 92, 121–124. https://doi.org/10/ggcpcq
     %
     % * Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G. (2009). Bayesian t tests for accepting and rejecting the null hypothesis. Psychonomic Bulletin & Review, 16(2), 225–237. https://doi.org/10/b3hsdp
-    arguments (Input)
+    arguments
         x (:, 1) double;
         y (:, 1) double;
         alpha double = .02;
         tail string = "two-sided";
     end
-    arguments (Output)
-        mean_amps (1, 2) double;
-        between_confidence_intervals (1, 2) double;
-        within_confidence_intervals (1, 2) double;
-        stats struct;
-    end
-
     mean_x = mean(x);
     mean_y = mean(y);
     mean_diff = mean(x - y);
@@ -163,7 +156,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     dz_var = (1/n) * (df / (df-2)) * (1 + n * cohen_dz^2) - (cohen_dz^2) / (Jv^2);
 
     % Fitts (2020); Eq. 8b
-    gz_var = dz_var*Jv^2;
+    gz_var = dz_var * Jv^2;
     
     cohen_drm = (mean_diff / std_diff_lakens) * correction_factor;
     hedges_grm = cohen_drm * Jv;
@@ -183,7 +176,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     uldt = nctinv(1 - alpha / 2, df, non_central_parameter_grm);  % upper-limit non-central t
     low_grm = lldt / sqN;
     high_grm = uldt / sqN;
-    grm_var = drm_var*Jv^2;
+    grm_var = drm_var * Jv^2;
 
     t = mean_diff / (std_diff / sqN);
     p = 1 - tcdf(abs(t), df);
