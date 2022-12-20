@@ -15,10 +15,10 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
     pval_difference = zeros(1, n_meta, 'double');
     lch = 1; % left chan index
     rch = 2; % right chan index
-    bins_letters_left = [1 4];
-    bins_letters_right = [2 5];
-    bins_colors_left = [7 10];
-    bins_colors_right = [8 11];
+    bins_letters_left = [1, 4];
+    bins_letters_right = [2, 5];
+    bins_colors_left = [7, 10];
+    bins_colors_right = [8, 11];
 
     % Load 1st dataset to extract sampling rate and time indices
     id = participant_list(1);
@@ -26,8 +26,8 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
     EEG = pop_loadset(epoched, [filepath filesep team filesep 'EEG']);
     time_idx = dsearchn(EEG.times', time_window)';
 
-    observed_letters_cipsi = zeros(length(participant_list), length(time_idx(1):time_idx(2)), 'double');
-    observed_colors_cipsi = zeros(length(participant_list), length(time_idx(1):time_idx(2)), 'double');
+    observed_letters_cipsi = zeros(numel(participant_list), numel(time_idx(1):time_idx(2)), 'double');
+    observed_colors_cipsi = zeros(numel(participant_list), numel(time_idx(1):time_idx(2)), 'double');
 
     % Load each dataset and split hemifield and condition
     for idx = participants_idx
@@ -38,36 +38,36 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
         % Letters presented in left hemifield
         EEG_letters_left = pop_selectevent( EEG, ...
             'bini', bins_letters_left, ...
-            'deleteevents','off', ...
-            'deleteepochs','on', ...
-            'invertepochs','off');
+            'deleteevents', 'off', ...
+            'deleteepochs', 'on', ...
+            'invertepochs', 'off');
         % Letters presented in right hemifield
         EEG_letters_right = pop_selectevent( EEG, ...
             'bini', bins_letters_right, ...
-            'deleteevents','off', ...
-            'deleteepochs','on', ...
-            'invertepochs','off');
+            'deleteevents', 'off', ...
+            'deleteepochs', 'on', ...
+            'invertepochs', 'off');
 
         % Because we concatenate in the order [left_cond, right_cond] then
         % 1:n_letters_left = left condition
         % n_letters_left(cnt)+1:end = right condition
-        all_eegs_letters(idx).dat = cat(3, EEG_letters_left.data(:,time_idx(1):time_idx(2),:), EEG_letters_right.data(:,time_idx(1):time_idx(2),:)); %#ok<*AGROW>
+        all_eegs_letters(idx).dat = cat(3, EEG_letters_left.data(:, time_idx(1):time_idx(2), :), EEG_letters_right.data(:, time_idx(1):time_idx(2), :)); %#ok<*AGROW>
         n_letters_left(idx) = size(EEG_letters_left.data, 3);
 
         % Colored squares presented in left hemifield
         EEG_colors_left = pop_selectevent( EEG, ...
             'bini', bins_colors_left, ...
-            'deleteevents','off', ...
-            'deleteepochs','on', ...
-            'invertepochs','off');
+            'deleteevents', 'off', ...
+            'deleteepochs', 'on', ...
+            'invertepochs', 'off');
         % Colored squares presented in right hemifield
         EEG_colors_right = pop_selectevent( EEG, ...
             'bini', bins_colors_right, ...
-            'deleteevents','off', ...
-            'deleteepochs','on', ...
-            'invertepochs','off');
+            'deleteevents', 'off', ...
+            'deleteepochs', 'on', ...
+            'invertepochs', 'off');
         n_colors_left(idx) = size(EEG_colors_left.data, 3);
-        all_eegs_colors(idx).dat = cat(3, EEG_colors_left.data(:,time_idx(1):time_idx(2),:), EEG_colors_right.data(:,time_idx(1):time_idx(2),:));
+        all_eegs_colors(idx).dat = cat(3, EEG_colors_left.data(:, time_idx(1):time_idx(2), :), EEG_colors_right.data(:, time_idx(1):time_idx(2), :));
 
         % Get original (observed) contra/ipsi ERPs
         % Contra = (right chan for left condition + left chan for right condition) / 2
@@ -108,7 +108,7 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
             tic
             parfor samp = 1:n_resampling
                 % Vectorized resampling, see non_parametric_resample()
-                resampled_letters_cipsi  = arrayfun(@(idx) non_parametric_resample(all_eegs_letters(idx).dat, n_letters_left(idx), method), participant_list, 'UniformOutput', false);
+                resampled_letters_cipsi  = arrayfun(@(idx) non_parametric_resample(all_eegs_letters(idx).dat, n_letters_left(idx), method), participant_list, 'UniformOutput', false); %#ok<*PFBNS> 
                 resampled_colors_cipsi = arrayfun(@(idx) non_parametric_resample(all_eegs_colors(idx).dat, n_colors_left(idx), method), participant_list, 'UniformOutput', false);
                 % Output is cells, convert it back to matrix
                 resampled_letters_cipsi = cell2mat(resampled_letters_cipsi');

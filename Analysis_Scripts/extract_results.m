@@ -5,7 +5,7 @@ function extract_results(filepath, team, pipeline, participant_list)
         erp_name = files(id).name;
         ERP = pop_loaderp( 'filename', erp_name, 'filepath', files(id).folder);
         ERP.PO7_8_index = 1;
-        ALLERP(id) = ERP;
+        ALLERP(id) = ERP; %#ok<AGROW> 
     end
     results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s', filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
 
@@ -99,7 +99,7 @@ function extract_results(filepath, team, pipeline, participant_list)
         stats_amp_letters.drm.eff, stats_amp_letters.drm.low_ci,...
         stats_amp_letters.drm.high_ci, stats_amp_letters.drm.se,...
         stats_amp_letters.grm.eff, stats_amp_letters.grm.low_ci,...
-        stats_amp_letters.grm.high_ci, stats_amp_letters.grm.se)
+        stats_amp_letters.grm.high_ci, stats_amp_letters.grm.se) %#ok<*NOPRT> 
 
     letters_fileID = fopen(sprintf('%sletters_output.txt', results_path), 'w');
     fprintf(letters_fileID, letters_output);

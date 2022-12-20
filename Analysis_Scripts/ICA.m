@@ -74,7 +74,6 @@ function ICA(participant_nr, filepath, team)
     EEG = eeg_checkset( EEG, 'ica' );
 
     EEG = pop_saveset(EEG, 'filename', filename, 'filepath', [filepath filesep team filesep 'EEG']);
-    clear EEG_forICA
 
     % Removing files created by ICA
     delete([pwd filesep 'binica*']);

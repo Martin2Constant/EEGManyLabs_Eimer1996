@@ -13,10 +13,14 @@ function eeg_analysis(preprocess, get_results, pipeline, participant_list, filep
     % For Essex data import: loadcurry v3.2.3
     % firfilt v2.6.0
     % clean_rawdata v2.7.0
+    % AMICA v1.7.0
+    % postAmicaUtility v2.1
+    % ICLabel v1.4
+    % latency v1.3.0 https://github.com/Liesefeld/latency/releases/tag/v1.3.0
     arguments
         preprocess logical = true;
         get_results logical = true;
-        pipeline string = "Original"; % "Original", "Resample", "ICA" or "ICA+Resample"
+        pipeline string {mustBeMember(pipeline,["Original", "Resample", "ICA", "Resample"])} = "Original";
         participant_list double = [1:28];
         filepath char = fileparts(mfilename('fullpath'));
     end
@@ -56,8 +60,8 @@ function eeg_analysis(preprocess, get_results, pipeline, participant_list, filep
     pop_editoptions('option_savetwofiles', 0, 'option_single', 0, 'option_boundary99', 1);
     for participant_nr = participant_list
         if preprocess
-            import_data(participant_nr, filepath, team)
-            filter_and_downsample(participant_nr, filepath, team)
+%             import_data(participant_nr, filepath, team)
+%             filter_and_downsample(participant_nr, filepath, team)
             if pipeline == "ICA" || pipeline == "ICA+Resample"
                 AMICA(participant_nr, filepath, team, false)
             end
