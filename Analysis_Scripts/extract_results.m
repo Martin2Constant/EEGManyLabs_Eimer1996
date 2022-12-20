@@ -4,6 +4,7 @@ function extract_results(filepath, team, pipeline, participant_list)
     for id = 1:length(files)
         erp_name = files(id).name;
         ERP = pop_loaderp( 'filename', erp_name, 'filepath', files(id).folder);
+        ERP.PO7_8_index = 1;
         ALLERP(id) = ERP;
     end
     results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s', filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
@@ -11,20 +12,17 @@ function extract_results(filepath, team, pipeline, participant_list)
     if pipeline == "Original" || pipeline == "ICA"
         onset = 220;
         offset = 300;
-        % Extract amplitude values for each condition
-        [ALLERP, letters_amp] = pop_geterpvalues( ALLERP, [onset offset],  [13 14], [ERP.PO7_8_index], 'Baseline', 'pre', 'Erpsets', 1:length(ALLERP), 'FileFormat', 'wide', 'Filename',...
-            [results_path 'mean_amp_letters_N2pc.txt'], 'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'meanbl', 'PeakOnset',  1, 'Resolution',  9 );
-        [ALLERP, colors_amp] = pop_geterpvalues( ALLERP, [onset offset],  [16 17], [ERP.PO7_8_index], 'Baseline', 'pre', 'Erpsets', 1:length(ALLERP), 'FileFormat', 'wide', 'Filename',...
-            [results_path 'mean_amp_colors_N2pc.txt'], 'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'meanbl', 'PeakOnset',  1, 'Resolution',  9 );
-
+       
     elseif pipeline == "Resample" || pipeline == "ICA+Resample"
         cfg.sign = -1; % Search in the negative polarities
-        cfg.peakWidth = 4;
+        cfg.peakWidth = 5; % 5 ms -> 1 sampling point
         % Extract 15% peak amplitude onset and offset
         cfg.extract = {'onset', 'offset'};
         cfg.percAmp = 0.15;
+
         cfg.times = ERP.times;
-        cfg.cWinWidth = 200;
+        cfg.timeFormat = 'ms';
+        cfg.cWinWidth = 200; % Search for a counterpeak 200ms around the peak
         cfg.condition = 15; % Letters
         cfg.peakWin = [100 400]; % Search for N2pc peak between 100 and 400ms
         cfg.aggregate = 'GA';
@@ -39,12 +37,14 @@ function extract_results(filepath, team, pipeline, participant_list)
 
         onset = round(mean([onset_letters, onset_colors]));
         offset = round(mean([offset_letters, offset_colors]));
-        [ALLERP, letters_amp] = pop_geterpvalues( ALLERP, [onset offset],  [13 14], [ERP.PO7_8_index], 'Baseline', 'pre', 'Erpsets', 1:length(ALLERP), 'FileFormat', 'wide', 'Filename',...
-            [results_path 'mean_amp_letters_N2pc.txt'], 'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'meanbl', 'PeakOnset',  1, 'Resolution',  9 );
-        [ALLERP, colors_amp] = pop_geterpvalues( ALLERP, [onset offset],  [16 17], [ERP.PO7_8_index], 'Baseline', 'pre', 'Erpsets', 1:length(ALLERP), 'FileFormat', 'wide', 'Filename',...
-            [results_path 'mean_amp_colors_N2pc.txt'], 'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'meanbl', 'PeakOnset',  1, 'Resolution',  9 );
-        create_resampled_erps(filepath, team, participant_list, pipeline, onset, offset)
+        non_parametric_tests(filepath, team, participant_list, pipeline, onset, offset)
     end
+    % Extract amplitude values for each condition
+    [ALLERP, letters_amp] = pop_geterpvalues( ALLERP, [onset offset],  [13 14], [ERP.PO7_8_index], 'Baseline', 'pre', 'Erpsets', 1:length(ALLERP), 'FileFormat', 'wide', 'Filename',...
+        [results_path 'mean_amp_letters_N2pc.txt'], 'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'meanbl', 'PeakOnset',  1, 'Resolution',  9 );
+    [ALLERP, colors_amp] = pop_geterpvalues( ALLERP, [onset offset],  [16 17], [ERP.PO7_8_index], 'Baseline', 'pre', 'Erpsets', 1:length(ALLERP), 'FileFormat', 'wide', 'Filename',...
+        [results_path 'mean_amp_colors_N2pc.txt'], 'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'meanbl', 'PeakOnset',  1, 'Resolution',  9 );
+
     letters_contra_amp = letters_amp(1,:)';
     letters_ipsi_amp = letters_amp(2,:)';
     colors_contra_amp = colors_amp(1,:)';

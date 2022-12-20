@@ -1,6 +1,6 @@
-function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, participant_list, pipeline, onset, offset)
+function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, participant_list, pipeline, onset, offset)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
-    rng("shuffle"); % Make sure we don't use MATLAB default's rng behavior
+    rng("shuffle"); % Make sure we don't use MATLAB default's rng seed
     close all
     % Initialize everything
     results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s', filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
@@ -10,9 +10,6 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
     n_resampling = 10000;
     n_meta = 1000;
     time_window = [onset; offset]; % In milliseconds
-    resampled_letters = zeros(1, n_resampling, 'double');
-    resampled_colors = zeros(1, n_resampling, 'double');
-    resampled_t_diff = zeros(1, n_resampling, 'double');
     pval_letters = zeros(1, n_meta, 'double');
     pval_colors = zeros(1, n_meta, 'double');
     pval_difference = zeros(1, n_meta, 'double');
@@ -28,7 +25,7 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
     epoched = sprintf('%s_pipeline_%s_participant%i_epoched_small.set', team, pipeline, id);
     EEG = pop_loadset(epoched, [filepath filesep team filesep 'EEG']);
     time_idx = dsearchn(EEG.times', time_window)';
-    sampling_period = 1 / EEG.srate;
+
     observed_letters_cipsi = zeros(length(participant_list), length(time_idx(1):time_idx(2)), 'double');
     observed_colors_cipsi = zeros(length(participant_list), length(time_idx(1):time_idx(2)), 'double');
 
@@ -89,13 +86,12 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
         observed_colors_cipsi(idx, :) = ERP_colors_contra - ERP_colors_ipsi;
     end
 
-    observed_cond_diff_cipsi = observed_letters_cipsi - observed_colors_cipsi;
-    % Compute observed test statistic
+    % Compute observed signed means
     GA_letters = mean(observed_letters_cipsi, 1);
     GA_colors = mean(observed_colors_cipsi, 1);
-    observed_AUC_letters = compute_AUC(GA_letters, sampling_period, "neg");
-    observed_AUC_colors = compute_AUC(GA_colors, sampling_period, "neg");
-    observed_t_diff = compute_t(observed_letters_cipsi, observed_colors_cipsi);
+    observed_mean_letters = compute_mean(GA_letters, "neg");
+    observed_mean_colors = compute_mean(GA_colors, "neg");
+    observed_cond_diff = compute_mean(GA_letters - GA_colors, "neg");
     methods = ["permutation", "bootstrap"];
     
     % Start meta-resampling (level 2 analysis), we do the resampling
@@ -104,13 +100,16 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
     % all the resampled p-values are below our significance threshold or not.
     for method = methods
         for meta = 1:n_meta
+            resampled_letters = zeros(1, n_resampling, 'double');
+            resampled_colors = zeros(1, n_resampling, 'double');
+            resampled_cond_diff = zeros(1, n_resampling, 'double');
             fprintf("\nStarting %s: %i\n", method, meta)
 
             tic
             parfor samp = 1:n_resampling
-                % Vectorized resampling, see resample_data()
-                resampled_letters_cipsi = arrayfun(@(idx) resample_data(all_eegs_letters(idx).dat, n_letters_left(idx), method), participant_list, 'UniformOutput', false);
-                resampled_colors_cipsi = arrayfun(@(idx) resample_data(all_eegs_colors(idx).dat, n_colors_left(idx), method), participant_list, 'UniformOutput', false);
+                % Vectorized resampling, see non_parametric_resample()
+                resampled_letters_cipsi  = arrayfun(@(idx) non_parametric_resample(all_eegs_letters(idx).dat, n_letters_left(idx), method), participant_list, 'UniformOutput', false);
+                resampled_colors_cipsi = arrayfun(@(idx) non_parametric_resample(all_eegs_colors(idx).dat, n_colors_left(idx), method), participant_list, 'UniformOutput', false);
                 % Output is cells, convert it back to matrix
                 resampled_letters_cipsi = cell2mat(resampled_letters_cipsi');
                 resampled_colors_cipsi = cell2mat(resampled_colors_cipsi');
@@ -119,19 +118,19 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
                 GA_letters = mean(resampled_letters_cipsi, 1);
                 GA_colors = mean(resampled_colors_cipsi, 1);
 
-                % Compute AUC and t
-                resampled_letters(samp) = compute_AUC(GA_letters, sampling_period, "neg");
-                resampled_colors(samp) = compute_AUC(GA_colors, sampling_period, "neg");
-                resampled_t_diff(samp) = compute_t(resampled_letters_cipsi, resampled_colors_cipsi);
+                % Compute mean signed amplitudes
+                resampled_letters(samp) = compute_mean(GA_letters, "neg");
+                resampled_colors(samp) = compute_mean(GA_colors, "neg");
+                resampled_cond_diff(samp) = compute_mean(GA_letters - GA_colors, "neg");
             end
             toc
             % Get the p-value for the current meta-resampling
-            pval_letters(meta) = (sum(resampled_letters >= observed_AUC_letters) / n_resampling);
-            pval_colors(meta) = (sum(resampled_colors >= observed_AUC_colors) / n_resampling);
-            pval_difference(meta) = (sum(abs(resampled_t_diff) >= abs(observed_t_diff)) / n_resampling);
+            pval_letters(meta) = (sum(resampled_letters >= observed_mean_letters) / n_resampling);
+            pval_colors(meta) = (sum(resampled_colors >= observed_mean_colors) / n_resampling);
+            pval_difference(meta) = (sum(resampled_cond_diff >= observed_cond_diff) / n_resampling);
         end
         save(sprintf('%spvalues_%s.mat', results_path, method), "pval_letters", "pval_colors", "pval_difference");
-        save(sprintf('%slast_%s.mat', results_path, method),"resampled_letters", "resampled_colors", "resampled_t_diff");
+        save(sprintf('%slast_%s.mat', results_path, method),"resampled_letters", "resampled_colors", "resampled_cond_diff");
 
         if print_results
             if median(pval_letters) < alpha
@@ -150,27 +149,26 @@ function [pval_letters, pval_colors] = create_resampled_erps(filepath, team, par
                 fprintf("\nWe don't reject the null for the difference between conditions\n")
             end
 
-            sorted_t = sort(resampled_t_diff);
+            sorted_diff = sort(resampled_cond_diff);
             sorted_letters = sort(resampled_letters);
             sorted_colors = sort(resampled_colors);
             figure;
             histogram(sorted_letters)
             title(sprintf("Letters, method = %s, p = %.3g", method, pval_letters(end)))
-            xline(observed_AUC_letters)
+            xline(observed_mean_letters)
             xline(sorted_letters(n_resampling*(1-alpha)), "r--")
 
             figure;
             histogram(sorted_colors)
             title(sprintf("Colors, method = %s, p = %.3g", method, pval_colors(end)))
-            xline(observed_AUC_colors)
+            xline(observed_mean_colors)
             xline(sorted_colors(n_resampling*(1-alpha)), "r--")
 
             figure;
-            histogram(sorted_t)
+            histogram(sorted_diff)
             title(sprintf("Difference, method = %s, p = %.3g", method, pval_difference(end)))
-            xline(observed_t_diff)
-            xline(sorted_t(n_resampling*(1-alpha/2)), "r--")
-            xline(sorted_t(n_resampling*(alpha/2)), "r--")
+            xline(observed_cond_diff)
+            xline(sorted_diff(n_resampling*(1-alpha)), "r--")
         end
     end
 end
