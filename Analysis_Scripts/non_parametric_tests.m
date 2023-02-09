@@ -9,6 +9,9 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
     print_results = true;
     n_resampling = 10000;
     n_meta = 1000;
+    % Right now we use the same time window for all bootstraps. This should
+    % be modified to compute a new time window for each bootstrap. 
+    % The latency.m function has to be modified a bit for that to work.
     time_window = [onset; offset]; % In milliseconds
     pval_letters = zeros(1, n_meta, 'double');
     pval_colors = zeros(1, n_meta, 'double');
@@ -92,7 +95,7 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
     observed_mean_letters = compute_mean(GA_letters, "neg");
     observed_mean_colors = compute_mean(GA_colors, "neg");
     observed_cond_diff = compute_mean(GA_letters - GA_colors, "neg");
-    methods = ["permutation", "bootstrap"];
+    methods = ["bootstrap"];
     
     % Start meta-resampling (level 2 analysis), we do the resampling
     % many times. This way, we can select the median p-value of these 

@@ -1,11 +1,12 @@
 function eeg_analysis(preprocess, get_results, pipeline, participant_list, filepath)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
-    % Running on GNU/Linux Debian 10 with:
+    % Running with:
     % MATLAB R2021a
     % Statistics and Machine Learning Toolbox R2021a
     % Optimization Toolbox R2021a
     % Image Processing Toolbox R2021a
     % Signal Processing Toolbox R2021a
+    % Parallel Computing Toolbox R2021a
     % EEGLAB version 2022.1
     % ERPLAB v9.00
     % For Krakow data import: Biosig v3.8.1
