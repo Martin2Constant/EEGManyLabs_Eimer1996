@@ -4,8 +4,11 @@ See on OSF for more information:  https://osf.io/4ux8r/
 
 ## Dependencies
 MATLAB R2021a
+
 Statistics and Machine Learning Toolbox R2021a
+
 Optimization Toolbox R2021a
+
 Image Processing Toolbox R2021a
 Signal Processing Toolbox R2021a
 Parallel Computing Toolbox R2021a
