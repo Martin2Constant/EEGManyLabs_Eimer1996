@@ -1,5 +1,5 @@
 # Readme
-This is the EEG processing pipeline for the replication of Eimer's (1996; https://doi.org/dk5b9z) N2pc study in the context of the #EEGManyLabs project (Pavlov et al., 2021; https://doi.org/gjx8qt).
+This is the EEG processing pipeline for the replication of Experiment 2 of Eimer's seminal N2pc study (1996; https://doi.org/dk5b9z) in the context of the #EEGManyLabs project (Pavlov et al., 2021; https://doi.org/gjx8qt).
 See on OSF for more information:  https://osf.io/4ux8r/
 
 ## Dependencies
