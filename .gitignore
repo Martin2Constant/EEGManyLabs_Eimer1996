@@ -32,6 +32,7 @@ Behavior*
 *.py
 *.bdf
 *.txt
+*.r
 Munich*
 Krakow*
 Essex*
