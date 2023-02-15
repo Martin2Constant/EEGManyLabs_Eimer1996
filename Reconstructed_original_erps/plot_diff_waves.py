@@ -89,7 +89,7 @@ fig1 = mne.viz.plot_compare_evokeds(evokeds=[mne_colors_contra,
                              )
 
 fig1[0].get_axes()[0].axvspan(220, 300, ymin=0.2, ymax=0.65, color="gray", alpha=0.5)
-plt.savefig("Contra_Ipsi waves.svg")
+#plt.savefig("Contra_Ipsi waves.svg")
 plt.savefig("Contra_Ipsi waves.png", dpi=300)
 plt.show()
 
@@ -107,6 +107,48 @@ fig2 = mne.viz.plot_compare_evokeds([mne_colors_diff, mne_forms_diff],
                              )
 
 fig2[0].get_axes()[0].axvspan(220, 300, ymin=0, ymax=0.5, color="gray", alpha=0.5)
-plt.savefig("Difference waves.svg")
+#plt.savefig("Difference waves.svg")
 plt.savefig("Difference waves.png", dpi=300)
+plt.show()
+
+
+fig3 = mne.viz.plot_compare_evokeds(evokeds=[mne_colors_contra,
+                                      mne_colors_ipsi,
+                                      mne_forms_contra,
+                                      mne_forms_ipsi,],
+                             ylim={"eeg":[-9, 9]},
+                             styles={"Colors Contra": {"linestyle": "-", "color": "C1"},
+                                     "Colors Ipsi": {"linestyle": "--", "color": "C1"},
+                                     "Forms Contra": {"linestyle": "-", "color": "C2"},
+                                     "Forms Ipsi": {"linestyle": "--", "color": "C2"},                               
+                                     },
+                             truncate_xaxis="auto",
+                             invert_y = True,
+                             show_sensors=False,
+                             time_unit="ms",
+                             legend="upper right",
+                             show=False,
+                             )
+
+fig3[0].get_axes()[0].axvspan(220, 300, ymin=0.3, ymax=0.75, color="gray", alpha=0.5)
+#plt.savefig("Contra_Ipsi waves inverted Y.svg")
+plt.savefig("Contra_Ipsi waves inverted Y.png", dpi=300)
+plt.show()
+
+fig4 = mne.viz.plot_compare_evokeds([mne_colors_diff, mne_forms_diff],
+                             ylim={"eeg":[-3.6, 3.6]},
+                             styles={"Colors Contra − Colors Ipsi": {"linestyle": "-", "color": "C1"},
+                                     "Forms Contra − Forms Ipsi": {"linestyle": "-", "color": "C2"},
+                                     },
+                             truncate_xaxis="auto",
+                             invert_y=True,
+                             show_sensors=False,
+                             time_unit="ms",                             
+                             legend="lower right",
+                             show=False,
+                             )
+
+fig4[0].get_axes()[0].axvspan(220, 300, ymin=0.5, ymax=1, color="gray", alpha=0.5)
+#plt.savefig("Difference waves inverted Y.svg")
+plt.savefig("Difference waves inverted Y.png", dpi=300)
 plt.show()
