@@ -133,7 +133,7 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
             pval_difference(meta) = (sum(resampled_cond_diff >= observed_cond_diff) / n_resampling);
         end
         save(sprintf('%spvalues_%s.mat', results_path, method), "pval_letters", "pval_colors", "pval_difference");
-        save(sprintf('%slast_%s.mat', results_path, method),"resampled_letters", "resampled_colors", "resampled_cond_diff");
+        save(sprintf('%slast_%s.mat', results_path, method), "resampled_letters", "resampled_colors", "resampled_cond_diff");
 
         if print_results
             if median(pval_letters) < alpha

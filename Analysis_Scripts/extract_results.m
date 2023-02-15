@@ -15,16 +15,17 @@ function extract_results(filepath, team, pipeline, participant_list)
        
     elseif pipeline == "Resample" || pipeline == "ICA+Resample"
         cfg.sign = -1; % Search in the negative polarities
-        cfg.peakWidth = 5; % 5 ms -> 1 sampling point
-        % Extract 15% peak amplitude onset and offset
+        cfg.peakWidth = 0; % We just want the peak
+        % Extract 25% peak amplitude onset and offset
         cfg.extract = {'onset', 'offset'};
-        cfg.percAmp = 0.15;
+        cfg.percAmp = 0.25;
 
         cfg.times = ERP.times;
         cfg.timeFormat = 'ms';
-        cfg.cWinWidth = 200; % Search for a counterpeak 200ms around the peak
+        cfg.areaBase = 'zero';
         cfg.condition = 15; % Letters
-        cfg.peakWin = [100 400]; % Search for N2pc peak between 100 and 400ms
+        cfg.peakWin = [100 450]; % Search for N2pc peak between 100 and 450ms
+        cfg.ampLatWin = 'peakWin'; % Search for the on/offset in the above window
         cfg.aggregate = 'GA';
         cfg.chans = ERP.PO7_8_index;
         [res, ~] = latency(cfg, ALLERP); % Liesefeld (2018), Frontiers in Neuroscience
