@@ -12,7 +12,7 @@ F = 17.48
 N = 10
 t = np.sqrt(F)
 dz = t / np.sqrt(N)
-dz = dz/2
+dz /= 2
 
 req_N = pg.power_ttest(d=dz,
                    n=None,
