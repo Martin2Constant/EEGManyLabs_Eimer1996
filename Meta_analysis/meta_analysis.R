@@ -52,7 +52,9 @@ forest.meta(meta_colors,
 forest.meta(meta_forms, 
             prediction = TRUE, 
             print.tau2 = FALSE,
-            leftlabs = c("Study – Forms Contra vs. Ipsi", expression(italic("g")["z"]), "SE"))
+            leftcols = c("studlab", "TE", "seTE", "ci"),
+            leftlabs = c("Study – Colors Contra vs. Ipsi", expression(italic("g")["z"]), "SE", "95% CI"),
+            rightcols = c("w.random"))
 
 forest.meta(meta_comparison, 
             prediction = TRUE, 
