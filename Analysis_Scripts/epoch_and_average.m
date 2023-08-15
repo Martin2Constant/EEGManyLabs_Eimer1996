@@ -32,13 +32,24 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     nb_chans = size(EEG.data, 1);
     PO7_index = find(strcmpi(chanlocs, 'PO7'));
     PO8_index = find(strcmpi(chanlocs, 'PO8'));
-    IO2_index = find(strcmpi(chanlocs, 'IO2'));
     LO1_index = find(strcmpi(chanlocs, 'LO1'));
     LO2_index = find(strcmpi(chanlocs, 'LO2'));
-    SO2_index = find(strcmpi(chanlocs, 'SO2'));
-    if isempty(SO2_index)
-        SO2_index = find(strcmpi(chanlocs, 'Fp2'));
+    if EEG.VEOG_side == "right"
+        IO_index = find(strcmpi(chanlocs, 'IO2'));
+        SO_index = find(strcmpi(chanlocs, 'SO2'));
+        if isempty(SO_index)
+            SO_index = find(strcmpi(chanlocs, 'Fp2'));
+        end
+    elseif EEG.VEOG_side == "left"
+        IO_index = find(strcmpi(chanlocs, 'IO1'));
+        SO_index = find(strcmpi(chanlocs, 'SO1'));
+        if isempty(SO_index)
+            SO_index = find(strcmpi(chanlocs, 'Fp1'));
+        end
+    else
+        error('VEOG side not found');
     end
+
     VEOG_index = nb_chans + 1;
     HEOG_index = nb_chans + 2;
     % "Horizontal EOG was recorded bipolarly from electrodes at the
@@ -48,13 +59,13 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     % procedure on these.
     % Deviates from original study: VEOG was above minus besides.
     EEG = pop_eegchanoperator(EEG, ...
-        {sprintf('ch%i = ch%i-ch%i label VEOG', VEOG_index, SO2_index, IO2_index), ...
+        {sprintf('ch%i = ch%i-ch%i label VEOG', VEOG_index, SO_index, IO_index), ...
         sprintf('ch%i = ch%i-ch%i label HEOG', HEOG_index, LO1_index, LO2_index)}, ...
         'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on', 'Saveas', 'off');
 
     % Removing trials with flat PO7/PO8/EOGs
     % Deviates from original study.
-    EEG  = pop_artflatline(EEG , 'Channel', [PO7_index PO8_index IO2_index LO1_index LO2_index SO2_index],...
+    EEG  = pop_artflatline(EEG , 'Channel', [PO7_index PO8_index IO_index LO1_index LO2_index SO_index],...
         'Duration',  350, 'Flag', [ 1 4], 'LowPass',  -1,...
         'Threshold', [ -1 1], 'Twindow', [ -100 600] );
 
@@ -64,7 +75,9 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     EEG = pop_artextval(EEG, 'Channel', HEOG_index, 'Flag', [ 1 3], 'LowPass', -1, 'Threshold', [ -25 25], 'Twindow', [ -100 600] );
 
     if pipeline == "ICA" || pipeline == "ICA+Resample"
+        save_rejects = EEG.reject;
         EEG = pop_subcomp(EEG, eye_ics);
+        EEG.reject = save_rejects;
         EEG = pop_artextval(EEG, 'Channel', [PO7_index PO8_index], 'Flag', [ 1 5], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
     end
     EEG = eeg_checkset(EEG, 'eventconsistency' );
@@ -96,6 +109,11 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         case 'Essex'
             LeftChans ='Lch = [ 1 4 8 7 11 12 16 15 21 20 25 2 5 17 22 29];';
             RightChans ='Rch = [ 3:3:9 10 14 13 18 19 23 24 26 2 5 17 22 29];';
+        case 'Gent'
+            LeftChans ='Lch = [ 1 3 2 4:8 11:-1:9 12:16 19:-1:17 20:24 26 25 27 65 28:33 37 38 47 48 69 70];';
+            RightChans ='Rch = [ 34 36 35 39:43 46:-1:44 49:53 56:-1:54 57:61 63 62:2:66 28:33 37 38 47 48 69 70];';
+        otherwise
+            error('Team not found');
     end
 
     % Create contra and ipsi waves
@@ -136,7 +154,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     % "A maximal residual EOG deviation exceeding +/- 2 µV would have led
     % to the disqualification of the subject."
     if abs(max(ERP.bindata(ERP.LO1_2_index, :, 21))) >= 2
-        ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name], 'filename', ['excluded_' erp_name '.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU> 
+        ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name], 'filename', ['excluded_' erp_name '.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
     else
         if pipeline == "Original" || pipeline == "ICA"
             ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');

@@ -32,7 +32,7 @@ function eeg_analysis(preprocess, get_results, pipeline, participant_list, filep
     end
     eeglab; close;
     msg = 'Which team?';
-    opts = ["Munich", "Krakow", "Essex"];
+    opts = ["Munich", "Krakow", "Essex", "Gent"];
     choice = menu(msg, opts);
     team = char(opts(choice));
     if ~exist(team, 'dir')
@@ -61,8 +61,8 @@ function eeg_analysis(preprocess, get_results, pipeline, participant_list, filep
     pop_editoptions('option_savetwofiles', 0, 'option_single', 0, 'option_boundary99', 1);
     for participant_nr = participant_list
         if preprocess
-%             import_data(participant_nr, filepath, team)
-%             filter_and_downsample(participant_nr, filepath, team)
+            import_data(participant_nr, filepath, team)
+            filter_and_downsample(participant_nr, filepath, team)
             if pipeline == "ICA" || pipeline == "ICA+Resample"
                 AMICA(participant_nr, filepath, team, false)
             end

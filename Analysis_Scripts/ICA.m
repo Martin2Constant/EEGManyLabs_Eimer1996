@@ -26,7 +26,7 @@ function ICA(participant_nr, filepath, team)
     EEG_forICA = eeg_checkset( EEG_forICA );
     % Check that data rank is still okay, in case there's a discrepancy,
     % keep the lowest of the two.
-    dataRank = min(EEG_forICA.dataRank, sum(eig(cov(double(EEG_forICA.data'))) > 1E-6));
+    dataRank = sum(eig(cov(double(EEG_forICA.data'))) > 1E-6);
     %% Extended Infomax ICA, with PCA reduction if dataRank < N_channels
     try
         %% 100 Hz CUDA ICA
@@ -35,9 +35,9 @@ function ICA(participant_nr, filepath, team)
         % https://github.com/fraimondo/cudaica (Linux)
         % Needs more installation but is much faster
         if dataRank < length(EEG_forICA.data(:,1))
-            EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'cudaica', 'extended', 1, 'maxsteps', 16000, 'pca', dataRank);
+            EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'cudaica', 'extended', 1, 'lrate', 1e-5, 'maxsteps', 16000, 'pca', dataRank);
         else
-            EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'cudaica', 'extended', 1, 'maxsteps', 16000);
+            EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'cudaica', 'extended', 1, 'lrate', 1e-5, 'maxsteps', 16000);
         end
         EEG_forICA = eeg_checkset( EEG_forICA );
     catch

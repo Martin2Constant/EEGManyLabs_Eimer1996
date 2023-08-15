@@ -15,7 +15,12 @@ function harmonize_markers(EEG, filepath)
         case 'Essex'
             eventlabels = {EEG.event(:).type}';
             clean = eventlabels;
-    end
+        case 'Gent'
+            eventlabels = {EEG.event(:).type}';
+            clean = eventlabels;
+        otherwise
+            error('Team not found');
+        end
 
     % Get each marker's latency
     latencies = {EEG.event(:).latency}';
