@@ -18,9 +18,13 @@ function harmonize_markers(EEG, filepath)
         case 'Gent'
             eventlabels = {EEG.event(:).type}';
             clean = eventlabels;
+        case 'ONERA'
+            eventlabels = {EEG.event(:).type}';
+            % Remove the leading "S"; S255 -> 255
+            clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
         otherwise
             error('Team not found');
-        end
+    end
 
     % Get each marker's latency
     latencies = {EEG.event(:).latency}';
@@ -95,7 +99,7 @@ function harmonize_markers(EEG, filepath)
     EEGs = EEG;
     lastwarn('');
     pop_editoptions('option_saveversion6', 1);
-    EEG = pop_saveset(EEG, 'filename', [EEG.setname '.set'], 'filepath', [filepath filesep EEG.team filesep 'EEG']); %#ok<*NASGU> 
+    EEG = pop_saveset(EEG, 'filename', [EEG.setname '.set'], 'filepath', [filepath filesep EEG.team filesep 'EEG']); %#ok<*NASGU>
     if strcmpi(lastwarn, "Variable 'EEG' was not saved. For variables larger than 2GB use MAT-file version 7.3 or later.")
         pop_editoptions('option_saveversion6', 0);
         EEG = EEGs;

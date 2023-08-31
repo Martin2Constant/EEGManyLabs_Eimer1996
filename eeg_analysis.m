@@ -1,4 +1,4 @@
-function eeg_analysis(preprocess, get_results, pipeline, participant_list, filepath)
+function eeg_analysis(pipeline, team, participant_list, preprocess, get_results, filepath)
     % Author: Martin Constant (martin.constant@uni-bremen.de)
     % Running with:
     % MATLAB R2021a
@@ -19,11 +19,12 @@ function eeg_analysis(preprocess, get_results, pipeline, participant_list, filep
     % ICLabel v1.4
     % latency v1.3.0 https://github.com/Liesefeld/latency/releases/tag/v1.3.0
     arguments
+        pipeline string {mustBeMember(pipeline,["Original", "Resample", "ICA", "Resample"])} = "Original";
+        team char = ''
+        participant_list double = [1:28];
         preprocess logical = true;
         get_results logical = true;
-        pipeline string {mustBeMember(pipeline,["Original", "Resample", "ICA", "Resample"])} = "Original";
-        participant_list double = [1:28];
-        filepath char = fileparts(mfilename('fullpath'));
+        filepath char = fileparts(mfilename('fullpath'));    
     end
     cd(filepath);
     addpath([filepath filesep 'Analysis_Scripts']);
@@ -32,9 +33,11 @@ function eeg_analysis(preprocess, get_results, pipeline, participant_list, filep
     end
     eeglab; close;
     msg = 'Which team?';
-    opts = ["Munich", "Krakow", "Essex", "Gent"];
-    choice = menu(msg, opts);
-    team = char(opts(choice));
+    opts = ["Munich", "Krakow", "Essex", "Gent", "ONERA"];
+    if isempty(team)
+        choice = menu(msg, opts);
+        team = char(opts(choice));
+    end
     if ~exist(team, 'dir')
         mkdir(team);
     end
