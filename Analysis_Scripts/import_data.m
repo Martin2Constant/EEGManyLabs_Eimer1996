@@ -51,7 +51,7 @@ function import_data(participant_nr, filepath, team)
             EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {65, 'labels', 'M1'}, 'changefield', {66, 'labels', 'M2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {69, 'labels', 'SO1'}, 'changefield', {70, 'labels', 'IO1'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:72', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
             % Remove unused electrodes
             EEG = pop_select( EEG, 'nochannel', {'EXG7', 'EXG8'});
-     case 'ONERA'
+        case 'ONERA'
             filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%04i', team, participant_nr);
             filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
             % Loading EEG
@@ -60,6 +60,16 @@ function import_data(participant_nr, filepath, team)
             % Change electrode names to match names from the BESA template
             % and load BESA locations
             EEG = pop_chanedit(EEG, 'changefield', {1, 'labels', 'SO1'}, 'changefield', {32, 'labels', 'IO1'}, 'changefield', {33, 'labels', 'LO1'}, 'changefield', {61, 'labels', 'LO2'}, 'changefield', {10, 'labels', 'M1'}, 'changefield', {21, 'labels', 'M2'}, 'append', 63, 'changefield', {64, 'labels', 'FCz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:64', 'FCz'}, 'eval', '', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'convert', {'cart2all'});
+        
+        case 'Geneva'
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%04i', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
+            % Loading EEG
+            EEG = pop_loadbv([filepath filesep filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
+
+            % Change electrode names to match names from the BESA template
+            % and load BESA locations
+            EEG = pop_chanedit(EEG, 'changefield', {1, 'labels', 'LO2'}, 'changefield', {2, 'labels', 'LO1'}, 'changefield', {3, 'labels', 'SO2'}, 'changefield', {4, 'labels', 'IO2'}, 'changefield', {5, 'labels', 'M1'}, 'changefield', {6, 'labels', 'M2'}, 'append', 31, 'changefield', {32, 'labels', 'FCz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:32', 'FCz'}, 'eval', '', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'convert', {'cart2all'});
 
         otherwise
             error('Team not found');
@@ -69,7 +79,7 @@ function import_data(participant_nr, filepath, team)
     EEG.setname = sprintf('%s_participant%i_harmonized', team, participant_nr);
 
     % Add behavior table (without practice trials) to EEG object
-    behavior = readtable([filepath filesep team filesep 'RawData' filesep filename_behavior]);
+    behavior = readtable([filepath filesep team filesep 'RawData' filesep filename_behavior], 'Delimiter', ',');
     behavior = behavior(behavior.Practice == 0, :);
     EEG.behavior = behavior;
     EEG.team = team;

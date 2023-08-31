@@ -33,7 +33,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     end
     eeglab; close;
     msg = 'Which team?';
-    opts = ["Munich", "Krakow", "Essex", "Gent", "ONERA"];
+    opts = ["Munich", "Krakow", "Essex", "Gent", "ONERA", "Geneva"];
     if isempty(team)
         choice = menu(msg, opts);
         team = char(opts(choice));
