@@ -1,5 +1,5 @@
 function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, participant_list, pipeline, onset, offset)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     rng("shuffle"); % Make sure we don't use MATLAB default's rng seed
     close all
     % Initialize everything

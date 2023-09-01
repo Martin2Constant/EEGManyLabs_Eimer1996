@@ -1,19 +1,19 @@
 function eeg_analysis(pipeline, team, participant_list, preprocess, get_results, filepath)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     % Running with:
-    % MATLAB R2021a
-    % Statistics and Machine Learning Toolbox R2021a
-    % Optimization Toolbox R2021a
-    % Image Processing Toolbox R2021a
-    % Signal Processing Toolbox R2021a
-    % Parallel Computing Toolbox R2021a
-    % EEGLAB version 2022.1
-    % ERPLAB v9.00
-    % For Krakow data import: Biosig v3.8.1
-    % For Munich data import: bva-io v1.71
-    % For Essex data import: loadcurry v3.2.3
-    % firfilt v2.6.0
-    % clean_rawdata v2.7.0
+    % MATLAB R2023a
+    % Statistics and Machine Learning Toolbox R2023a
+    % Optimization Toolbox R2023a
+    % Image Processing Toolbox R2023a
+    % Signal Processing Toolbox R2023a
+    % Parallel Computing Toolbox R2023a
+    % EEGLAB version 2023.1
+    % ERPLAB v10.00
+    % For BioSemi data import: Biosig v3.8.1
+    % For BrainVision data import: bva-io v1.72
+    % For NeuroScan data import: loadcurry v3.2.3
+    % firfilt v2.7.1
+    % clean_rawdata v2.91
     % AMICA v1.7.0
     % postAmicaUtility v2.1
     % ICLabel v1.4

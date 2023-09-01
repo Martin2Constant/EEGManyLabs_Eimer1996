@@ -1,5 +1,5 @@
 function [ERP_cipsi, ERP_contra, ERP_ipsi, resampled_data] = non_parametric_resample(data, ntrials_left, method, lch, rch)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     % Make sure rng("shuffle") has been called in the script calling this function
     arguments
         data double;

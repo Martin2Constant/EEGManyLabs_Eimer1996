@@ -1,5 +1,5 @@
 function AMICA(participant_nr, filepath, team, force_amica)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     % Requires the AMICA plugin from EEGLAB
     out_amica = sprintf('%s%s%s%sAMICA%s%i', filepath, filesep, team, filesep, filesep, participant_nr);
 

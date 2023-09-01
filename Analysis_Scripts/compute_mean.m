@@ -1,5 +1,5 @@
 function erp_mean = compute_mean(amplitudes, sign)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     % If sign is "neg" or "pos", will compute the signed mean.
     % If sign is "rectified", will compute the mean of the absolute amplitudes
     % If sign is "total", just computes mean.

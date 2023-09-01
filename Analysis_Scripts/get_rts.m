@@ -1,5 +1,5 @@
 function mean_rts = get_rts(ERP, mean_rts, row)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     % Extract RTs from the behavior data file.
     behavior = ERP.behavior;
 

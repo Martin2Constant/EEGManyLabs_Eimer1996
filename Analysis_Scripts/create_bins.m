@@ -1,5 +1,5 @@
 function create_bins()
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     % Create bins.txt file if it doesn't exist
     FID = fopen('bins.txt', 'w');
     for bin = 1:12

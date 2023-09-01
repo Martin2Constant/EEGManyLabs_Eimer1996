@@ -1,5 +1,5 @@
 function filter_and_downsample(participant_nr, filepath, team)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     filename = sprintf('%s_participant%i_harmonized.set', team, participant_nr);
     savename = sprintf('%s_participant%i_filtered.set', team, participant_nr);
     EEG = pop_loadset(filename, [filepath filesep team filesep 'EEG']);

@@ -1,5 +1,5 @@
 function [eye_ics, labels] = extract_iclabel(EEG)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
 
     % ICLabel performs better on strongly high-passed data. 
     EEG = pop_eegfiltnew(EEG, 'locutoff', 2);

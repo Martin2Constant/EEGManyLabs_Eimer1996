@@ -1,5 +1,5 @@
 function epoch_and_average(participant_nr, filepath, team, pipeline)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     filtered = sprintf('%s_participant%i_filtered.set', team, participant_nr);
     epoched = sprintf('%s_participant%i_epoched.set', team, participant_nr);
     erp_name = sprintf('%s_pipeline_%s_participant%i', team, pipeline, participant_nr);

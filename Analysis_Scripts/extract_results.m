@@ -1,5 +1,5 @@
 function extract_results(filepath, team, pipeline, participant_list)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     files = dir(fullfile([filepath filesep team filesep 'ERP' filesep char(pipeline)], [team '_pipeline_' char(pipeline) '_participant*.erp']));
     for id = 1:length(files)
         erp_name = files(id).name;

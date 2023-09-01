@@ -1,5 +1,5 @@
 function check_flat_channels(EEG, channels)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     % Check for flat channels.
     % First, create a high-passed copy of the dataset.
     % Onepass-zerophase Hamming-windowed sinc FIR

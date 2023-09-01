@@ -1,5 +1,5 @@
 function harmonize_markers(EEG, filepath)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
+    % Author: Martin Constant (martin.constant@unige.ch)
     switch EEG.team
         case 'Krakow'
             eventlabels = {EEG.event(:).type}';

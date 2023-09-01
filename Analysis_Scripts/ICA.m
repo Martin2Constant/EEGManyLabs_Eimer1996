@@ -1,8 +1,6 @@
 function ICA(participant_nr, filepath, team)
-    % Author: Martin Constant (martin.constant@uni-bremen.de)
-    % We are computing ICA weights, but at least for the pure replication,
-    % this step is useless since we're not using it.
-
+    % Author: Martin Constant (martin.constant@unige.ch)
+    
     filename = sprintf('%s_participant%i_filtered.set', team, participant_nr);
     EEG = pop_loadset(filename, [filepath filesep team filesep 'EEG']);
 

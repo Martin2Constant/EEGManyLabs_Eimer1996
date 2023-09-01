@@ -34,7 +34,11 @@ Behavior*
 *.txt
 *.r
 *.erpm
+*.log
+*.psydat
 Munich*
 Krakow*
 Essex*
 Gent*
+Geneva*
+ONERA*
