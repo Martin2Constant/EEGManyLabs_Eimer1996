@@ -1,4 +1,4 @@
-efunction eeg_analysis(pipeline, team, participant_list, preprocess, get_results, filepath)
+function eeg_analysis(pipeline, team, participant_list, preprocess, get_results, filepath)
     % Author: Martin Constant (martin.constant@unige.ch)
     % Running with:
     % MATLAB R2023a
