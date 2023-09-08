@@ -59,7 +59,7 @@ function import_data(participant_nr, filepath, team)
 
             % Change electrode names to match names from the BESA template
             % and load BESA locations
-            EEG = pop_chanedit(EEG, 'changefield', {1, 'labels', 'SO1'}, 'changefield', {10, 'labels', 'M1'}, 'changefield', {21, 'labels', 'M2'}, 'changefield', {32, 'labels', 'IO1'}, 'changefield', {33, 'labels', 'LO1'}, 'changefield', {61, 'labels', 'LO2'}, 'append', 63, 'changefield', {64, 'labels', 'FCz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:64', 'FCz'}, 'eval', '', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'convert', {'cart2all'});
+            EEG = pop_chanedit(EEG, 'append', 63, 'changefield', {64, 'labels', 'FCz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:64', 'FCz'}, 'eval', '', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'convert', {'cart2all'});
 
         case 'Geneva'
             filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%04i', team, participant_nr);
