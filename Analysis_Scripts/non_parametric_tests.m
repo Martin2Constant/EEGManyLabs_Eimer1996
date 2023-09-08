@@ -25,7 +25,7 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
 
     % Load 1st dataset to extract sampling rate and time indices
     id = participant_list(1);
-    epoched = sprintf('%s_pipeline_%s_participant%i_epoched_small.set', team, pipeline, id);
+    epoched = sprintf('%s_participant%02i_%s_epoched_small.set', team, id, pipeline);
     EEG = pop_loadset(epoched, [filepath filesep team filesep 'EEG']);
     time_idx = dsearchn(EEG.times', time_window)';
 
@@ -35,7 +35,7 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
     % Load each dataset and split hemifield and condition
     for idx = participants_idx
         id = participant_list(idx);
-        epoched = sprintf('%s_pipeline_%s_participant%i_epoched_small.set', team, pipeline, id);
+        epoched = sprintf('%s_participant%02i_%s_epoched_small.set', team, id, pipeline);
         EEG = pop_loadset(epoched, [filepath filesep team filesep 'EEG']);
 
         % Letters presented in left hemifield

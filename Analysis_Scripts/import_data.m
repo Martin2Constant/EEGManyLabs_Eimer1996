@@ -70,13 +70,39 @@ function import_data(participant_nr, filepath, team)
             % Change electrode names to match names from the BESA template
             % and load BESA locations
             EEG = pop_chanedit(EEG, 'changefield', {1, 'labels', 'LO2'}, 'changefield', {2, 'labels', 'LO1'}, 'changefield', {3, 'labels', 'SO2'}, 'changefield', {4, 'labels', 'IO2'}, 'changefield', {5, 'labels', 'M1'}, 'changefield', {6, 'labels', 'M2'}, 'append', 31, 'changefield', {32, 'labels', 'FCz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:32', 'FCz'}, 'eval', '', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'convert', {'cart2all'});
+        
+        case 'GroupLC'
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
+            filename_cdt = [filepath filesep team filesep 'RawData' filesep filename_eeg '.cdt'];
+            
+            if ~exist([filepath filesep team filesep 'RawData' filesep filename_eeg '.cdt.ceo'], 'file')
+                if exist([filepath filesep team filesep 'RawData' filesep filename_eeg '.ceo'], 'file')
+                    movefile([filepath filesep team filesep 'RawData' filesep filename_eeg '.ceo'], [filepath filesep team filesep 'RawData' filesep filename_eeg '.cdt.ceo'])
+                end
+            end
+
+            if ~exist([filepath filesep team filesep 'RawData' filesep filename_eeg '.cdt.dpo'], 'file')
+                if exist([filepath filesep team filesep 'RawData' filesep filename_eeg '.dpo'], 'file')
+                    movefile([filepath filesep team filesep 'RawData' filesep filename_eeg '.dpo'], [filepath filesep team filesep 'RawData' filesep filename_eeg '.cdt.dpo'])
+                end
+            end
+
+            % Loading EEG
+            EEG = loadcurry(filename_cdt, 'KeepTriggerChannel', 'True', 'CurryLocations', 'False');
+
+            % Remove unused channel.
+            EEG = pop_select( EEG, 'nochannel', {'EKG', 'EMG', 'TRIGGER'});
+            % Change electrode names to match names from the BESA template
+            % and load BESA locations
+            EEG = pop_chanedit(EEG, 'changefield', {60, 'labels', 'I1'}, 'changefield', {64, 'labels', 'I2'}, 'changefield', {65, 'labels', 'LO1'}, 'changefield', {66, 'labels', 'IO1'}, 'append', 66, 'changefield', {67, 'labels', 'CCPz'}, 'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'setref', {'1:67', 'CCpz'});
 
         otherwise
             error('Team not found');
     end
     EEG.data = double(EEG.data);
     EEG = eeg_checkset(EEG);
-    EEG.setname = sprintf('%s_participant%i_harmonized', team, participant_nr);
+    EEG.setname = sprintf('%s_participant%02i_harmonized', team, participant_nr);
 
     % Add behavior table (without practice trials) to EEG object
     behavior = readtable([filepath filesep team filesep 'RawData' filesep filename_behavior], 'Delimiter', ',');

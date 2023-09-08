@@ -26,6 +26,9 @@ function harmonize_markers(EEG, filepath)
             eventlabels = {EEG.event(:).type}';
             % Remove the leading "S"; S255 -> 255
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
+        case 'GroupLC'
+            eventlabels = {EEG.event(:).type}';
+            clean = eventlabels;
         otherwise
             error('Team not found');
     end
@@ -38,8 +41,8 @@ function harmonize_markers(EEG, filepath)
     clean = clean(idx_correct);
     latencies = latencies(idx_correct);
 
-    % Remove all markers with value 50 or 255
-    idx_correct2 = ~cellfun(@(x) x==50 | x==255, clean);
+    % Remove all markers with value == 50 or >= 255
+    idx_correct2 = ~cellfun(@(x) x==50 | x>=255, clean);
     clean = clean(idx_correct2);
     latencies = latencies(idx_correct2);
 

@@ -1,13 +1,13 @@
-function AMICA(participant_nr, filepath, team, force_amica)
+function AMICA(participant_nr, filepath, team, force_amica, pipeline)
     % Author: Martin Constant (martin.constant@unige.ch)
     % Requires the AMICA plugin from EEGLAB
-    out_amica = sprintf('%s%s%s%sAMICA%s%i', filepath, filesep, team, filesep, filesep, participant_nr);
+    out_amica = sprintf('%s%s%s%sAMICA%s%02i', filepath, filesep, team, filesep, filesep, participant_nr);
 
     % AMICA takes a long time to run, so if it already exists, we don't run
     % it again unless force_amica is true
     if ~exist(out_amica, 'dir') || force_amica
         rng("shuffle");
-        filename = sprintf('%s_participant%i_filtered.set', team, participant_nr);
+        filename = sprintf('%s_participant%02i_%s_filtered.set', team, participant_nr, pipeline);
         EEG = pop_loadset(filename, [filepath filesep team filesep 'EEG']);
 
         %% Pre-process for ICA

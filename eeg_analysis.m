@@ -1,4 +1,4 @@
-function eeg_analysis(pipeline, team, participant_list, preprocess, get_results, filepath)
+efunction eeg_analysis(pipeline, team, participant_list, preprocess, get_results, filepath)
     % Author: Martin Constant (martin.constant@unige.ch)
     % Running with:
     % MATLAB R2023a
@@ -33,7 +33,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     end
     eeglab; close;
     msg = 'Which team?';
-    opts = ["Munich", "Krakow", "Essex", "Gent", "ONERA", "Geneva"];
+    opts = ["Munich", "Krakow", "Essex", "Gent", "ONERA", "Geneva", "GroupLC"];
     if isempty(team)
         choice = menu(msg, opts);
         team = char(opts(choice));
@@ -65,9 +65,9 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     for participant_nr = participant_list
         if preprocess
             import_data(participant_nr, filepath, team)
-            filter_and_downsample(participant_nr, filepath, team)
+            filter_and_downsample(participant_nr, filepath, team, pipeline)
             if pipeline == "ICA" || pipeline == "ICA+Resample"
-                AMICA(participant_nr, filepath, team, false)
+                AMICA(participant_nr, filepath, team, false, pipeline)
             end
             epoch_and_average(participant_nr, filepath, team, pipeline)
         end

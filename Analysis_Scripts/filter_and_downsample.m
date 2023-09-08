@@ -1,7 +1,7 @@
-function filter_and_downsample(participant_nr, filepath, team)
+function filter_and_downsample(participant_nr, filepath, team, pipeline)
     % Author: Martin Constant (martin.constant@unige.ch)
-    filename = sprintf('%s_participant%i_harmonized.set', team, participant_nr);
-    savename = sprintf('%s_participant%i_filtered.set', team, participant_nr);
+    filename = sprintf('%s_participant%02i_harmonized.set', team, participant_nr);
+    savename = sprintf('%s_participant%02i_%s_filtered.set', team, participant_nr, pipeline);
     EEG = pop_loadset(filename, [filepath filesep team filesep 'EEG']);
     switch team
         case 'Munich'
@@ -84,6 +84,19 @@ function filter_and_downsample(participant_nr, filepath, team)
             EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
             EEG.VEOG_side = "right";
         
+        case 'GroupLC'
+            % Check for flat M1, M2, PO7 or PO8.
+            % Throws an error if any are flat.
+            % Deviates from original study.
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'});
+
+            % Rereference to average of mastoids and add previous Ref (CPPz) as a data channel
+            % Deviates from original study.
+            ref_index = find(strcmpi({EEG.chaninfo.nodatchans(:).labels}', EEG.chanlocs(1).ref));
+            ref = EEG.chaninfo.nodatchans(ref_index);
+            EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
+            EEG.VEOG_side = "left";
+
         otherwise
             error('Team not found');
     end

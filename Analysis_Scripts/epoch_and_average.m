@@ -1,13 +1,13 @@
 function epoch_and_average(participant_nr, filepath, team, pipeline)
     % Author: Martin Constant (martin.constant@unige.ch)
-    filtered = sprintf('%s_participant%i_filtered.set', team, participant_nr);
-    epoched = sprintf('%s_participant%i_epoched.set', team, participant_nr);
-    erp_name = sprintf('%s_pipeline_%s_participant%i', team, pipeline, participant_nr);
+    filtered = sprintf('%s_participant%02i_%s_filtered.set', team, participant_nr, pipeline);
+    epoched = sprintf('%s_participant%02i_%s_epoched.set', team, participant_nr, pipeline);
+    erp_name = sprintf('%s_participant%02i_%s', team, participant_nr, pipeline);
     EEG = pop_loadset(filtered, [filepath filesep team filesep 'EEG']);
     EEG = eeg_checkset(EEG);
     if pipeline == "ICA" || pipeline == "ICA+Resample"
         % Load ICA weights
-        outAmica = sprintf('%s%s%s%sAMICA%s%i', filepath, filesep, team, filesep, filesep, participant_nr);
+        outAmica = sprintf('%s%s%s%sAMICA%s%02i', filepath, filesep, team, filesep, filesep, participant_nr);
         EEG = pop_loadmodout(EEG, outAmica);
         EEG = eeg_checkset( EEG );
         EEG = eeg_checkset( EEG, 'ica' );
@@ -118,6 +118,9 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         case 'Geneva'
             LeftChans = 'Lch = [ 2 27 25 26:-2:22 23 21 17 20 18 19 16 28:32] ;';
             RightChans = 'Rch = [ 1 5:16 28:32] ;';
+        case 'GroupLC'
+            LeftChans = 'Lch = [ 1 4 9:-1:6 15 18:-1:16 24 27:-1:25 33 36:-1:34 45:-1:42 53:-1:51 58 59 2 10:9:46 54 60 65] ;';
+            RightChans = 'Rch = [ 3 5 11:14 23 20:22 32 29:31 41 38:40 47:50 55:57 62 61 2 10:9:46 54 60 65]  ;';
         otherwise
             error('Team not found');
     end
@@ -167,7 +170,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
 
         elseif pipeline == "Resample" || pipeline == "ICA+Resample"
             ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');
-            epoched_small = sprintf('%s_pipeline_%s_participant%i_epoched_small.set', team, pipeline, participant_nr);
+            epoched_small = sprintf('%s_participant%02i_%s_epoched_small.set', team, participant_nr, pipeline);
 
             % Creating a smaller dataset for permutation
             EEG_small = pop_eegchanoperator(EEG, ...
