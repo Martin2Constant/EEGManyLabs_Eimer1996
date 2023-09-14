@@ -22,8 +22,7 @@ function ICA(participant_nr, filepath, team, pipeline)
     EEG_forICA = pop_resample( EEG_forICA, 100);
 
     EEG_forICA = eeg_checkset( EEG_forICA );
-    % Check that data rank is still okay, in case there's a discrepancy,
-    % keep the lowest of the two.
+    % Check that data rank
     dataRank = sum(eig(cov(double(EEG_forICA.data'))) > 1E-6);
     %% Extended Infomax ICA, with PCA reduction if dataRank < N_channels
     try
@@ -32,6 +31,8 @@ function ICA(participant_nr, filepath, team, pipeline)
         % https://github.com/yhz-1995/cudaica_win (Windows)
         % https://github.com/fraimondo/cudaica (Linux)
         % Needs more installation but is much faster
+        % Working directory should not contain any space or non-standard characters 
+        % It should also not be write-protected
         if dataRank < length(EEG_forICA.data(:,1))
             EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'cudaica', 'extended', 1, 'lrate', 1e-5, 'maxsteps', 16000, 'pca', dataRank);
         else
@@ -42,23 +43,22 @@ function ICA(participant_nr, filepath, team, pipeline)
         %% 100 Hz BINARY ICA
         warning('Data too big for CUDA or CUDA not installed')
         try
-            % Run extended Infomax ICA using C binary file (is faster but
+            % Run extended Infomax ICA using C binary file (should be faster but
             % requires additional setup)
-            % Though I don't know where to download these binaries from
-            % anymore (old link has been deprecated)
+            % https://github.com/sccn/binica/wiki
             if dataRank < length(EEG_forICA.data(:,1))
-                EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'binica', 'extended', 1,'maxsteps', 16000, 'pca', dataRank);
+                EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'binica', 'extended', 1, 'lrate', 1e-5, 'maxsteps', 16000, 'pca', dataRank);
             else
-                EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'binica', 'extended', 1,'maxsteps', 16000);
+                EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'binica', 'extended', 1, 'lrate', 1e-5, 'maxsteps', 16000);
             end
         catch
             %% 100 Hz RUNICA ICA
             warning('BINICA not installed')
             % Runica is compatible with every eeglab install
             if dataRank < length(EEG_forICA.data(:,1))
-                EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'runica', 'extended', 1, 'maxsteps', 16000, 'pca', dataRank);
+                EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'runica', 'extended', 1, 'lrate', 1e-5, 'maxsteps', 16000, 'pca', dataRank);
             else
-                EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'runica', 'extended', 1, 'maxsteps', 16000);
+                EEG_forICA = pop_runica(EEG_forICA, 'icatype', 'runica', 'extended', 1, 'lrate', 1e-5, 'maxsteps', 16000);
             end
         end
     end
@@ -73,7 +73,7 @@ function ICA(participant_nr, filepath, team, pipeline)
 
     EEG = pop_saveset(EEG, 'filename', filename, 'filepath', [filepath filesep team filesep 'EEG']);
 
-    % Removing files created by ICA
+    % Removing files created by CUDAICA or BINICA
     delete([pwd filesep 'binica*']);
     delete([pwd filesep 'cudaica*']);
 end
