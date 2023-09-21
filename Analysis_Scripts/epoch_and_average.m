@@ -121,6 +121,9 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         case 'GroupLC'
             LeftChans = 'Lch = [ 1 4 9:-1:6 15 18:-1:16 24 27:-1:25 33 36:-1:34 45:-1:42 53:-1:51 58 59 2 10:9:46 54 60 65] ;';
             RightChans = 'Rch = [ 3 5 11:14 23 20:22 32 29:31 41 38:40 47:50 55:57 62 61 2 10:9:46 54 60 65]  ;';
+        case 'LSU'
+            LeftChans = 'Lch = [ 1 3 2 4:8 11:-1:9 12:16 19:-1:17 20:24 26 25 27 66 28:33 37 38 47 48 68 69] ;';
+            RightChans = 'Rch = [ 34 36 35 39:43 46:-1:44 49:53 56:-1:54 57:61 63 62 64 67 28:33 37 38 47 48 68 69]  ;';
         otherwise
             error('Team not found');
     end

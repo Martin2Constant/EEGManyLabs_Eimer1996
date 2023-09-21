@@ -96,7 +96,19 @@ function import_data(participant_nr, filepath, team)
             % Change electrode names to match names from the BESA template
             % and load BESA locations
             EEG = pop_chanedit(EEG, 'changefield', {60, 'labels', 'I1'}, 'changefield', {64, 'labels', 'I2'}, 'changefield', {65, 'labels', 'LO1'}, 'changefield', {66, 'labels', 'IO1'}, 'append', 66, 'changefield', {67, 'labels', 'CCPz'}, 'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'setref', {'1:67', 'CCpz'});
+        case 'LSU'
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i.bdf', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i.csv', team, participant_nr);
+            filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
 
+            % Importing with POz (chan 30) as temporary reference
+            % Re-referenced to average mastoids at a later point.
+            EEG = pop_biosig(filename_bdf, 'ref', 30, 'importannot','off');
+            % Change electrode names to match names from the BESA template
+            % and load BESA locations
+            EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {66, 'labels', 'IO2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {69, 'labels', 'M1'}, 'changefield', {70, 'labels', 'M2'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:72', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+            % Remove unused electrodes
+            EEG = pop_select( EEG, 'nochannel', {'EXG1', 'EXG7', 'EXG8'});
         otherwise
             error('Team not found');
     end

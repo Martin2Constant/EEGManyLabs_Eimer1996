@@ -29,6 +29,9 @@ function harmonize_markers(EEG, filepath)
         case 'GroupLC'
             eventlabels = {EEG.event(:).type}';
             clean = eventlabels;
+        case 'LSU'
+            eventlabels = {EEG.event(:).type}';
+            clean = eventlabels;
         otherwise
             error('Team not found');
     end
