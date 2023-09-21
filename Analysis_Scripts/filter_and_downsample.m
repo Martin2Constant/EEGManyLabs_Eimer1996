@@ -8,7 +8,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
             % Deviates from original study.
-            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'});
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
 
             % Rereference to average of mastoids and add previous Ref (FCz) as a data channel
             % Deviates from original study.
@@ -21,7 +21,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
             % Deviates from original study.
-            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'});
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
 
             % Rereference to average of mastoids, no ref to add back on Biosemi
             % Deviates from original study.
@@ -33,7 +33,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % M1 is online reference.
             % Throws an error if any are flat.
             % Deviates from original study
-            check_flat_channels(EEG, {'PO7', 'PO8', 'M2'});
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M2'}, participant_nr);
 
             % Temporary rereference to CZ, so that we can rereference to average mastoids.
             ref_index = find(strcmpi({EEG.chaninfo.nodatchans(:).labels}', EEG.chanlocs(1).ref));
@@ -51,7 +51,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
             % Deviates from original study.
-            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'});
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
 
             % Rereference to average of mastoids, no ref to add back on Biosemi
             % Deviates from original study.
@@ -62,7 +62,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
             % Deviates from original study.
-            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'});
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
 
             % Rereference to average of mastoids and add previous Ref (FCz) as a data channel
             % Deviates from original study.
@@ -75,7 +75,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
             % Deviates from original study.
-            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'});
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
 
             % Rereference to average of mastoids and add previous Ref (FCz) as a data channel
             % Deviates from original study.
@@ -88,7 +88,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
             % Deviates from original study.
-            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'});
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
 
             % Rereference to average of mastoids and add previous Ref (CPPz) as a data channel
             % Deviates from original study.
@@ -101,7 +101,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
             % Deviates from original study.
-            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'});
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
 
             % Rereference to average of mastoids, no ref to add back on Biosemi
             % Deviates from original study.

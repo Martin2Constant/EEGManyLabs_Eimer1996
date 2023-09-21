@@ -1,4 +1,4 @@
-function check_flat_channels(EEG, channels)
+function check_flat_channels(EEG, channels, participant_nr)
     % Author: Martin Constant (martin.constant@unige.ch)
     % Check for flat channels.
     % First, create a high-passed copy of the dataset.
@@ -13,6 +13,7 @@ function check_flat_channels(EEG, channels)
     arguments
         EEG struct;
         channels cell = {'PO7', 'PO8', 'M1', 'M2'};
+        participant_nr double = 0;
     end
     EEG = pop_eegfiltnew(EEG, 'locutoff', 1, 'usefftfilt', 1);
     EEG  = pop_erplabDeleteTimeSegments( EEG , ...

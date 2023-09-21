@@ -1,7 +1,14 @@
 function extract_results(filepath, team, pipeline, participant_list)
     % Author: Martin Constant (martin.constant@unige.ch)
-    
-    files = dir(fullfile([filepath filesep team filesep 'ERP' filesep char(pipeline)], sprintf('%s_participant%02i_%s.erp', team, participant_nr, pipeline)));
+    arguments
+        filepath char;
+        team char;
+        pipeline char;
+        participant_list double;
+    end
+    files = dir(fullfile([filepath filesep team filesep 'ERP' filesep char(pipeline)], [team '_participant*_' pipeline '.erp']));
+
+    % files = dir(fullfile([filepath filesep team filesep 'ERP' filesep char(pipeline)], sprintf('%s_participant%02i_%s.erp', team, participant_nr, pipeline)));
     for id = 1:length(files)
         erp_name = files(id).name;
         ERP = pop_loaderp( 'filename', erp_name, 'filepath', files(id).folder);
