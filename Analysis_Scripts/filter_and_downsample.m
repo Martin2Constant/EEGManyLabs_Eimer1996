@@ -107,6 +107,18 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Deviates from original study.
             EEG = pop_reref( EEG, {'M1' 'M2'} );
             EEG.VEOG_side = "right";
+        
+        case 'Magdeburg'
+            % Check for flat M1, M2, PO7 or PO8.
+            % Throws an error if any are flat.
+            % Deviates from original study.
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
+
+            % Rereference to average of mastoids, reference is nose, so we
+            % don't want to add it back
+            % Deviates from original study.
+            EEG = pop_reref( EEG, {'M1' 'M2'} );
+            EEG.VEOG_side = "left";
         otherwise
             error('Team not found');
     end
