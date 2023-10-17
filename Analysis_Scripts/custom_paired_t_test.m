@@ -91,7 +91,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
         x (:, 1) double;
         y (:, 1) double;
         alpha double = .02;
-        tail string = "two-sided";
+        tail string {mustBeMember(tail, ["two-sided", "greater", "less"])} = "two-sided";
     end
     mean_x = mean(x);
     mean_y = mean(y);
@@ -187,23 +187,8 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     elseif tail == "less" && t > 0
         p = 1 - p;
     end
-
-    % Directed BF not implemented
-    if tail == "two-sided"
-        % Compute Bayes Factor (Rouder et al., 2009)
-        % Function to be integrated
-        fun = @(g, t, n, r) (1 + n .* g .* r.^2).^(-.5) .* ...
-            (1 + t.^2 ./ ((1 + n .* g .* r.^2) .* (n - 1))).^(-n./2) .* ...
-            (2 .* pi).^(-.5) .* g.^(-3. / 2) .* exp(-1 ./ (2 .* g));
-        % JZS Bayes factor calculation
-        r = sqrt(2) / 2;  % JZS prior
-        numerator = (1 + t^2 / df)^(-(df + 1) / 2);
-        integr = integral(@(g) fun(g, t, n, r), 0, Inf);
-        bf01 = numerator / integr;
-        bf10 = 1 / bf01;
-    else
-        bf10 = NaN;
-    end
+    
+    bf10 = paired_bf_ttest(t, n, tail);
 
     % Creating values to return
     mean_amps = [mean_x, mean_y];

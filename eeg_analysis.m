@@ -19,7 +19,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     % ICLabel v1.4
     % latency v1.3.0 https://github.com/Liesefeld/latency/releases/tag/v1.3.0
     arguments
-        pipeline string {mustBeMember(pipeline,["Original", "Resample", "ICA", "Resample"])} = "Original";
+        pipeline string {mustBeMember(pipeline, ["Original", "Resample", "ICA", "Resample"])} = "Original";
         team char = ''
         participant_list double = [1:28];
         preprocess logical = true;
