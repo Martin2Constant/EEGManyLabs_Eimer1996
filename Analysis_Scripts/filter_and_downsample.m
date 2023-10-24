@@ -70,7 +70,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             ref = EEG.chaninfo.nodatchans(ref_index);
             EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
             EEG.VEOG_side = "left";
-        
+
         case 'Geneva'
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
@@ -83,7 +83,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             ref = EEG.chaninfo.nodatchans(ref_index);
             EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
             EEG.VEOG_side = "right";
-        
+
         case 'GroupLC'
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
@@ -96,7 +96,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             ref = EEG.chaninfo.nodatchans(ref_index);
             EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
             EEG.VEOG_side = "left";
-        
+
         case 'LSU'
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
@@ -107,7 +107,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Deviates from original study.
             EEG = pop_reref( EEG, {'M1' 'M2'} );
             EEG.VEOG_side = "right";
-        
+
         case 'Magdeburg'
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
@@ -119,14 +119,27 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Deviates from original study.
             EEG = pop_reref( EEG, {'M1' 'M2'} );
             EEG.VEOG_side = "left";
-        
+
         case 'Verona'
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
             % Deviates from original study.
             check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
-            
+
             % Rereference to average of mastoids and add previous Ref (Fz) as a data channel
+            % Deviates from original study.
+            ref_index = find(strcmpi({EEG.chaninfo.nodatchans(:).labels}', EEG.chanlocs(1).ref));
+            ref = EEG.chaninfo.nodatchans(ref_index);
+            EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
+            EEG.VEOG_side = "right";
+
+        case 'KHas'
+            % Check for flat M1, M2, PO7 or PO8.
+            % Throws an error if any are flat.
+            % Deviates from original study.
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
+
+            % Rereference to average of mastoids and add previous Ref (Cz) as a data channel
             % Deviates from original study.
             ref_index = find(strcmpi({EEG.chaninfo.nodatchans(:).labels}', EEG.chanlocs(1).ref));
             ref = EEG.chaninfo.nodatchans(ref_index);

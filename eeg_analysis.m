@@ -1,14 +1,14 @@
 function eeg_analysis(pipeline, team, participant_list, preprocess, get_results, filepath)
     % Author: Martin Constant (martin.constant@unige.ch)
     % Running with:
-    % MATLAB R2023a
-    % Statistics and Machine Learning Toolbox R2023a
-    % Optimization Toolbox R2023a
-    % Image Processing Toolbox R2023a
-    % Signal Processing Toolbox R2023a
-    % Parallel Computing Toolbox R2023a
+    % MATLAB R2023b
+    % Statistics and Machine Learning Toolbox R2023b
+    % Optimization Toolbox R2023b
+    % Image Processing Toolbox R2023b
+    % Signal Processing Toolbox R2023b
+    % Parallel Computing Toolbox R2023b
     % EEGLAB version 2023.1
-    % ERPLAB v10.00
+    % ERPLAB v10.02
     % For BioSemi data import: Biosig v3.8.1
     % For BrainVision data import: bva-io v1.72
     % For NeuroScan data import: loadcurry v3.2.3
@@ -28,13 +28,15 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     end
     cd(filepath);
     addpath([filepath filesep 'Analysis_Scripts']);
+    addpath([filepath filesep 'helpers']);
+
     if ~isfile('./bins.txt')
         create_bins();
     end
     eeglab; close;
     msg = 'Which team?';
     opts = ["Munich", "Krakow", "Essex", "Gent", "ONERA", "Geneva", ...
-        "GroupLC", "LSU", "Magdeburg", "Verona"];
+        "GroupLC", "LSU", "Magdeburg", "Verona", "KHas"];
     if isempty(team)
         choice = menu(msg, opts);
         team = char(opts(choice));
