@@ -3,17 +3,17 @@ This is the EEG processing pipeline for the replication of Experiment 2 of Eimer
 See on OSF for more information:  https://osf.io/4ux8r/
 
 ## Dependencies
-- MATLAB R2023a
-- Statistics and Machine Learning Toolbox R2023a
-- Optimization Toolbox R2023a
-- Image Processing Toolbox R2023a
-- Signal Processing Toolbox R2023a
-- Parallel Computing Toolbox R2023a
+- MATLAB R2023b
+- Statistics and Machine Learning Toolbox R2023b
+- Optimization Toolbox R2023b
+- Image Processing Toolbox R2023b
+- Signal Processing Toolbox R2023b
+- Parallel Computing Toolbox R2023b
 - EEGLAB version 2023.1
-- ERPLAB v10.00
-- For Krakow data import: Biosig v3.8.1
-- For Munich data import: bva-io v1.72
-- For Essex data import: loadcurry v3.2.3
+- ERPLAB v10.02
+- For BioSemi data import: Biosig v3.8.1
+- For BrainVision data import: bva-io v1.72
+- For NeuroScan data import: loadcurry v3.2.3
 - firfilt v2.7.1
 - clean_rawdata v2.91
 - AMICA v1.7.0
