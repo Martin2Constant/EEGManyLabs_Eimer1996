@@ -29,8 +29,8 @@ function import_data(participant_nr, filepath, team)
             EEG.VEOG_side = "right";
 
         case 'Essex'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i.cdt', team, participant_nr);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i.csv', team, participant_nr);
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%03i.cdt', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%03i.csv', team, participant_nr);
             filename_cdt = [filepath filesep team filesep 'RawData' filesep filename_eeg];
             % Loading EEG
             EEG = loadcurry(filename_cdt, 'KeepTriggerChannel', 'True', 'CurryLocations', 'False');
@@ -39,7 +39,7 @@ function import_data(participant_nr, filepath, team)
             EEG = pop_select( EEG, 'nochannel', {'TRIGGER'});
             % Change electrode names to match names from the BESA template
             % and load BESA locations
-            EEG = pop_chanedit(EEG, 'changefield', {29, 'labels', 'LO1'}, 'changefield', {30, 'labels', 'IO2'}, 'changefield', {21, 'labels', 'M2'}, 'append', 30, 'changefield', {31, 'labels', 'M1'}, 'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'setref', {'1:31', 'M1'});
+            EEG = pop_chanedit(EEG, 'changefield', {31, 'labels', 'LO1'}, 'changefield', {32, 'labels', 'LO2'}, 'changefield', {33, 'labels', 'IO2'}, 'append', 33, 'changefield', {34, 'labels', 'M1'}, 'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'setref', {'1:34', 'M1'});
             EEG.VEOG_side = "right";
 
         case 'Gent'
