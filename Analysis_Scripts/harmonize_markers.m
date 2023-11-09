@@ -1,5 +1,6 @@
 function harmonize_markers(EEG, filepath)
     % Author: Martin Constant (martin.constant@unige.ch)
+    %% Clean markers
     switch EEG.team
         case 'Krakow'
             eventlabels = {EEG.event(:).type}';
@@ -51,21 +52,21 @@ function harmonize_markers(EEG, filepath)
         otherwise
             error('Team not found');
     end
-
+    
     % Get each marker's latency
     latencies = {EEG.event(:).latency}';
 
-    % Remove any empty marker
+    % Remove any empty cell
     idx_correct = ~cellfun(@isempty,clean);
     clean = clean(idx_correct);
     latencies = latencies(idx_correct);
 
-    % Remove all markers with value == 50 or >= 255
+    % Remove all markers with value == 50 (display offset) or >= 255 (sanity check)
     idx_correct2 = ~cellfun(@(x) x==50 | x>=255, clean);
     clean = clean(idx_correct2);
     latencies = latencies(idx_correct2);
 
-    % Extract response times from behavior table
+    % Extract response times from behavior table (sub-ms precision)
     response_times = EEG.behavior.response_time;
 
     % Initialize response latencies (i.e., that will be placed at the time
@@ -74,14 +75,13 @@ function harmonize_markers(EEG, filepath)
     % Initialize an array of 70 to which we'll add the response correctness
     response_labels = ones(size(response_times))*70;
 
-
     idx = 1;
-
     for i = 1:length(clean)  % For all markers
         if clean{i} >= 100  % If marker >= 100 (display onsets)
             % Add display onset time (latencies{i}) to response_time from
-            % behavior to create the EEG response_latency
-            response_latencies(idx) = latencies{i} + response_times(idx);
+            % behavior to create the EEG response_latency, we have to scale
+            % response_time (in ms) to the sampling rate.
+            response_latencies(idx) = latencies{i} + (response_times(idx) * EEG.srate / 1000);
 
             % The marker following display onset is coding correct (1),
             % incorrect (2) or timeout (3) responses.
@@ -96,7 +96,7 @@ function harmonize_markers(EEG, filepath)
     response_latencies = response_latencies(valid_latencies);
     response_labels = response_labels(valid_latencies);
 
-    % Keep all markers above 70, thus removing the (1), (2), and (3)
+    % Keep all markers above 70, thus removing markers = (1), (2) or (3)
     idx_correct3 = cellfun(@(x) x>70, clean);
     clean = clean(idx_correct3);
     latencies = latencies(idx_correct3);
