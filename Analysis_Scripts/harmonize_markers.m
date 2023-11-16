@@ -64,8 +64,11 @@ function harmonize_markers(EEG, filepath)
     clean = clean(idx_correct);
     latencies = latencies(idx_correct);
 
-    % Remove all markers with value == 50 (display offset) or >= 255 (sanity check)
-    idx_correct2 = ~cellfun(@(x) x==50 | x>=255, clean);
+    % Remove all markers that aren't wanted (sanity check)
+    idx_correct2 = cellfun(@(x) x==1 | x==2 | x==3 | x==111 | x==112 | ...
+        x==113 | x==121 | x==122 | x==123 | x==211 | x==212 | x==213 | ... 
+        x==221 | x==222 | x==223, clean);
+
     clean = clean(idx_correct2);
     latencies = latencies(idx_correct2);
 
