@@ -80,8 +80,11 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         EEG.reject = save_rejects;
         EEG = pop_artextval(EEG, 'Channel', [PO7_index PO8_index], 'Flag', [ 1 5], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
     end
+    EEG = pop_syncroartifacts(EEG, 'Direction', 'bidirectional');
+    EEG = pop_summary_AR_eeg_detection(EEG, [filepath filesep team filesep erp_name '_artifacts.txt']);
     EEG = eeg_checkset(EEG, 'eventconsistency' );
     EEG = eeg_checkset(EEG);
+    
 
     % Try to save in MAT files in v6 format, if it doesn't work, save in v7.3
     EEGs = EEG;
