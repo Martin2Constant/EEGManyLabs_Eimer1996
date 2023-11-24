@@ -71,7 +71,11 @@ function harmonize_markers(EEG, filepath)
 
     clean = clean(idx_correct2);
     latencies = latencies(idx_correct2);
-
+    if size(clean, 1) > 792*2
+        idx_correct3 = cellfun(@(x) x > 2000, latencies);
+        clean = clean(idx_correct3);
+        latencies = latencies(idx_correct3);
+    end
     % Extract response times from behavior table (sub-ms precision)
     response_times = EEG.behavior.response_time;
 

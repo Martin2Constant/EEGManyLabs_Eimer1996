@@ -95,8 +95,8 @@ function import_data(participant_nr, filepath, team)
             EEG.VEOG_side = "left";
 
         case 'LSU'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i', team, participant_nr);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i.csv', team, participant_nr);
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
             filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg '.bdf'];
 
             % Importing with POz (chan 30) as temporary reference
