@@ -52,6 +52,9 @@ function harmonize_markers(EEG, filepath)
         case 'UniWien'
             eventlabels = {EEG.event(:).type}';
             clean = eventlabels;
+        case 'TrierCogPsy'
+            eventlabels = {EEG.event(:).type}';
+            clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
         otherwise
             error('Team not found');
     end
