@@ -11,7 +11,6 @@ function extract_results(filepath, team, pipeline, participant_list)
     for id = 1:length(files)
         erp_name = files(id).name;
         ERP = pop_loaderp( 'filename', erp_name, 'filepath', files(id).folder);
-        ERP.PO7_8_index = 1;
         ALLERP(id) = ERP; %#ok<AGROW> 
     end
     results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s', filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
