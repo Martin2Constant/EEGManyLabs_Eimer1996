@@ -188,6 +188,12 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     % to the disqualification of the subject."
     if abs(max(ERP.bindata(ERP.LO1_2_index, :, 21))) >= 2
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name], 'filename', ['excluded_' erp_name '.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
+    
+    % Participants with less than 100 epochs in any critical test condition
+    % (forms or colors) will be excluded.
+    elseif ERP.ntrials.accepted(15) < 100 || ERP.ntrials.accepted(18) < 100 
+        ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name], 'filename', ['excluded_' erp_name '.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
+    
     else
         if pipeline == "Original" || pipeline == "ICA"
             ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');
