@@ -55,10 +55,13 @@ function harmonize_markers(EEG, filepath)
         case 'TrierCogPsy'
             eventlabels = {EEG.event(:).type}';
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
+        case 'Neuruppin'
+            eventlabels = {EEG.event(:).type}';
+            clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
         otherwise
             error('Team not found');
     end
-    
+
     % Get each marker's latency
     latencies = {EEG.event(:).latency}';
 
@@ -69,7 +72,7 @@ function harmonize_markers(EEG, filepath)
 
     % Remove all markers that aren't wanted (sanity check)
     idx_correct2 = cellfun(@(x) x==1 | x==2 | x==3 | x==111 | x==112 | ...
-        x==113 | x==121 | x==122 | x==123 | x==211 | x==212 | x==213 | ... 
+        x==113 | x==121 | x==122 | x==123 | x==211 | x==212 | x==213 | ...
         x==221 | x==222 | x==223, clean);
 
     clean = clean(idx_correct2);
