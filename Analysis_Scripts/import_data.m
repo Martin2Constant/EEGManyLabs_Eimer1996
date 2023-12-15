@@ -143,8 +143,8 @@ function import_data(participant_nr, filepath, team)
             EEG.VEOG_side = "right";
 
         case 'TrierKamp'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%04i', team, participant_nr);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i.csv', team, participant_nr);
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
             % Loading EEG
             EEG = pop_loadbv([filepath filesep filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
 
