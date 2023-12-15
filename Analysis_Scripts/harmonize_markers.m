@@ -58,6 +58,10 @@ function harmonize_markers(EEG, filepath)
         case 'Neuruppin'
             eventlabels = {EEG.event(:).type}';
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
+        case 'Auckland'
+            EEG = auckland_EEG_Eimer1996_realignMarkerCode(EEG);
+            eventlabels = {EEG.event(:).type}';
+            clean = cellfun(@(s)sscanf(s, 'T%d'), eventlabels, 'UniformOutput', false);
         otherwise
             error('Team not found');
     end

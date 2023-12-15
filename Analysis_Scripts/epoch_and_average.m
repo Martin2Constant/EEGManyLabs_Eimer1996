@@ -84,7 +84,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     EEG = pop_summary_AR_eeg_detection(EEG, [filepath filesep team filesep erp_name '_artifacts.txt']);
     EEG = eeg_checkset(EEG, 'eventconsistency' );
     EEG = eeg_checkset(EEG);
-    
+
 
     % Try to save in MAT files in v6 format, if it doesn't work, save in v7.3
     EEGs = EEG;
@@ -148,6 +148,9 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         case 'Neuruppin'
             LeftChans = 'Lch = [ 1 34 3 35 4 5 7 37 6 38 8 39 9 11 41 10 42 13 43 14 15 32 31 36 40 45 44 2:10:22 33 46 51 62:64];';
             RightChans = 'Rch = [ 30 61 28 58 29 25 27 56 26 55 23 54 24 21 52 20 50 18 49 19 17 60 59 57 53 47 48 2:10:22 33 46 51 62:64];';
+        case 'Auckland'
+            LeftChans = 'Lch = [ 1 3:11 13:15 31 32 35:45 2 12 16 22 33 34 46 51 62:64];';
+            RightChans = 'Rch = [ 17:21 23:30 47:50 52:60];';
         otherwise
             error('Team not found');
     end
@@ -191,12 +194,12 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     % to the disqualification of the subject."
     if abs(max(ERP.bindata(ERP.LO1_2_index, :, 21))) >= 2
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name '_bad_HEOG'], 'filename', ['excluded_' erp_name '_bad_HEOG.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
-    
-    % Participants with less than 100 epochs in any critical test condition
-    % (forms or colors) will be excluded.
-    elseif ERP.ntrials.accepted(15) < 100 || ERP.ntrials.accepted(18) < 100 
+
+        % Participants with less than 100 epochs in any critical test condition
+        % (forms or colors) will be excluded.
+    elseif ERP.ntrials.accepted(15) < 100 || ERP.ntrials.accepted(18) < 100
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name '_not_enough_trials'], 'filename', ['excluded_' erp_name '_not_enough_trials.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
-    
+
     else
         if pipeline == "Original" || pipeline == "ICA"
             ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');
