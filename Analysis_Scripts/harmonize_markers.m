@@ -62,6 +62,9 @@ function harmonize_markers(EEG, filepath)
             EEG = auckland_EEG_Eimer1996_realignMarkerCode(EEG);
             eventlabels = {EEG.event(:).type}';
             clean = cellfun(@(s)sscanf(s, 'T%d'), eventlabels, 'UniformOutput', false);
+        case 'Bern'
+            eventlabels = {EEG.event(:).type}';
+            clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
         otherwise
             error('Team not found');
     end
@@ -74,6 +77,11 @@ function harmonize_markers(EEG, filepath)
     clean = clean(idx_correct);
     latencies = latencies(idx_correct);
 
+    idx_50 = cellfun(@(x) x == 50, clean);
+    latencies_50 = [latencies{idx_50}];
+    first_50_lat = latencies_50(1);
+    lat_too_low = first_50_lat - 2000;
+
     % Remove all markers that aren't wanted (sanity check)
     idx_correct2 = cellfun(@(x) x==1 | x==2 | x==3 | x==111 | x==112 | ...
         x==113 | x==121 | x==122 | x==123 | x==211 | x==212 | x==213 | ...
@@ -82,7 +90,7 @@ function harmonize_markers(EEG, filepath)
     clean = clean(idx_correct2);
     latencies = latencies(idx_correct2);
     if size(clean, 1) > 792*2
-        idx_correct3 = cellfun(@(x) x > 2000, latencies);
+        idx_correct3 = cellfun(@(x) x > lat_too_low, latencies);
         clean = clean(idx_correct3);
         latencies = latencies(idx_correct3);
     end
