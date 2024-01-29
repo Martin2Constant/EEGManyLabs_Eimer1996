@@ -18,8 +18,8 @@ function import_data(participant_nr, filepath, team)
             EEG.VEOG_side = "right";
 
         case 'Munich'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i', team, participant_nr);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%04i', team, participant_nr);
+            filename_behavior = sprintf('%s_Behaviour_Eimer1996_Sub_%04i.csv', team, participant_nr);
             % Loading EEG
             EEG = pop_loadbv([filepath filesep filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
 
@@ -355,8 +355,8 @@ function import_data(participant_nr, filepath, team)
             EEG.VEOG_side = "left";
 
         case 'ItierLab'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%03i.bdf', team, participant_nr);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%03i.csv', team, participant_nr);
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i.bdf', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i.csv', team, participant_nr);
             filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
 
             % Importing with POz (chan 30) as temporary reference

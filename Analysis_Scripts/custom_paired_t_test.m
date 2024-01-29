@@ -82,6 +82,8 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     %
     % * Hedges, L. V., & Olkin, I. (1985). Statistical methods for meta-analysis. Academic Press.
     %
+    % * Lakens, D. (2013). Calculating and reporting effect sizes to facilitate cumulative science: A practical primer for t-tests and ANOVAs. Frontiers in Psychology, 4. https://doi.org/10/f96zbh
+    %
     % * Morey, R. D. (2008). Confidence intervals from normalized data: A correction to Cousineau (2005). Tutorials in Quantitative Methods for psychology, 4(2), 61–64. https://doi.org/10/ggbnjg
     %
     % * Morey, R. D., & Wagenmakers, E.-J. (2014). Simple relation between Bayesian order-restricted and point-null hypothesis tests. Statistics & Probability Letters, 92, 121–124. https://doi.org/10/ggcpcq
@@ -101,6 +103,9 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     df = n - 1;
     sqN = sqrt(n);
     r = corr2(x, y);
+    if r == 1
+        r = 1 - 3*eps;  % Prevents a crash when r == 1 
+    end
     % Lakens (2013) Eq. 8
     std_diff_lakens = sqrt(std(x)^2 + std(y)^2 - 2 * r * std(x) * std(y));
     % Lakens (2013, Eq. 9)
