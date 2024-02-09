@@ -157,6 +157,9 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         case "ItierLab"
             LeftChans = 'Lch = [1 3 2 4:8 11:-1:9 12:16 19:-1:17 20:24 26 25 69 27 65 67 28:33 37 38 47 48 71 72];';
             RightChans = 'Rch = [34 36 35 39:43 46:-1:44 49:53 56:-1:54 57:61 63 62 70 64:2:68 28:33 37 38 47 48 71 72];';
+        case "Malaga"
+            LeftChans = 'Lch = [ 1 34 3 35 5 7 37 6 38 8 39 9 11 41 10 42 13 43 14 15 32 31 36 40 45 44 2 12 16 22 33 46 51 29 62:65];';                                                 
+            RightChans = 'Rch = [ 30 61 28 58 25 27 56 26 55 23 54 24 21 52 20 50 18 49 19 17 60 59 57 53 47 48 2 12 16 22 33 46 51 29 62:65];';
         otherwise
             error('Team not found');
     end

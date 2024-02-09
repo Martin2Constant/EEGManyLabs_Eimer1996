@@ -106,8 +106,8 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     if r == 1
         r = 1 - 3*eps;  % Prevents a crash when r == 1 
     end
-    % Lakens (2013) Eq. 8
-    std_diff_lakens = sqrt(std(x)^2 + std(y)^2 - 2 * r * std(x) * std(y));
+    % Lakens (2013) Eq. 8 (should be equivalent to std_diff, thus we use that)
+    std_diff_lakens = std_diff;  % sqrt(std(x)^2 + std(y)^2 - 2 * r * std(x) * std(y));
     % Lakens (2013, Eq. 9)
     correction_factor = sqrt(2 * (1 - r));
 

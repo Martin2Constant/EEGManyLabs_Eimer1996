@@ -8,7 +8,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     % Signal Processing Toolbox R2023b
     % Parallel Computing Toolbox R2023b
     % EEGLAB version 2023.1
-    % ERPLAB v10.02
+    % ERPLAB v10.04
     % For BioSemi data import: Biosig v3.8.1
     % For BrainVision data import: bva-io v1.72
     % For NeuroScan data import: loadcurry v3.2.3
@@ -38,7 +38,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     opts = ["Munich", "Krakow", "Essex", "Gent", "ONERA", "Geneva", ...
         "GroupLC", "LSU", "Magdeburg", "Verona", "KHas", "TrierKamp", ...
         "UniWien", "TrierCogPsy", "Neuruppin", "Auckland", "Bern", ...
-        "ItierLab"];
+        "ItierLab", "Malaga"];
     if isempty(team)
         choice = menu(msg, opts);
         team = char(opts(choice));
