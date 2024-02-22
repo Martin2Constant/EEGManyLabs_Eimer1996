@@ -153,9 +153,9 @@ function import_data(participant_nr, filepath, team)
             EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {13, 'labels', 'IO2'}, 'changefield', {14, 'labels', 'LO1'}, 'changefield', {15, 'labels', 'LO2'}, 'changefield', {18, 'labels', 'M1'}, 'changefield', {19, 'labels', 'M2'}, 'append', 19, 'changefield', {20, 'labels', 'FCz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:20', 'FCz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
             EEG.VEOG_side = "right";
 
-        case 'UniWien'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i', team, participant_nr);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i.csv', team, participant_nr);
+        case 'UniversityofVienna'
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
             filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg '.bdf'];
 
             % Importing with POz (chan 21) as temporary reference
@@ -235,9 +235,9 @@ function import_data(participant_nr, filepath, team)
                 'changefield', {135, 'labels', 'LO2'}, ...
                 'changefield', {136, 'labels', 'LO1'}, ...
                 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:143', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
-
+            
             % Remove electrodes which don't have a 10-20 equivalent (based on BioSemi's documentation
-            EEG = pop_select( EEG, 'nochannel', [2:2:8 9 11:14 16:2:26 27:2:37 38	40 41 44 47:2:57 60	62 64:67 70 73 74 77 78 82 84 86 90	91 95:99 102 105:2:113 114 116 118 121 123 126 133 134 137:143]);
+            EEG = pop_select( EEG, 'nochannel', [2:2:8 9 11:14 16:2:26 27:2:37 38 40 41 44 47:2:57 60 62 64:67 70 73 74 77 78 82 84 86 90 91 95:99 102 105:2:113 114 116 118 121 123 126 133 134 137:143]);
             EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:70', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
             EEG.VEOG_side = "right";
         

@@ -1,7 +1,9 @@
-library(tidyverse)  # version 1.3.2
-library(meta)  # version 6.2.0
+library(groundhog)
+pkgs = c("tidyverse", "meta")
+groundhog.library(pkgs, "2024-02-20") 
 
-data = read.csv("./effect_sizes.csv")  
+
+data = read.csv("./effect_sizes_Original.csv")  
 meta_colors = metagen(TE = ES_colors,
                  seTE = SE_colors,
                  studlab = Lab,
@@ -14,8 +16,8 @@ meta_colors = metagen(TE = ES_colors,
                  prediction = TRUE,
                  title = "Colors Contra vs. Ipsi")
 
-meta_forms = metagen(TE = ES_forms,
-                 seTE = SE_forms,
+meta_letters = metagen(TE = ES_letters,
+                 seTE = SE_letters,
                  studlab = Lab,
                  data = data,
                  sm = "SMD",
@@ -24,10 +26,10 @@ meta_forms = metagen(TE = ES_forms,
                  method.tau = "REML",
                  hakn = TRUE,
                  prediction = TRUE,
-                 title = "Forms Contra vs. Ipsi")
+                 title = "Letters Contra vs. Ipsi")
 
-meta_comparison = metagen(TE = ES_comparison,
-                          seTE = SE_comparison,
+meta_interaction = metagen(TE = ES_interaction,
+                          seTE = SE_interaction,
                           studlab = Lab,
                           data = data,
                           sm = "SMD",
@@ -36,29 +38,30 @@ meta_comparison = metagen(TE = ES_comparison,
                           method.tau = "REML",
                           hakn = TRUE,
                           prediction = TRUE,
-                          title = "Forms vs. Colors")
+                          title = "Letters vs. Colors")
 
 summary(meta_colors)
-summary(meta_forms)
-summary(meta_comparison)
+summary(meta_letters)
+summary(meta_interaction)
 
-forest.meta(meta_colors, 
+
+forest(meta_colors, 
             prediction = TRUE, 
             print.tau2 = FALSE,
             leftcols = c("studlab", "TE", "seTE", "ci"),
             leftlabs = c("Study – Colors Contra vs. Ipsi", expression(italic("g")["z"]), "SE", "95% CI"),
             rightcols = c("w.random"))
 
-forest.meta(meta_forms, 
+forest(meta_letters, 
             prediction = TRUE, 
             print.tau2 = FALSE,
             leftcols = c("studlab", "TE", "seTE", "ci"),
-            leftlabs = c("Study – Forms Contra vs. Ipsi", expression(italic("g")["z"]), "SE", "95% CI"),
+            leftlabs = c("Study – Letters Contra vs. Ipsi", expression(italic("g")["z"]), "SE", "95% CI"),
             rightcols = c("w.random"))
 
-forest.meta(meta_comparison, 
+forest(meta_interaction, 
             prediction = TRUE, 
             print.tau2 = FALSE,
             leftcols = c("studlab", "TE", "seTE", "ci"),
-            leftlabs = c("Study – Forms vs. Colors", expression(italic("g")["z"]), "SE", "95% CI"),
+            leftlabs = c("Study – Letters vs. Colors", expression(italic("g")["z"]), "SE", "95% CI"),
             rightcols = c("w.random"))
