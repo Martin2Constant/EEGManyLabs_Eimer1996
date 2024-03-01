@@ -108,7 +108,6 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
             resampled_cond_diff = zeros(1, n_resampling, 'double');
             fprintf("\nStarting %s: %i\n", method, meta)
 
-            tic
             parfor samp = 1:n_resampling
                 % Vectorized resampling, see non_parametric_resample()
                 resampled_letters_cipsi  = arrayfun(@(idx) non_parametric_resample(all_eegs_letters(idx).dat, n_letters_left(idx), method), participant_list, 'UniformOutput', false); %#ok<*PFBNS> 
@@ -126,7 +125,7 @@ function [pval_letters, pval_colors] = non_parametric_tests(filepath, team, part
                 resampled_colors(samp) = compute_mean(GA_colors, "neg");
                 resampled_cond_diff(samp) = compute_mean(GA_letters - GA_colors, "neg");
             end
-            toc
+            
             % Get the p-value for the current meta-resampling
             pval_letters(meta) = (sum(resampled_letters >= observed_mean_letters) / n_resampling);
             pval_colors(meta) = (sum(resampled_colors >= observed_mean_colors) / n_resampling);

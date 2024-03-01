@@ -1,7 +1,7 @@
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 library(groundhog)
 pkgs = c("tidyverse", "meta")
 groundhog.library(pkgs, "2024-02-20") 
-
 
 data = read.csv("./effect_sizes_Original.csv")  
 meta_colors = metagen(TE = ES_colors,

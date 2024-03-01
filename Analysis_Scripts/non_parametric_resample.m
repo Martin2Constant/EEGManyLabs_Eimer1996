@@ -10,7 +10,7 @@ function [ERP_cipsi, ERP_contra, ERP_ipsi, resampled_data] = non_parametric_resa
     end
     ntrials_total = size(data, 3);
     if method == "permutation"
-        resampled_data = shuffle(data, 3);
+        resampled_data = shuffle(data, 3); % EEGLAB's shuffle, not MATLAB's
     elseif method == "bootstrap"
         resampled_data = data(:, :, randi(ntrials_total, 1, ntrials_total));
     end
