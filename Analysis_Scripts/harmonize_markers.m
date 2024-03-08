@@ -82,7 +82,13 @@ function harmonize_markers(EEG, filepath)
     idx_correct = ~cellfun(@isempty,clean);
     clean = clean(idx_correct);
     latencies = latencies(idx_correct);
-
+    
+    if any([clean{:}] == 255)
+        if clean{1} ~= 255
+            first_255 = find([clean{:}] == 255);
+            clean(1:first_255) = [];
+        end
+    end
     idx_50 = cellfun(@(x) x == 50, clean);
     latencies_50 = [latencies{idx_50}];
     first_50_lat = latencies_50(1);

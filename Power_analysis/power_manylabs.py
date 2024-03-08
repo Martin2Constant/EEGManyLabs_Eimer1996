@@ -2,7 +2,7 @@
 """
 Python 3.10.9
 
-@author: Martin Constant (martin.constant@uni-bremen.de)
+@author: Martin Constant (martin.constant@unige.ch)
 """
 
 import pingouin as pg  # version 0.5.3
