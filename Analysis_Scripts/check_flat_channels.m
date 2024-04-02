@@ -3,8 +3,8 @@ function check_flat_channels(EEG, channels, participant_nr)
     % Check for flat channels.
     % First, create a high-passed copy of the dataset.
     % Onepass-zerophase Hamming-windowed sinc FIR
-    % Cutoff (-6 dB) 0.25 Hz
-    % Transition width 0.5 Hz, stopband 0-0.0 Hz, passband 0.5 Hz - Nyquist
+    % Cutoff (-6 dB) 0.5 Hz
+    % Transition width 1 Hz, stopband 0-0.0 Hz, passband 1 Hz - Nyquist
     % Max. passband deviation 0.0022 (0.22%), stopband attenuation -53 dB
     %
     % Then remove time segments with no markers for more than 5 seconds.
