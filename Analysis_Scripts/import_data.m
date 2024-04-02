@@ -80,8 +80,8 @@ function import_data(participant_nr, filepath, team)
             EEG.VEOG_side = "right";
 
         case 'GroupLC'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i', team, participant_nr);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i.csv', team, participant_nr);
+            filename_eeg = sprintf('sub%02i', participant_nr);
+            filename_behavior = sprintf('sub%02i.csv', participant_nr);
             filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg '.bdf'];
 
             % Importing with POz (chan 30) as temporary reference
@@ -89,7 +89,7 @@ function import_data(participant_nr, filepath, team)
             EEG = pop_biosig(filename_bdf, 'ref', 30, 'importannot','off');
             % Change electrode names to match names from the BESA template
             % and load BESA locations
-            EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {65, 'labels', 'M1'}, 'changefield', {66, 'labels', 'M2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {69, 'labels', 'SO1'}, 'changefield', {70, 'labels', 'IO1'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:72', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+            EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {65, 'labels', 'M1'}, 'changefield', {66, 'labels', 'M2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {69, 'labels', 'IO1'}, 'changefield', {70, 'labels', 'SO1'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:72', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
             % Remove unused electrodes
             EEG = pop_select( EEG, 'nochannel', {'EXG7', 'EXG8'});
             EEG.VEOG_side = "left";
@@ -370,13 +370,62 @@ function import_data(participant_nr, filepath, team)
         
         case 'Malaga'
             filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%04i', team, participant_nr);
-            filename_behavior = sprintf('subject-%i.csv', participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Subj%i.csv', team, participant_nr);
             % Loading EEG
             EEG = pop_loadbv([filepath filesep filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
 
             % Change electrode names to match names from the BESA template
             % and load BESA locations
             EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {4, 'labels', 'IO1'}, 'changefield', {5, 'labels', 'LO1'}, 'changefield', {10, 'labels', 'M1'}, 'changefield', {21, 'labels', 'M2'}, 'changefield', {27, 'labels', 'LO2'}, 'append', 64, 'changefield', {65, 'labels', 'FCz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:65', 'FCz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+            EEG.VEOG_side = "left";
+
+        case 'Hildesheim'
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i.bdf', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i', team, participant_nr);
+            % Loading EEG
+            filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
+
+            % Importing with POz (chan 10) as temporary reference
+            % Re-referenced to average mastoids at a later point.
+            EEG = pop_biosig(filename_bdf, 'ref', 10, 'importannot','off');
+            % Change electrode names to match names from the BESA template
+            % and load BESA locations
+            EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', ...
+                'changefield', {1, 'labels', 'F1'}, ...
+                'changefield', {2, 'labels', 'FC3'}, ...
+                'changefield', {3, 'labels', 'F5'}, ...
+                'changefield', {7, 'labels', 'C5'}, ...
+                'changefield', {9, 'labels', 'C1'}, ...
+                'changefield', {10, 'labels', 'POz'}, ...
+                'changefield', {11, 'labels', 'PO7'}, ...
+                'changefield', {20, 'labels', 'PO8'}, ...
+                'changefield', {21, 'labels', 'C6'}, ...
+                'changefield', {22, 'labels', 'C2'}, ...
+                'changefield', {24, 'labels', 'FC4'}, ...
+                'changefield', {26, 'labels', 'FCz'}, ...
+                'changefield', {28, 'labels', 'F6'}, ...
+                'changefield', {29, 'labels', 'F2'}, ...
+                'changefield', {30, 'labels', 'FC2'}, ...
+                'changefield', {33, 'labels', 'LO1'}, ...
+                'changefield', {34, 'labels', 'LO2'}, ...
+                'changefield', {35, 'labels', 'SO2'}, ...
+                'changefield', {36, 'labels', 'IO2'}, ...
+                'changefield', {37, 'labels', 'M1'}, ...
+                'changefield', {38, 'labels', 'M2'}, ...
+                'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:40', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+            % Remove unused electrodes
+            EEG = pop_select( EEG, 'nochannel', {'EXG7', 'EXG8'});
+            EEG.VEOG_side = "right";
+        
+        case "NCC_UGR"
+            filename_eeg = sprintf('%s_EEG_Eimer1996_sub%i', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_sub%i.csv', team, participant_nr);
+            % Loading EEG
+            EEG = pop_loadbv([filepath filesep filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
+
+            % Change electrode names to match names from the BESA template
+            % and load BESA locations
+            EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {5, 'labels', 'IO1'}, 'changefield', {10, 'labels', 'M1'}, 'changefield', {11, 'labels', 'LO1'}, 'changefield', {21, 'labels', 'M2'}, 'changefield', {22, 'labels', 'LO2'}, 'changefield', {26, 'labels', 'IO2'}, 'append', 31, 'changefield', {32, 'labels', 'Cz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:32', 'Cz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
             EEG.VEOG_side = "left";
         otherwise
             error('Team not found');

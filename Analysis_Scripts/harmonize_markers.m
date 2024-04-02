@@ -71,6 +71,16 @@ function harmonize_markers(EEG, filepath)
         case 'Malaga'
             eventlabels = {EEG.event(:).type}';
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
+        case 'Hildesheim'
+            eventlabels = {EEG.event(:).type}';
+            % Remove marker offset; 65535 -> 255
+            for i = 1:length(eventlabels)
+                eventlabels{i} = eventlabels{i} - (2^16 - 2^8);
+            end
+            clean = eventlabels;
+        case 'NCC_UGR'
+            eventlabels = {EEG.event(:).type}';
+            clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
         otherwise
             error('Team not found');
     end
@@ -83,12 +93,28 @@ function harmonize_markers(EEG, filepath)
     clean = clean(idx_correct);
     latencies = latencies(idx_correct);
     
+    % If the first marker is not 255 or if there are more than one 255
+    % If there's several 255, we assume the experiment was restarted and we
+    % remove everything before the last restart of the experiment.
+    % Else if there's only one 255, but it's not the first marker we remove
+    % everything before it, assuming the experiment was started before the
+    % recording, and then restarted.
     if any([clean{:}] == 255)
-        if clean{1} ~= 255
+        if numel(find([clean{:}] == 255)) > 1
+            markers_255 = find([clean{:}] == 255);
+            last_255 = markers_255(end);
+            clean(1:last_255) = [];
+        elseif clean{1} ~= 255
             first_255 = find([clean{:}] == 255);
             clean(1:first_255) = [];
         end
     end
+
+    % We find the 1st marker 50 (coding for display offset)
+    % Everything marker that happens more than 2 seconds before that first
+    % display offset must likely be artifactual.
+    % This cleaning happens after removing all markers that aren't wanted 
+    % and if there are more than the expected amount of markers (792*2).
     idx_50 = cellfun(@(x) x == 50, clean);
     latencies_50 = [latencies{idx_50}];
     first_50_lat = latencies_50(1);
@@ -101,11 +127,13 @@ function harmonize_markers(EEG, filepath)
 
     clean = clean(idx_correct2);
     latencies = latencies(idx_correct2);
+
     if size(clean, 1) > 792*2
         idx_correct3 = cellfun(@(x) x > lat_too_low, latencies);
         clean = clean(idx_correct3);
         latencies = latencies(idx_correct3);
     end
+    
     % Extract response times from behavior table (sub-ms precision)
     response_times = EEG.behavior.response_time;
 
