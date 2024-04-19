@@ -499,8 +499,8 @@ function import_data(participant_nr, filepath, team)
             EEG.VEOG_side = "right";
 
         case "NCC_UGR"
-            filename_eeg = sprintf('%s_EEG_Eimer1996_sub%i', team, participant_nr);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_sub%i.csv', team, participant_nr);
+            filename_eeg = sprintf('NCC_Eimer_%02i', participant_nr);
+            filename_behavior = sprintf('NCC_Eimer_%02i.csv', participant_nr);
             % Loading EEG
             EEG = pop_loadbv([filepath filesep filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
 
@@ -508,6 +508,18 @@ function import_data(participant_nr, filepath, team)
             % and load BESA locations
             EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {5, 'labels', 'IO1'}, 'changefield', {10, 'labels', 'M1'}, 'changefield', {11, 'labels', 'LO1'}, 'changefield', {21, 'labels', 'M2'}, 'changefield', {22, 'labels', 'LO2'}, 'changefield', {26, 'labels', 'IO2'}, 'append', 31, 'changefield', {32, 'labels', 'Cz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:32', 'Cz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
             EEG.VEOG_side = "left";
+        
+        case 'UNIMORE'
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
+            % Loading EEG
+            EEG = pop_loadbv([filepath filesep filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
+
+            % Change electrode names to match names from the BESA template
+            % and load BESA locations
+            EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {5, 'labels', 'IO1'}, 'changefield', {10, 'labels', 'M1'}, 'changefield', {21, 'labels', 'M2'}, 'changefield', {33, 'labels', 'LO1'}, 'changefield', {61, 'labels', 'LO2'}, 'append', 63, 'changefield', {64, 'labels', 'FCz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:64', 'FCz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+            EEG.VEOG_side = "left";
+        
         otherwise
             error('Team not found');
     end

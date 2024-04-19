@@ -81,6 +81,9 @@ function harmonize_markers(EEG, filepath)
         case 'NCC_UGR'
             eventlabels = {EEG.event(:).type}';
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
+        case 'UNIMORE'
+            eventlabels = {EEG.event(:).type}';
+            clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
         otherwise
             error('Team not found');
     end

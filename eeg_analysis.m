@@ -1,22 +1,22 @@
 function eeg_analysis(pipeline, team, participant_list, preprocess, get_results, filepath)
     % Author: Martin Constant (martin.constant@unige.ch)
     % Running with:
-    % MATLAB R2023b
-    % Statistics and Machine Learning Toolbox R2023b
-    % Optimization Toolbox R2023b
-    % Image Processing Toolbox R2023b
-    % Signal Processing Toolbox R2023b
-    % Parallel Computing Toolbox R2023b
-    % EEGLAB version 2023.1
-    % ERPLAB v10.04
-    % For BioSemi data import: Biosig v3.8.1
+    % MATLAB R2024a
+    % Statistics and Machine Learning Toolbox R2024a
+    % Optimization Toolbox R2024a
+    % Image Processing Toolbox R2024a
+    % Signal Processing Toolbox R2024a
+    % Parallel Computing Toolbox R2024a
+    % EEGLAB version 2024.0
+    % ERPLAB v10.1
+    % For BioSemi data import: Biosig v3.8.3
     % For BrainVision data import: bva-io v1.73
     % For NeuroScan data import: loadcurry v3.2.3
-    % firfilt v2.7.1
+    % firfilt v2.8
     % clean_rawdata v2.91
     % AMICA v1.7.0
     % postAmicaUtility v2.1
-    % ICLabel v1.5
+    % ICLabel v1.6
     % latency v1.3.0 https://github.com/Liesefeld/latency/releases/tag/v1.3.0
     arguments
         pipeline string {mustBeMember(pipeline, ["Original", "Resample", "ICA", "Resample"])} = "Original";
@@ -38,7 +38,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     opts = ["Munich", "Krakow", "Essex", "Gent", "ONERA", "Geneva", ...
         "GroupLC", "LSU", "Magdeburg", "Verona", "KHas", "TrierKamp", ...
         "UniversityofVienna", "TrierCogPsy", "Neuruppin", "Auckland", "Bern", ...
-        "ItierLab", "Malaga", "Hildesheim", "NCC_UGR"];
+        "ItierLab", "Malaga", "Hildesheim", "NCC_UGR", "UNIMORE"];
     if isempty(team)
         choice = menu(msg, opts);
         team = char(opts(choice));
