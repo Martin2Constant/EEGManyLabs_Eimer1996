@@ -162,7 +162,7 @@ function import_data(participant_nr, filepath, team)
             EEG = pop_chanedit(EEG, 'append', 63, 'changefield', {64, 'labels', 'FCz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:64', 'FCz'}, 'eval', '', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'convert', {'cart2all'});
             EEG.VEOG_side = "left";
 
-        case 'Geneva'
+        case 'GenevaKerzel'
             filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%04i', team, participant_nr);
             filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
             behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];

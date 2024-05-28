@@ -118,7 +118,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         case 'ONERA'
             LeftChans = 'Lch = [34 3 35 4 36 5 7 37 6 38 8 39 9 11 41 10 42 13 43 14 15 31 32 40 45 44 2 12 16 22 33 46 51 62:64] ;';
             RightChans = 'Rch = [61 28 58 29 57 25 27 56 26 55 23 54 24 21 52 20 50 18 49 19 17 59 60 53 47 48 2 12 16 22 33 46 51 62:64];';
-        case 'Geneva'
+        case 'GenevaKerzel'
             LeftChans = 'Lch = [2 27 25 26:-2:22 23 21 17 20 18 19 16 28:32];';
             RightChans = 'Rch = [1 5:16 28:32];';
         case 'GroupLC'

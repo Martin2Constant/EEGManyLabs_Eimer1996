@@ -23,7 +23,7 @@ function harmonize_markers(EEG, filepath)
             eventlabels = {EEG.event(:).type}';
             % Remove the leading "S"; S255 -> 255
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
-        case 'Geneva'
+        case 'GenevaKerzel'
             eventlabels = {EEG.event(:).type}';
             % Remove the leading "S"; S255 -> 255
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
