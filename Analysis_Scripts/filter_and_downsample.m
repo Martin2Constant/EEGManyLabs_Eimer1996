@@ -193,18 +193,6 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             ref = EEG.chaninfo.nodatchans(ref_index);
             EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
 
-        case 'Bern'
-            % Check for flat M1, M2, PO7 or PO8.
-            % Throws an error if any are flat.
-            % Deviates from original study.
-            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
-
-            % Rereference to average of mastoids and add previous Ref (FCz) as a data channel
-            % Deviates from original study.
-            ref_index = find(strcmpi({EEG.chaninfo.nodatchans(:).labels}', EEG.chanlocs(1).ref));
-            ref = EEG.chaninfo.nodatchans(ref_index);
-            EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
-
         case 'ItierLab'
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
@@ -236,7 +224,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             % Rereference to average of mastoids, no ref to add back on Biosemi
             % Deviates from original study.
             EEG = pop_reref( EEG, {'M1' 'M2'} );
-        
+
         case 'NCC_UGR'
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
@@ -248,7 +236,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             ref_index = find(strcmpi({EEG.chaninfo.nodatchans(:).labels}', EEG.chanlocs(1).ref));
             ref = EEG.chaninfo.nodatchans(ref_index);
             EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
-        
+
         case 'UNIMORE'
             % Check for flat M1, M2, PO7 or PO8.
             % Throws an error if any are flat.
@@ -260,6 +248,16 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
             ref_index = find(strcmpi({EEG.chaninfo.nodatchans(:).labels}', EEG.chanlocs(1).ref));
             ref = EEG.chaninfo.nodatchans(ref_index);
             EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
+
+        case 'GenevaKliegel'
+            % Check for flat M1, M2, PO7 or PO8.
+            % Throws an error if any are flat.
+            % Deviates from original study.
+            check_flat_channels(EEG, {'PO7', 'PO8', 'M1', 'M2'}, participant_nr);
+
+            % Rereference to average of mastoids, no ref to add back on Biosemi
+            % Deviates from original study.
+            EEG = pop_reref( EEG, {'M1' 'M2'} );
 
         otherwise
             error('Team not found');
@@ -286,7 +284,7 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
     %% Resample to 200 Hz
     % "EEG and EOG were sampled with a digitization rate of 200 Hz."
     EEG = eeg_checkset( EEG );
-    EEG = pop_resample( EEG, 200);
+    EEG = pop_resample(EEG, 200);
 
     %% Convert our markers to ERPLAB-compatible format
     EEG = pop_creabasiceventlist( EEG, 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' } );

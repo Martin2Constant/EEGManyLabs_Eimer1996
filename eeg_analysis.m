@@ -24,7 +24,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
         participant_list double = [1:28];
         preprocess logical = true;
         get_results logical = true;
-        filepath char = fileparts(mfilename('fullpath'));    
+        filepath char = fileparts(mfilename('fullpath'));
     end
     cd(filepath);
     addpath([filepath filesep 'Analysis_Scripts']);
@@ -37,8 +37,8 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     msg = 'Which team?';
     opts = ["Munich", "Krakow", "Essex", "Gent", "ONERA", "Geneva", ...
         "GroupLC", "LSU", "Magdeburg", "Verona", "KHas", "TrierKamp", ...
-        "UniversityofVienna", "TrierCogPsy", "Neuruppin", "Auckland", "Bern", ...
-        "ItierLab", "Malaga", "Hildesheim", "NCC_UGR", "UNIMORE"];
+        "UniversityofVienna", "TrierCogPsy", "Neuruppin", "Auckland", ...
+        "ItierLab", "Malaga", "Hildesheim", "NCC_UGR", "UNIMORE", "GenevaKliegel"];
     if isempty(team)
         choice = menu(msg, opts);
         team = char(opts(choice));

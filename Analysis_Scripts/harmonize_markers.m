@@ -62,9 +62,6 @@ function harmonize_markers(EEG, filepath)
             EEG = auckland_EEG_Eimer1996_realign_marker_code(EEG);
             eventlabels = {EEG.event(:).type}';
             clean = cellfun(@(s)sscanf(s, 'T%d'), eventlabels, 'UniformOutput', false);
-        case 'Bern'
-            eventlabels = {EEG.event(:).type}';
-            clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
         case 'ItierLab'
             eventlabels = {EEG.event(:).type}';
             clean = eventlabels;
@@ -84,6 +81,9 @@ function harmonize_markers(EEG, filepath)
         case 'UNIMORE'
             eventlabels = {EEG.event(:).type}';
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
+        case 'GenevaKliegel'
+            eventlabels = {EEG.event(:).type}';
+            clean = eventlabels;
         otherwise
             error('Team not found');
     end
@@ -95,7 +95,7 @@ function harmonize_markers(EEG, filepath)
     idx_correct = ~cellfun(@isempty,clean);
     clean = clean(idx_correct);
     latencies = latencies(idx_correct);
-    
+
     % If the first marker is not 255 or if there are more than one 255
     % If there's several 255, we assume the experiment was restarted and we
     % remove everything before the last restart of the experiment.
@@ -106,7 +106,9 @@ function harmonize_markers(EEG, filepath)
         if numel(find([clean{:}] == 255)) > 1
             markers_255 = find([clean{:}] == 255);
             last_255 = markers_255(end);
-            clean(1:last_255) = [];
+            if last_255 < 200
+                clean(1:last_255) = [];
+            end
         elseif clean{1} ~= 255
             first_255 = find([clean{:}] == 255);
             clean(1:first_255) = [];
@@ -116,7 +118,7 @@ function harmonize_markers(EEG, filepath)
     % We find the 1st marker 50 (coding for display offset)
     % Everything marker that happens more than 2 seconds before that first
     % display offset must likely be artifactual.
-    % This cleaning happens after removing all markers that aren't wanted 
+    % This cleaning happens after removing all markers that aren't wanted
     % and if there are more than the expected amount of markers (792*2).
     idx_50 = cellfun(@(x) x == 50, clean);
     latencies_50 = [latencies{idx_50}];
@@ -136,7 +138,7 @@ function harmonize_markers(EEG, filepath)
         clean = clean(idx_correct3);
         latencies = latencies(idx_correct3);
     end
-    
+
     % Extract response times from behavior table (sub-ms precision)
     response_times = EEG.behavior.response_time;
 
