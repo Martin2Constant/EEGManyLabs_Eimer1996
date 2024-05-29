@@ -144,7 +144,13 @@ function harmonize_markers(EEG, filepath)
     % onset marker. The marker in position n-2 is likely the culprit so we
     % remove it.
     all_onsets = [clean{1:2:end}]';
-    all_beh_onsets = EEG.behavior.onset_marker;
+    if class(EEG.behavior.onset_marker) == "double"
+        all_beh_onsets = EEG.behavior.onset_marker;
+    else
+        % Convert cells of format {'[121]'} to double 
+        all_beh_onsets = double(strip(strip(string(EEG.behavior.onset_marker),'['),']'));
+    end
+    
     while any(all_onsets <= 3)
         for x = 1:numel(all_onsets)
             if all_onsets(x) ~= all_beh_onsets(x)
