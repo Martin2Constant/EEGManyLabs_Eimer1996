@@ -3,8 +3,8 @@ function import_data(participant_nr, filepath, team)
     %% Import data and change electrode names to be BESA-compliant
     switch team
         case 'Krakow'
-            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i.bdf', team, participant_nr);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i.bdf', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i.csv', team, participant_nr);
             filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
             behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 

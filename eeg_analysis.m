@@ -8,7 +8,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     % Signal Processing Toolbox R2024a
     % Parallel Computing Toolbox R2024a
     % EEGLAB version 2024.0
-    % ERPLAB v10.1
+    % ERPLAB v10.11
     % For BioSemi data import: Biosig v3.8.3
     % For BrainVision data import: bva-io v1.73
     % For NeuroScan data import: loadcurry v3.2.3

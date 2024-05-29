@@ -108,10 +108,12 @@ function harmonize_markers(EEG, filepath)
             last_255 = markers_255(end);
             if last_255 < 200
                 clean(1:last_255) = [];
+                latencies(1:last_255) = [];
             end
         elseif clean{1} ~= 255
             first_255 = find([clean{:}] == 255);
             clean(1:first_255) = [];
+            latencies(1:first_255) = [];
         end
     end
 
