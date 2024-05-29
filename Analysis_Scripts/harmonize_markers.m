@@ -135,10 +135,10 @@ function harmonize_markers(EEG, filepath)
     clean = clean(idx_correct2);
     latencies = latencies(idx_correct2);
 
-    
+
     % Check that onset markers (> 3) are correctly placed (in odd
     % positions)
-    % If they're not, there's likely a ghost markers somewhere, so we pull 
+    % If they're not, there's likely a ghost markers somewhere, so we pull
     % the onset marker information from the behavioral file and search for the first
     % marker in an odd position that does not correspond to the expected
     % onset marker. The marker in position n-2 is likely the culprit so we
@@ -148,14 +148,19 @@ function harmonize_markers(EEG, filepath)
     while any(all_onsets <= 3)
         for x = 1:numel(all_onsets)
             if all_onsets(x) ~= all_beh_onsets(x)
-                clean(x*2-2) = [];
-                latencies(x*2-2) = [];
+                if x ~= 1
+                    clean(x*2-2) = [];
+                    latencies(x*2-2) = [];
+                else
+                    clean(1) = [];
+                    latencies(1) = [];
+                end
                 all_onsets = [clean{1:2:end}]';
                 break
             end
         end
     end
-    
+
     % Additional sanity check
     if ~all(all_onsets == all_beh_onsets)
         error('The onset markers for participant %s do not match the ones from the behavioral file.', EEG.setname)
