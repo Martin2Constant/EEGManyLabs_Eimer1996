@@ -112,8 +112,10 @@ function harmonize_markers(EEG, filepath)
             end
         elseif clean{1} ~= 255
             first_255 = find([clean{:}] == 255);
-            clean(1:first_255) = [];
-            latencies(1:first_255) = [];
+            if first_255 < 200
+                clean(1:first_255) = [];
+                latencies(1:first_255) = [];
+            end
         end
     end
 
@@ -147,19 +149,33 @@ function harmonize_markers(EEG, filepath)
     if class(EEG.behavior.onset_marker) == "double"
         all_beh_onsets = EEG.behavior.onset_marker;
     else
-        % Convert cells of format {'[121]'} to double 
+        % Convert cells of format {'[121]'} to double
         all_beh_onsets = double(strip(strip(string(EEG.behavior.onset_marker),'['),']'));
     end
-    
+    all_correct_response = EEG.behavior.correct;
     while any(all_onsets <= 3)
         for x = 1:numel(all_onsets)
             if all_onsets(x) ~= all_beh_onsets(x)
-                if x ~= 1
-                    clean(x*2-2) = [];
-                    latencies(x*2-2) = [];
+                if size(clean, 1) >= 792*2
+                    if x ~= 1
+                        clean(x*2-2) = [];
+                        latencies(x*2-2) = [];
+                    else
+                        clean(1) = [];
+                        latencies(1) = [];
+                    end
                 else
-                    clean(1) = [];
-                    latencies(1) = [];
+                    if all_correct_response(x) == 0
+                        if isnan(EEG.behavior.response_time(x))
+                            clean = [clean(1:x*2-2-1); {[3]}; clean(x*2-2:end)];
+                        else
+                            clean = [clean(1:x*2-2-1); {[2]}; clean(x*2-2:end)];
+                        end
+                    else
+                        clean = [clean(1:x*2-2-1); {[1]}; clean(x*2-2:end)];
+                    end
+
+                    latencies = [latencies(1:x*2-2-1); {[latencies{x*2-2-1} + (2000 * EEG.srate / 1000)]}; latencies(x*2-2:end)];
                 end
                 all_onsets = [clean{1:2:end}]';
                 break
