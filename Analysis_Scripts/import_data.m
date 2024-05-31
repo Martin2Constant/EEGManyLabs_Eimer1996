@@ -226,7 +226,11 @@ function import_data(participant_nr, filepath, team)
             behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
             % Loading EEG
-            EEG = pop_loadbv([filepath filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
+            if exist([filepath filesep team filesep 'RawData' filesep filename_eeg '.set'], 'file')
+                EEG = pop_loadset([filename_eeg '.set'], [filepath filesep team filesep 'RawData']);
+            else
+                EEG = pop_loadbv([filepath filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
+            end
 
             % Change electrode names to match names from the BESA template
             % and load BESA locations

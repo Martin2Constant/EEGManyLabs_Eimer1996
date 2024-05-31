@@ -59,7 +59,14 @@ function harmonize_markers(EEG, filepath)
             eventlabels = {EEG.event(:).type}';
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
         case 'Auckland'
-            EEG = auckland_EEG_Eimer1996_realign_marker_code(EEG);
+            if EEG.behavior.subject_nr(1) == 15 || EEG.behavior.subject_nr(1) == 32
+                EEG = pop_select(EEG, 'nochannel', {'photosensor'});
+                phIdx = find(strcmpi({EEG.chaninfo.removedchans.labels}, 'photosensor'));
+                EEG.chaninfo.removedchans(phIdx) = [];
+                EEG = eeg_checkset(EEG);
+            else
+                EEG = auckland_EEG_Eimer1996_realign_marker_code(EEG);
+            end
             eventlabels = {EEG.event(:).type}';
             clean = cellfun(@(s)sscanf(s, 'T%d'), eventlabels, 'UniformOutput', false);
         case 'ItierLab'
@@ -153,10 +160,13 @@ function harmonize_markers(EEG, filepath)
         all_beh_onsets = double(strip(strip(string(EEG.behavior.onset_marker),'['),']'));
     end
     all_correct_response = EEG.behavior.correct;
-    while any(all_onsets <= 3)
+    exit_loop = false;
+    nb_responses = sum([clean{:}]<=3);
+    nb_onsets = sum([clean{:}]>3);
+    cnt = 0;
+    while any(all_onsets <= 3) && ~exit_loop
         for x = 1:numel(all_onsets)
             if x <= size(all_beh_onsets, 1) && x <= size(all_onsets, 1)
-
                 if all_onsets(x) ~= all_beh_onsets(x)
                     if size(clean, 1) >= 792*2
                         if x ~= 1
@@ -167,17 +177,28 @@ function harmonize_markers(EEG, filepath)
                             latencies(1) = [];
                         end
                     else
-                        if all_correct_response(x) == 0
-                            if isnan(EEG.behavior.response_time(x))
-                                clean = [clean(1:x*2-2-1); {[3]}; clean(x*2-2:end)];
-                            else
-                                clean = [clean(1:x*2-2-1); {[2]}; clean(x*2-2:end)];
-                            end
-                        else
-                            clean = [clean(1:x*2-2-1); {[1]}; clean(x*2-2:end)];
+                        if x == 1
+                            exit_loop = true;
+                            break
                         end
+                        if nb_responses < 792
+                            if all_correct_response(x) == 0
+                                if isnan(EEG.behavior.response_time(x))
+                                    clean = [clean(1:x*2-2-1); {3}; clean(x*2-2:end)];
+                                else
+                                    clean = [clean(1:x*2-2-1); {2}; clean(x*2-2:end)];
+                                end
+                            else
+                                clean = [clean(1:x*2-2-1); {1}; clean(x*2-2:end)];
+                            end
 
-                        latencies = [latencies(1:x*2-2-1); {[latencies{x*2-2-1} + (2000 * EEG.srate / 1000)]}; latencies(x*2-2:end)];
+                            latencies = [latencies(1:x*2-2-1); {latencies{x*2-2-1} + (2000 * EEG.srate / 1000)}; latencies(x*2-2:end)];
+                        elseif nb_onsets < 792
+                            % We're missing a marker for which we can't
+                            % interpolate the timing so we just exit
+                            exit_loop = true;
+                            break
+                        end
                     end
 
                     all_onsets = [clean{1:2:end}]';
@@ -189,13 +210,18 @@ function harmonize_markers(EEG, filepath)
                 all_onsets = [clean{1:2:end}]';
             end
         end
+        cnt = cnt + 1;
+        if cnt > 10000
+            exit_loop=true;
+        end
     end
 
     % Additional sanity check
-    if ~all(all_onsets == all_beh_onsets)
-        error('The onset markers for participant %s do not match the ones from the behavioral file.', EEG.setname)
+    if size(all_onsets) == size(all_beh_onsets) & all(all_onsets > 3)
+        if ~all(all_onsets == all_beh_onsets)
+            error('The onset markers for participant %s do not match the ones from the behavioral file.', EEG.setname)
+        end
     end
-
     if size(clean, 1) > 792*2
         idx_correct3 = cellfun(@(x) x > lat_too_low, latencies);
         clean = clean(idx_correct3);
@@ -256,16 +282,5 @@ function harmonize_markers(EEG, filepath)
     EEG = eeg_checkset(EEG, 'makeur');
     EEG = eeg_checkset(EEG, 'eventconsistency');
     EEG = eeg_checkset(EEG);
-
-    % Try to save in MAT files in v6 format, if it doesn't work, save in v7.3
-    EEGs = EEG;
-    lastwarn('');
-    pop_editoptions('option_saveversion6', 1);
     EEG = pop_saveset(EEG, 'filename', [EEG.setname '.set'], 'filepath', [filepath filesep EEG.team filesep 'EEG']); %#ok<*NASGU>
-    if strcmpi(lastwarn, "Variable 'EEG' was not saved. For variables larger than 2GB use MAT-file version 7.3 or later.")
-        pop_editoptions('option_saveversion6', 0);
-        EEG = EEGs;
-        EEG = pop_saveset(EEG, 'filename', [EEG.setname '.set'], 'filepath', [filepath filesep EEG.team filesep 'EEG']);
-        pop_editoptions('option_saveversion6', 1);
-    end
 end

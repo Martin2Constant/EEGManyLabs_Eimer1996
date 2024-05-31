@@ -289,17 +289,5 @@ function filter_and_downsample(participant_nr, filepath, team, pipeline)
     %% Convert our markers to ERPLAB-compatible format
     EEG = pop_creabasiceventlist( EEG, 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' } );
     EEG = eeg_checkset( EEG );
-
-    %% Try to save in MAT files in v6 format, if it doesn't work (because file is too big), save in v7.3
-    % Given the resampling to 200 Hz, this should not happpen.
-    EEGs = EEG;
-    lastwarn('');
-    pop_editoptions('option_saveversion6', 1);
     EEG = pop_saveset(EEG, 'filename', savename, 'filepath', [filepath filesep team filesep 'EEG']); %#ok<*NASGU>
-    if strcmpi(lastwarn, "Variable 'EEG' was not saved. For variables larger than 2GB use MAT-file version 7.3 or later.")
-        pop_editoptions('option_saveversion6', 0);
-        EEG = EEGs;
-        EEG = pop_saveset(EEG, 'filename', savename, 'filepath', [filepath filesep team filesep 'EEG']);
-        pop_editoptions('option_saveversion6', 1);
-    end
 end
