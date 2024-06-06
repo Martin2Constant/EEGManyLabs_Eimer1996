@@ -137,7 +137,7 @@ function import_data(participant_nr, filepath, team)
                     'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:79', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
                 % Remove unused electrodes
 
-                EEG = pop_select( EEG, 'nochannel', [71:79]);
+                EEG = pop_select( EEG, 'nochannel', 71:79);
 
             else
                 EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {65, 'labels', 'M1'}, 'changefield', {66, 'labels', 'M2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {69, 'labels', 'SO1'}, 'changefield', {70, 'labels', 'IO1'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:72', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
@@ -213,8 +213,12 @@ function import_data(participant_nr, filepath, team)
             behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
             % Loading EEG
-            EEG = pop_loadbv([filepath filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
-
+            if exist([filepath filesep team filesep 'RawData' filesep filename_eeg '.set'], 'file')
+                EEG = pop_loadset([filename_eeg '.set'], [filepath filesep team filesep 'RawData']);
+            else
+                EEG = pop_loadbv([filepath filesep team filesep 'RawData'], [filename_eeg '.vhdr']);
+            end
+            
             % Change electrode names to match names from the BESA template
             % and load BESA locations
             EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:64', 'Nose'}, 'eval', '', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'convert', {'cart2all'});
@@ -575,7 +579,7 @@ function import_data(participant_nr, filepath, team)
 
         case 'Hildesheim'
             filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i.bdf', team, participant_nr);
-            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
             behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
             % Loading EEG
@@ -614,8 +618,8 @@ function import_data(participant_nr, filepath, team)
             EEG.VEOG_side = "right";
 
         case "NCC_UGR"
-            filename_eeg = sprintf('NCC_Eimer_%02i', participant_nr);
-            filename_behavior = sprintf('NCC_Eimer_%02i.csv', participant_nr);
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Subj%02i.csv', team, participant_nr);
             behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
             % Loading EEG
@@ -640,8 +644,8 @@ function import_data(participant_nr, filepath, team)
             EEG.VEOG_side = "left";
 
         case 'GenevaKliegel'
-            filename_eeg = sprintf('Pilot_%i.bdf', participant_nr);
-            filename_behavior = sprintf('Pilot_%i.csv', participant_nr);
+            filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%i.bdf', team, participant_nr);
+            filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%i.csv', team, participant_nr);
             filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
             behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
