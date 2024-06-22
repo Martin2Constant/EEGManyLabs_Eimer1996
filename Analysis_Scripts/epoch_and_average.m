@@ -1,6 +1,6 @@
 function epoch_and_average(participant_nr, filepath, team, pipeline)
     % Author: Martin Constant (martin.constant@unige.ch)
-    filtered = sprintf('%s_participant%02i_%s_filtered.set', team, participant_nr, pipeline);
+    filtered = sprintf('%s_participant%02i_filtered.set', team, participant_nr);
     epoched = sprintf('%s_participant%02i_%s_epoched.set', team, participant_nr, pipeline);
     erp_name = sprintf('%s_participant%02i_%s', team, participant_nr, pipeline);
     EEG = pop_loadset(filtered, [filepath filesep team filesep 'EEG']);

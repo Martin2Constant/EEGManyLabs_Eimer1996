@@ -1,7 +1,7 @@
-function ICA(participant_nr, filepath, team, pipeline)
+function ICA(participant_nr, filepath, team)
     % Author: Martin Constant (martin.constant@unige.ch)
     
-    filename = sprintf('%s_participant%02i_%s_filtered.set', team, participant_nr, pipeline);
+    filename = sprintf('%s_participant%02i_filtered.set', team, participant_nr);
     EEG = pop_loadset(filename, [filepath filesep team filesep 'EEG']);
 
     %% Pre-process for ICA

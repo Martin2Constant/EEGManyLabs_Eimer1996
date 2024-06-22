@@ -1,4 +1,4 @@
-function AMICA(participant_nr, filepath, team, force_amica, pipeline)
+function AMICA(participant_nr, filepath, team, force_amica)
     % Author: Martin Constant (martin.constant@unige.ch)
     % Requires the AMICA plugin from EEGLAB
     out_amica = sprintf('%s%s%s%sAMICA%s%02i', filepath, filesep, team, filesep, filesep, participant_nr);
@@ -7,7 +7,7 @@ function AMICA(participant_nr, filepath, team, force_amica, pipeline)
     % it again unless force_amica is true
     if ~exist(out_amica, 'dir') || force_amica
         rng("shuffle");
-        filename = sprintf('%s_participant%02i_%s_filtered.set', team, participant_nr, pipeline);
+        filename = sprintf('%s_participant%02i_filtered.set', team, participant_nr);
         EEG = pop_loadset(filename, [filepath filesep team filesep 'EEG']);
 
         %% Pre-process for ICA
@@ -37,8 +37,8 @@ function AMICA(participant_nr, filepath, team, force_amica, pipeline)
         dataRank = sum(eig(cov(double(EEG.data'))) > 1E-6);
         % Call AMICA and save output to ./team/AMICA/participant_nr
         runamica15(double(EEG.data), 'num_chans', EEG.nbchan,...
-            'outdir', out_amica, 'max_threads', 16, 'num_models', 1, ...
+            'outdir', out_amica, 'max_threads', 4, 'num_models', 1, ...
             'do_reject', 1, 'numrej', 15, 'rejsig', 3, 'rejint', 1, ...
-            'max_iter', 16000, 'pcakeep', dataRank);
+            'pcakeep', dataRank);
     end
 end
