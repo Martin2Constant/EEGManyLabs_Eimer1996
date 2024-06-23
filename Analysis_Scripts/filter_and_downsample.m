@@ -1,8 +1,8 @@
-function filter_and_downsample(participant_nr, filepath, team, pipeline)
+function filter_and_downsample(participant_nr, filepath, team)
     % Author: Martin Constant (martin.constant@unige.ch)
     filename = sprintf('%s_participant%02i_harmonized.set', team, participant_nr);
     savename = sprintf('%s_participant%02i_filtered.set', team, participant_nr);
-	if ~exist([filepath filesep team filesep 'EEG' filesep savename, 'file')
+	if ~exist([filepath filesep team filesep 'EEG' filesep savename], 'file')
 		EEG = pop_loadset(filename, [filepath filesep team filesep 'EEG']);
 		%% Check flat channels and re-reference
 		switch team

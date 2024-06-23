@@ -70,9 +70,9 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     for participant_nr = participant_list
         if preprocess
             import_data(participant_nr, filepath, team)
-            filter_and_downsample(participant_nr, filepath, team, pipeline)
+            filter_and_downsample(participant_nr, filepath, team)
             if pipeline == "ICA" || pipeline == "ICA+Resample"
-                AMICA(participant_nr, filepath, team, false, pipeline)
+                AMICA(participant_nr, filepath, team, false)
             end
             epoch_and_average(participant_nr, filepath, team, pipeline)
         end
