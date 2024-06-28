@@ -1,15 +1,15 @@
-function extract_results(filepath, team, pipeline, participant_list)
+function extract_results(filepath, team, pipeline)
     % Author: Martin Constant (martin.constant@unige.ch)
     arguments
         filepath char;
         team char;
         pipeline char;
-        participant_list double;
     end
     files = dir(fullfile([filepath filesep team filesep 'ERP' filesep char(pipeline)], [team '_participant*_' pipeline '.erp']));
-
+    participant_list = [];
     for id = 1:length(files)
         erp_name = files(id).name;
+        participant_list = [participant_list, str2double(erp_name(end-(6+length(pipeline)):end-(5+length(pipeline))))];
         ERP = pop_loaderp( 'filename', erp_name, 'filepath', files(id).folder);
         ALLERP(id) = ERP; %#ok<AGROW>
     end
@@ -47,7 +47,7 @@ function extract_results(filepath, team, pipeline, participant_list)
         force_bootstrap = true;
         if ~exist(sprintf('%spvalues_bootstrap.mat', results_path), 'file') || force_bootstrap
             [pval_letters, pval_colors, pval_difference] = non_parametric_tests(filepath, team, participant_list, pipeline, onset, offset)
-        else 
+        else
             load(sprintf('%spvalues_bootstrap.mat', results_path), 'pval_letters', 'pval_colors', 'pval_difference');
             if numel(pval_letters) ~= 1000
                 warning("Careful there are %i bootstrapped p-values instead of the expected 1000.", numel(pval_letters));
@@ -218,7 +218,7 @@ function extract_results(filepath, team, pipeline, participant_list)
             stats_amp_letters.df, stats_amp_letters.t, stats_amp_letters.p, ...
             stats_amp_letters.gz.eff, stats_amp_letters.gz.low_ci,...
             stats_amp_letters.gz.high_ci, stats_amp_letters.gz.se, ...
-            median_pval_letters, bootstrap_letters_null) 
+            median_pval_letters, bootstrap_letters_null)
 
         letters_fileID = fopen(sprintf('%sletters_output.txt', results_path), 'w');
         fprintf(letters_fileID, letters_output);
