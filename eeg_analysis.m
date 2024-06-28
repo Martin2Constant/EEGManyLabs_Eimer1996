@@ -21,7 +21,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     arguments
         pipeline string {mustBeMember(pipeline, ["Original", "Resample", "ICA", "Resample"])} = "Original";
         team char = ''
-        participant_list double = [1:28];
+        participant_list double = [];
         preprocess logical = true;
         get_results logical = true;
         filepath char = fileparts(mfilename('fullpath'));
@@ -67,6 +67,13 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     % Change EEGLAB default options to keep double precision throughout
     % the pipeline and use the ERPLAB compatibility option.
     pop_editoptions('option_savetwofiles', 0, 'option_single', 0, 'option_boundary99', 1);
+    if isempty(participant_list)
+        file_id = fopen([filepath filesep team filesep 'participant_list.txt'], 'r');
+        formatSpec = '%s';
+        participant_list = fscanf(file_id, formatSpec, [1 Inf]);
+        participant_list = eval(participant_list);
+        fclose(file_id);
+    end
     for participant_nr = participant_list
         if preprocess
             import_data(participant_nr, filepath, team)
@@ -78,6 +85,6 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
         end
     end
     if get_results
-        extract_results(filepath, team, pipeline, participant_list)
+        extract_results(filepath, team, pipeline)
     end
 end
