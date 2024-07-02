@@ -1,7 +1,7 @@
 function import_data(participant_nr, filepath, team)
     % Author: Martin Constant (martin.constant@unige.ch)
     %% Import data and change electrode names to be BESA-compliant
-    if ~exist([filepath filesep team filesep 'EEG' filesep sprintf('%s_participant%02i_harmonized', team, participant_nr) '.set'], 'file')
+    if ~exist([filepath filesep team filesep 'EEG' filesep sprintf('%s_participant%02i_harmonized', team, participant_nr) '.set'], 'file') && ~exist([filepath filesep team filesep 'EEG' filesep sprintf('%s_participant%02i_filtered', team, participant_nr) '.set'], 'file')
         switch team
             case 'Krakow'
                 filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i.bdf', team, participant_nr);
