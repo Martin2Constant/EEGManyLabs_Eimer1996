@@ -13,6 +13,10 @@ function extract_results(filepath, team, pipeline)
         ERP = pop_loaderp( 'filename', erp_name, 'filepath', files(id).folder);
         ALLERP(id) = ERP; %#ok<AGROW>
     end
+    mean_rts = table;
+    for row = 1:numel(ALLERP)
+        mean_rts = get_rts(ALLERP(row), mean_rts, row);
+    end
     results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s', filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
 
     if pipeline == "Original" || pipeline == "ICA"

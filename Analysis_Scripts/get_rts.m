@@ -6,7 +6,7 @@ function mean_rts = get_rts(ERP, mean_rts, row)
     % Only keep RTs for correct responses
     behavior = behavior(behavior.correct == 1, :);
     % Only keep RTs for trials which weren't rejected
-    behavior = behavior(ERP.rejected_trials, :);
+    behavior = behavior(~ERP.rejected_trials, :);
     % Only keep RTs for trials which contained only one target.
     behavior = behavior(behavior.distractor_array == 1, :);
 

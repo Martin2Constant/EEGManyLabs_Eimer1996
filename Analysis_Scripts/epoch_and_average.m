@@ -81,9 +81,57 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         EEG = pop_artextval(EEG, 'Channel', [PO7_index PO8_index], 'Flag', [ 1 5], 'LowPass', -1, 'Threshold', [ -60 60], 'Twindow', [ -100 600] );
     end
     EEG = pop_syncroartifacts(EEG, 'Direction', 'bidirectional');
+    histoflags = summary_rejectflags(EEG);
     EEG = pop_summary_AR_eeg_detection(EEG, [filepath filesep team filesep erp_name '_artifacts.txt']);
     EEG = eeg_checkset(EEG, 'eventconsistency' );
     EEG = eeg_checkset(EEG);
+
+    % Create recap table of exclusions
+    charpipe = char(pipeline);
+    if ~exist([filepath filesep team filesep team '_' charpipe '_rejections.csv'], 'file')
+        fid = fopen([filepath filesep team filesep team '_' charpipe '_rejections.csv'], 'w');
+        fprintf(fid, 'ID, Condition, IncorrectResp, Blinks, EyeMovements, PO7_8, totalExcluded, N_remaining');
+        fclose(fid);
+    end
+    opts = detectImportOptions([filepath filesep team filesep team '_' charpipe '_rejections.csv']);
+    opts = setvartype(opts, ...
+        ["ID",     "Condition",   "IncorrectResp",    "Blinks", "EyeMovements", "PO7_8",  "totalExcluded", "N_remaining"], ...
+        ["double", "string",      "double",           "double", "double",       "double", "double",        "double"]);
+
+    exclusions = readtable([filepath filesep team filesep team '_' charpipe '_rejections.csv'], opts);
+
+    for cond = ["colors", "letters"]
+        idcond_row = find(exclusions.ID == participant_nr & exclusions.Condition == cond); %#ok<EFIND>
+        if isempty(idcond_row)
+            idcond_row = size(exclusions, 1) + 1;
+        end
+        if cond == "colors"
+            bins = [7, 8, 10, 11];
+        elseif cond == "letters"
+            bins = [1, 2, 4, 5];
+        end
+
+        nb_trials = sum(EEG.EVENTLIST.trialsperbin(bins));
+        total_rej = sum(histoflags(bins, 1));
+        blinks = sum(histoflags(bins, 2));
+        eyemove = sum(histoflags(bins, 3));
+        reject_po78 = sum(histoflags(bins, 5));
+
+        exclusions.ID(idcond_row) = participant_nr;
+        exclusions.Condition(idcond_row) = cond;
+        exclusions.IncorrectResp(idcond_row) = 264 - nb_trials;
+        exclusions.Blinks(idcond_row) = blinks;
+        exclusions.EyeMovements(idcond_row) = eyemove - (blinks + eyemove - total_rej);
+        exclusions.PO7_8(idcond_row) = reject_po78;
+        exclusions.totalExcluded(idcond_row) = total_rej + (264 - nb_trials);
+        exclusions.N_remaining(idcond_row) = nb_trials - total_rej;
+        if cond == "colors"
+            colors_n = exclusions.N_remaining(idcond_row);
+        else
+            letters_n = exclusions.N_remaining(idcond_row);
+        end
+    end
+    writetable(exclusions, [filepath filesep team filesep team '_' charpipe '_rejections.csv']);
 
     EEG = pop_saveset(EEG, 'filename', epoched, 'filepath', [filepath filesep team filesep 'EEG']);
     EEG = eeg_checkset(EEG);
@@ -204,7 +252,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
 
         % Participants with less than 100 epochs in any critical test condition
         % (forms or colors) will be excluded.
-    elseif ERP.ntrials.accepted(15) < 100 || ERP.ntrials.accepted(18) < 100
+    elseif colors_n < 100 || letters_n < 100
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name '_not_enough_trials'], 'filename', ['excluded_' erp_name '_not_enough_trials.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
 
     else

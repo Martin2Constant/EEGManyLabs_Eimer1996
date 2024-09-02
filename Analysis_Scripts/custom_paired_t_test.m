@@ -148,20 +148,20 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     Jv = exp(gammaln(df / 2) - (log(sqrt(df / 2)) + gammaln((df - 1) / 2)));
     
     % Fitts (2020); Eq. 8a
-    hedges_gz = cohen_dz * Jv;  % Hedges' gz for unbiased estimation of the effect size
+    hedges_gz = cohen_dz .* Jv;  % Hedges' gz for unbiased estimation of the effect size
 
     % Fitts (2020); Goulet-Pelletier & Cousineau (2018, 2019)
-    non_central_parameter_gz = hedges_gz * sqN;  % Non-central parameter
+    non_central_parameter_gz = hedges_gz .* sqN;  % Non-central parameter
     llgt = nctinv(alpha / 2, df, non_central_parameter_gz);  % lower-limit non-central t
     ulgt = nctinv(1 - alpha / 2, df, non_central_parameter_gz);  % upper-limit non-central t
     low_gz = llgt / sqN;
     high_gz = ulgt / sqN;
     
     % Fitts (2020); Eq. 5
-    dz_var = (1/n) * (df / (df-2)) * (1 + n * cohen_dz^2) - (cohen_dz^2) / (Jv^2);
+    dz_var = (1/n) .* (df / (df-2)) .* (1 + n .* cohen_dz.^2) - (cohen_dz.^2) / (Jv.^2);
 
     % Fitts (2020); Eq. 8b
-    gz_var = dz_var * Jv^2;
+    gz_var = dz_var .* Jv.^2;
     
     cohen_drm = (mean_diff / std_diff_lakens) * correction_factor;
     hedges_grm = cohen_drm * Jv;
@@ -193,7 +193,9 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
         p = 1 - p;
     end
     
-    bf10 = paired_bf_ttest(t, n, tail);
+    bf10 = paired_bf_ttest(t, n, tail, sqrt(2)/2);
+    bf_wide = paired_bf_ttest(t, n, tail, 1);
+    bf_ultrawide = paired_bf_ttest(t, n, tail, sqrt(2));
 
     % Creating values to return
     mean_amps = [mean_x, mean_y];
@@ -209,6 +211,8 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     stats.grm = struct("eff", hedges_grm, "low_ci", low_grm, "high_ci", high_grm, "se", sqrt(grm_var));
     stats.p = p;
     stats.bf10 = bf10;
+    stats.bf_wide = bf_wide;
+    stats.bf_ultrawide = bf_ultrawide;
     stats.mean_diff = mean_diff;
     stats.diff_ci = diff_ci;
     if p <= alpha
