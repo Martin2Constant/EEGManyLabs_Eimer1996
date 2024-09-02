@@ -1,7 +1,7 @@
 function [mean_amps, between_confidence_intervals, within_confidence_intervals, stats] = custom_paired_t_test(x, y, alpha, tail)
     % Author: Martin Constant (martin.constant@unige.ch)
-    % Computes paired-sample t test, BayesFactor t test, 95% between- and within-participant CIs,
-    % Cohen's dz and its 95% confidence intervals, Hedges' gz and its 95% confidence intervals.
+    % Computes paired-sample t test, BayesFactor t test, (1-alpha) between- and within-participant CIs,
+    % Cohen's dz and its (1-alpha) confidence intervals, Hedges' gz and its (1-alpha) confidence intervals.
     %
     % Parameters
     % ----------
