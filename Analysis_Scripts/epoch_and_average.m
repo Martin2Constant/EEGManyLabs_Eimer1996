@@ -100,14 +100,14 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
 
     exclusions = readtable([filepath filesep team filesep team '_' charpipe '_rejections.csv'], opts);
 
-    for cond = ["colors", "letters"]
+    for cond = ["colors", "forms"]
         idcond_row = find(exclusions.ID == participant_nr & exclusions.Condition == cond); %#ok<EFIND>
         if isempty(idcond_row)
             idcond_row = size(exclusions, 1) + 1;
         end
         if cond == "colors"
             bins = [7, 8, 10, 11];
-        elseif cond == "letters"
+        elseif cond == "forms"
             bins = [1, 2, 4, 5];
         end
 
@@ -128,7 +128,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         if cond == "colors"
             colors_n = exclusions.N_remaining(idcond_row);
         else
-            letters_n = exclusions.N_remaining(idcond_row);
+            forms_n = exclusions.N_remaining(idcond_row);
         end
     end
     writetable(exclusions, [filepath filesep team filesep team '_' charpipe '_rejections.csv']);
@@ -230,10 +230,10 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         'bin12 = bin7 - bin8 label Green Contra-Ipsi'});
 
     % Compute contra and ipsi (and difference waves) for each category
-    % (letters and colors) as well as the average for all conditions.
-    ERP = pop_binoperator( ERP, {'bin13 = (bin1 + bin3)/2 label Letters Contra', ...
-        'bin14 = (bin2 + bin4)/2 label Letters Ipsi', ...
-        'bin15 = (bin9 + bin10)/2 label Letters Contra-Ipsi', ...
+    % (forms and colors) as well as the average for all conditions.
+    ERP = pop_binoperator( ERP, {'bin13 = (bin1 + bin3)/2 label Forms Contra', ...
+        'bin14 = (bin2 + bin4)/2 label Forms Ipsi', ...
+        'bin15 = (bin9 + bin10)/2 label Forms Contra-Ipsi', ...
         'bin16 = (bin5 + bin7)/2 label Colors Contra', ...
         'bin17 = (bin6 + bin8)/2 label Colors Ipsi', ...
         'bin18 = (bin11 + bin12)/2 label Colors Contra-Ipsi', ...
@@ -252,7 +252,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
 
         % Participants with less than 100 epochs in any critical test condition
         % (forms or colors) will be excluded.
-    elseif colors_n < 100 || letters_n < 100
+    elseif colors_n < 100 || forms_n < 100
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name '_not_enough_trials'], 'filename', ['excluded_' erp_name '_not_enough_trials.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
 
     else

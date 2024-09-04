@@ -13,7 +13,7 @@ function [mean_amps, between_confidence_intervals, within_confidence_intervals, 
     %     y(i) should refer to the same participant as x(i).
     % alpha: double, optional 
     %     Significance threshold of the test. The default is .02.
-    % tail : string, optional (one of: "two-sided", "greater", "less")
+    % tail: string, optional (one of: "two-sided", "greater", "less")
     %     t-test tail. The default is "two-sided".
     %
     % Notes

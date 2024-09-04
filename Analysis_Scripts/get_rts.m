@@ -10,21 +10,21 @@ function mean_rts = get_rts(ERP, mean_rts, row)
     % Only keep RTs for trials which contained only one target.
     behavior = behavior(behavior.distractor_array == 1, :);
 
-    % Split between letters and colors
-    letters = behavior(strcmp(behavior.target_condition, 'letters'), :);
+    % Split between forms (named "letters" in the experiment) and colors
+    forms = behavior(strcmp(behavior.target_condition, 'letters'), :);
     colors = behavior(strcmp(behavior.target_condition, 'colors'), :);
 
     % Split between congruent and incongruent
-    letters_congruent = letters(letters.congruent_response == 1, :);
-    letters_incongruent = letters(letters.congruent_response == 0, :);
+    forms_congruent = forms(forms.congruent_response == 1, :);
+    forms_incongruent = forms(forms.congruent_response == 0, :);
     colors_congruent = colors(colors.congruent_response == 1, :);
     colors_incongruent = colors(colors.congruent_response == 0, :);
 
     mean_rts.ID(row) = unique(behavior.subject_nr);
-    mean_rts.RT_letters(row) = mean(letters.response_time);
+    mean_rts.RT_forms(row) = mean(forms.response_time);
     mean_rts.RT_colors(row) = mean(colors.response_time);
-    mean_rts.RT_congruent_letters(row) = mean(letters_congruent.response_time);
-    mean_rts.RT_incongruent_letters(row) = mean(letters_incongruent.response_time);
+    mean_rts.RT_congruent_forms(row) = mean(forms_congruent.response_time);
+    mean_rts.RT_incongruent_forms(row) = mean(forms_incongruent.response_time);
     mean_rts.RT_congruent_colors(row) = mean(colors_congruent.response_time);
     mean_rts.RT_incongruent_colors(row) = mean(colors_incongruent.response_time);
 end
