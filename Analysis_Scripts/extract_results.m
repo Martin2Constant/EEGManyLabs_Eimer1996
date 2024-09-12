@@ -9,39 +9,44 @@ function extract_results(filepath, team, pipeline)
     participant_list = [];
     for id = 1:length(files)
         erp_name = files(id).name;
-        participant_list = [participant_list, str2double(erp_name(end-(6+length(pipeline)):end-(5+length(pipeline))))];
+        participant_list = [participant_list, str2double(extractBetween(erp_name, "participant", "_"))];
         ERP = pop_loaderp( 'filename', erp_name, 'filepath', files(id).folder);
         ALLERP(id) = ERP; %#ok<AGROW>
     end
-    mean_rts = table;
-    mean_correct = table;
-    for row = 1:numel(ALLERP)
-        mean_rts = get_rts(ALLERP(row), mean_rts, row);
-        mean_correct = get_correct(ALLERP(row), mean_correct, row);
-    end
-    if ~exist([filepath filesep 'behavior.csv'], 'file')
-        fid = fopen([filepath filesep 'behavior.csv'], 'w');
-        fprintf(fid, 'Team, Condition, RT_forms, RT_colors, forms_correct, colors_correct');
-        fclose(fid);
-    end
-    opts = detectImportOptions([filepath filesep 'behavior.csv']);
-    opts = setvartype(opts, ...
-        ["Team",   "RT_forms", "RT_colors", "forms_correct", "colors_correct"], ...
-        ["string", "double",   "double",    "double",        "double"]);
 
-    behavior = readtable([filepath filesep 'behavior.csv'], opts);
-    team_row = find(strcmpi(behavior.Team, team)); %#ok<EFIND>
-    if isempty(team_row)
-        team_row = size(behavior, 1) + 1;
+    % Compute reaction times and accuracy
+    % Save them to a table and save that table
+    if pipeline == "Original"
+        mean_rts = table;
+        mean_correct = table;
+        for row = 1:numel(ALLERP)
+            mean_rts = get_rts(ALLERP(row), mean_rts, row);
+            mean_correct = get_correct(ALLERP(row), mean_correct, row);
+        end
+        % Create output file if it doesn't exist
+        if ~exist([filepath filesep 'behavior.csv'], 'file')
+            fid = fopen([filepath filesep 'behavior.csv'], 'w');
+            fprintf(fid, 'Team, Condition, RT_forms, RT_colors, forms_correct, colors_correct');
+            fclose(fid);
+        end
+        opts = detectImportOptions([filepath filesep 'behavior.csv']);
+        opts = setvartype(opts, ...
+            ["Team",   "RT_forms", "RT_colors", "forms_correct", "colors_correct"], ...
+            ["string", "double",   "double",    "double",        "double"]);
+        
+        % Load the existing output file and append new results to it
+        behavior = readtable([filepath filesep 'behavior.csv'], opts);
+        team_row = find(strcmpi(behavior.Team, team)); %#ok<EFIND>
+        if isempty(team_row)
+            team_row = size(behavior, 1) + 1;
+        end
+        behavior.Team(team_row) = team;
+        behavior.RT_forms(team_row) = mean(mean_rts.RT_forms);
+        behavior.RT_colors(team_row) = mean(mean_rts.RT_colors);
+        behavior.forms_correct(team_row) = mean(mean_correct.forms_correct) * 100;
+        behavior.colors_correct(team_row) = mean(mean_correct.colors_correct) * 100;
+        writetable(behavior, [filepath filesep 'behavior.csv'], 'Delimiter', ',')
     end
-    behavior.Team(team_row) = team;
-    behavior.RT_forms(team_row) = mean(mean_rts.RT_forms);
-    behavior.RT_colors(team_row) = mean(mean_rts.RT_colors);
-    behavior.forms_correct(team_row) = mean(mean_correct.forms_correct) * 100;
-    behavior.colors_correct(team_row) = mean(mean_correct.colors_correct) * 100;
-
-    writetable(behavior, [filepath filesep 'behavior.csv'], 'Delimiter', ',')
-
     results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s', filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
 
     if pipeline == "Original" || pipeline == "ICA"
@@ -59,7 +64,7 @@ function extract_results(filepath, team, pipeline)
         cfg.timeFormat = 'ms';
         cfg.areaBase = 'zero';
         cfg.condition = 15; % Forms
-        cfg.peakWin = [100 450]; % Search for N2pc peak between 100 and 450ms
+        cfg.peakWin = [100 350]; % Search for N2pc peak between 100 and 350 ms
         cfg.ampLatWin = 'peakWin'; % Search for the on/offset in the above window
         cfg.aggregate = 'GA';
         cfg.chans = ERP.PO7_8_index;
@@ -77,7 +82,16 @@ function extract_results(filepath, team, pipeline)
         if ~exist(sprintf('%spvalues_bootstrap.mat', results_path), 'file') || force_bootstrap
             [pval_forms, pval_colors, pval_difference] = non_parametric_tests(filepath, team, participant_list, pipeline, onset, offset)
         else
-            load(sprintf('%spvalues_bootstrap.mat', results_path), 'pval_forms', 'pval_colors', 'pval_difference');
+            % load(sprintf('%spvalues_bootstrap.mat', results_path), 'pval_forms', 'pval_colors', 'pval_difference');
+            load(sprintf('%spvalues_bootstrap.mat', results_path));
+            if exist('pval_letters', 'var')
+                pval_forms = pval_letters;
+                save(sprintf('%spvalues_bootstrap.mat', results_path), "pval_forms", "pval_colors", "pval_difference");
+                load(sprintf('%slast_bootstrap.mat', results_path));
+                resampled_forms = resampled_letters;
+                save(sprintf('%slast_bootstrap.mat', results_path), "resampled_forms", "resampled_colors", "resampled_cond_diff");
+            end
+
             if numel(pval_forms) ~= 1000
                 warning("Careful there are %i bootstrapped p-values instead of the expected 1000.", numel(pval_forms));
             end

@@ -27,7 +27,7 @@ function [pval_forms, pval_colors, pval_difference] = non_parametric_tests(filep
     epoched = sprintf('%s_participant%02i_%s_epoched_small.set', team, id, pipeline);
     EEG = pop_loadset(epoched, [filepath filesep team filesep 'EEG']);
     time_idx = dsearchn(EEG.times', time_window)';
-    search_window = dsearchn(EEG.times', [100 450]')';
+    search_window = dsearchn(EEG.times', [100 350]')';
     offset_eeg_times = EEG.times(search_window(1):search_window(2));
     offset_time_idx = dsearchn(offset_eeg_times', time_window);
 
@@ -39,7 +39,7 @@ function [pval_forms, pval_colors, pval_difference] = non_parametric_tests(filep
     cfg.times = offset_eeg_times;
     cfg.timeFormat = 'ms';
     cfg.areaBase = 'zero';
-    cfg.peakWin = [100 450]; % Search for N2pc peak between 100 and 450ms
+    cfg.peakWin = [100 350]; % Search for N2pc peak between 100 and 350 ms
     cfg.ampLatWin = 'peakWin'; % Search for the on/offset in the above window
     cfg.aggregate = 'individual';
     cfg.chans = 1;
