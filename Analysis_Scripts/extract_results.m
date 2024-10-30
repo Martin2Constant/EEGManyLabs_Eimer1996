@@ -14,6 +14,7 @@ function extract_results(filepath, team, pipeline)
         ALLERP(id) = ERP; %#ok<AGROW>
     end
 
+    results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s', filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
     % Compute reaction times and accuracy
     % Save them to a table and save that table
     if pipeline == "Original"
@@ -24,30 +25,39 @@ function extract_results(filepath, team, pipeline)
             mean_correct = get_correct(ALLERP(row), mean_correct, row);
         end
         % Create output file if it doesn't exist
-        if ~exist([filepath filesep 'behavior.csv'], 'file')
-            fid = fopen([filepath filesep 'behavior.csv'], 'w');
-            fprintf(fid, 'Team, Condition, RT_forms, RT_colors, forms_correct, colors_correct');
+        if ~exist([filepath filesep 'Meta_analysis' filesep 'behavior.csv'], 'file')
+            fid = fopen([filepath filesep 'Meta_analysis' filesep 'behavior.csv'], 'w');
+            fprintf(fid, 'Team, PID, RT_forms, RT_colors, forms_correct, colors_correct');
             fclose(fid);
         end
-        opts = detectImportOptions([filepath filesep 'behavior.csv']);
+        opts = detectImportOptions([filepath filesep 'Meta_analysis' filesep 'behavior.csv']);
         opts = setvartype(opts, ...
-            ["Team",   "RT_forms", "RT_colors", "forms_correct", "colors_correct"], ...
-            ["string", "double",   "double",    "double",        "double"]);
-        
+            ["Team",   "PID",    "RT_forms", "RT_colors", "forms_correct", "colors_correct"], ...
+            ["string", "double", "double",   "double",    "double",        "double"]);
+
         % Load the existing output file and append new results to it
-        behavior = readtable([filepath filesep 'behavior.csv'], opts);
-        team_row = find(strcmpi(behavior.Team, team)); %#ok<EFIND>
-        if isempty(team_row)
-            team_row = size(behavior, 1) + 1;
+        behavior = readtable([filepath filesep 'Meta_analysis' filesep 'behavior.csv'], opts);
+        for ID = mean_correct.ID'
+            participant_row = find(strcmpi(behavior.Team, team) & behavior.PID == ID); %#ok<EFIND>
+            if isempty(participant_row)
+                participant_row = size(behavior, 1) + 1;
+            end
+            behavior.Team(participant_row) = team;
+            behavior.PID(participant_row) = ID;
+            behavior.RT_forms(participant_row) = mean_rts(mean_rts.ID == ID, :).RT_forms;
+            behavior.RT_colors(participant_row) = mean_rts(mean_rts.ID == ID, :).RT_colors;
+            behavior.forms_correct(participant_row) = mean_correct(mean_correct.ID == ID, :).forms_correct * 100;
+            behavior.colors_correct(participant_row) = mean_correct(mean_correct.ID == ID, :).colors_correct * 100;
+            writetable(behavior, [filepath filesep 'Meta_analysis' filesep 'behavior.csv'], 'Delimiter', ',')
         end
-        behavior.Team(team_row) = team;
-        behavior.RT_forms(team_row) = mean(mean_rts.RT_forms);
-        behavior.RT_colors(team_row) = mean(mean_rts.RT_colors);
-        behavior.forms_correct(team_row) = mean(mean_correct.forms_correct) * 100;
-        behavior.colors_correct(team_row) = mean(mean_correct.colors_correct) * 100;
-        writetable(behavior, [filepath filesep 'behavior.csv'], 'Delimiter', ',')
+        [mean_correct_comparison, between_ci_correct_comparison, within_ci_correct_comparison, stats_correct_comparison] = custom_paired_t_test(mean_correct.forms_correct, mean_correct.colors_correct, 0.02, "two-sided");
+        [mean_rt_comparison, between_ci_rt_comparison, within_ci_rt_comparison, stats_rt_comparison] = custom_paired_t_test(mean_rts.RT_forms, mean_rts.RT_colors, 0.02, "two-sided");
+
+        save(sprintf('%sresults_rt.mat', results_path), 'mean_rt_comparison', 'between_ci_rt_comparison', 'within_ci_rt_comparison', 'stats_rt_comparison');
+        save(sprintf('%sresults_correct.mat', results_path), 'mean_correct_comparison', 'between_ci_correct_comparison', 'within_ci_correct_comparison', 'stats_correct_comparison');
+
     end
-    results_path = sprintf('%s%s%s%sResults%sPipeline%s%s%s', filepath, filesep, team, filesep, filesep, filesep, pipeline, filesep);
+    
 
     if pipeline == "Original" || pipeline == "ICA"
         onset = 220;

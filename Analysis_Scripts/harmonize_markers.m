@@ -1,6 +1,7 @@
 function harmonize_markers(EEG, filepath)
     % Author: Martin Constant (martin.constant@unige.ch)
     %% Clean markers
+    offset = 0;
     switch EEG.team
         case 'Krakow'
             eventlabels = {EEG.event(:).type}';
@@ -53,6 +54,7 @@ function harmonize_markers(EEG, filepath)
             eventlabels = {EEG.event(:).type}';
             clean = eventlabels;
         case 'TrierCogPsy'
+            offset = 37;
             eventlabels = {EEG.event(:).type}';
             clean = cellfun(@(s)sscanf(s, 'S%d'), eventlabels, 'UniformOutput', false);
         case 'Neuruppin'
@@ -240,6 +242,8 @@ function harmonize_markers(EEG, filepath)
     idx = 1;
     for i = 1:length(clean)  % For all markers
         if clean{i} >= 100  % If marker >= 100 (display onsets)
+            % Add a timing-offset to display onset latencies (due to display timing issues)
+            latencies{i} = latencies{i} + (offset * EEG.srate / 1000);
             % Add display onset time (latencies{i}) to response_time from
             % behavior to create the EEG response_latency, we have to scale
             % response_time (in ms) to the sampling rate.

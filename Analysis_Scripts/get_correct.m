@@ -10,7 +10,8 @@ function mean_correct = get_correct(ERP, mean_correct, row)
     forms = behavior(strcmp(behavior.target_condition, 'letters'), :);
     colors = behavior(strcmp(behavior.target_condition, 'colors'), :);
 
-    mean_correct.ID(row) = unique(behavior.subject_nr);
+
+    mean_correct.ID(row) = str2double(extractBetween(ERP.erpname, "participant", "_"));
     mean_correct.forms_correct(row) = mean(forms.correct);
     mean_correct.colors_correct(row) = mean(colors.correct);
 end
