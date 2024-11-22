@@ -90,13 +90,13 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     charpipe = char(pipeline);
     if ~exist([filepath filesep team filesep team '_' charpipe '_rejections.csv'], 'file')
         fid = fopen([filepath filesep team filesep team '_' charpipe '_rejections.csv'], 'w');
-        fprintf(fid, 'ID, Condition, IncorrectResp, Blinks, EyeMovements, PO7_8, totalExcluded, N_remaining');
+        fprintf(fid, 'ID, Condition, IncorrectResp, Blinks, EyeMovements, PO7_8, totalExcluded, N_remaining, ERP_excluded');
         fclose(fid);
     end
     opts = detectImportOptions([filepath filesep team filesep team '_' charpipe '_rejections.csv']);
     opts = setvartype(opts, ...
-        ["ID",     "Condition",   "IncorrectResp",    "Blinks", "EyeMovements", "PO7_8",  "totalExcluded", "N_remaining"], ...
-        ["double", "string",      "double",           "double", "double",       "double", "double",        "double"]);
+        ["ID",     "Condition",   "IncorrectResp",    "Blinks", "EyeMovements", "PO7_8",  "totalExcluded", "N_remaining", "ERP_excluded"], ...
+        ["double", "string",      "double",           "double", "double",       "double", "double",        "double",      "double"]);
 
     exclusions = readtable([filepath filesep team filesep team '_' charpipe '_rejections.csv'], opts);
 
@@ -131,7 +131,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
             forms_n = exclusions.N_remaining(idcond_row);
         end
     end
-    writetable(exclusions, [filepath filesep team filesep team '_' charpipe '_rejections.csv']);
+    id_rows = find(exclusions.ID == participant_nr);
 
     EEG = pop_saveset(EEG, 'filename', epoched, 'filepath', [filepath filesep team filesep 'EEG']);
     EEG = eeg_checkset(EEG);
@@ -158,7 +158,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
         case 'GenevaKerzel'
             LeftChans = 'Lch = [2 27 25 26:-2:22 23 21 17 20 18 19 16 28:32];';
             RightChans = 'Rch = [1 5:16 28:32];';
-        case 'GroupLC'
+        case 'ZJU'
             LeftChans = 'Lch = [1 4 9:-1:6 15 18:-1:16 24 27:-1:25 33 36:-1:34 45:-1:42 53:-1:51 58 59 2 10:9:46 54 60 65];';
             RightChans = 'Rch = [3 5 11:14 23 20:22 32 29:31 41 38:40 47:50 55:57 62 61 2 10:9:46 54 60 65];';
         case 'LSU'
@@ -249,13 +249,14 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     % to the disqualification of the subject."
     if abs(max(ERP.bindata(ERP.LO1_2_index, :, 21))) >= 2
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name '_bad_HEOG'], 'filename', ['excluded_' erp_name '_bad_HEOG.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
-
-        % Participants with less than 100 epochs in any critical test condition
-        % (forms or colors) will be excluded.
+        exclusions(id_rows, :).ERP_excluded = [1; 1];
+    % Participants with less than 100 epochs in any critical test condition
+    % (forms or colors) will be excluded.
     elseif colors_n < 100 || forms_n < 100
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name '_not_enough_trials'], 'filename', ['excluded_' erp_name '_not_enough_trials.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
-
+        exclusions(id_rows, :).ERP_excluded = [1; 1];
     else
+        exclusions(id_rows, :).ERP_excluded = [0; 0];
         if pipeline == "Original" || pipeline == "ICA"
             ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');
 
@@ -279,4 +280,5 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
             EEG_small = pop_saveset(EEG_small, 'filename', epoched_small, 'filepath', [filepath filesep team filesep 'EEG']);
         end
     end
+    writetable(exclusions, [filepath filesep team filesep team '_' charpipe '_rejections.csv']);
 end
