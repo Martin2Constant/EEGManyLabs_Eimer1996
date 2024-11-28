@@ -80,7 +80,7 @@ function filter_and_downsample(participant_nr, filepath, team)
                 ref = EEG.chaninfo.nodatchans(ref_index);
                 EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
 
-            case 'GroupLC'
+            case 'ZJU'
                 % Check for flat M1, M2, PO7 or PO8.
                 % Throws an error if any are flat.
                 % Deviates from original study.

@@ -138,7 +138,7 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
 
     % All functions returning ERP are ERPLAB functions
     ERP = pop_averager(EEG, 'Criterion', 'good', 'DQ_custom_wins', 0, 'DQ_flag', 1, 'DQ_preavg_txt', 0, 'ExcludeBoundary', 'on', 'SEM', 'on' );
-
+    
     switch team
         case 'Munich'
             LeftChans = 'Lch = [1 34 3 35 4 5 7 37 6 38 8 39 9 11 41 10 42 13 43 14 15 32 31 36 40 45 44 2 12 16 22 33 46 51 63];';
@@ -250,35 +250,33 @@ function epoch_and_average(participant_nr, filepath, team, pipeline)
     if abs(max(ERP.bindata(ERP.LO1_2_index, :, 21))) >= 2
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name '_bad_HEOG'], 'filename', ['excluded_' erp_name '_bad_HEOG.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
         exclusions(id_rows, :).ERP_excluded = [1; 1];
-    % Participants with less than 100 epochs in any critical test condition
-    % (forms or colors) will be excluded.
+        % Participants with less than 100 epochs in any critical test condition
+        % (forms or colors) will be excluded.
     elseif colors_n < 100 || forms_n < 100
         ERP = pop_savemyerp(ERP, 'erpname', ['excluded' erp_name '_not_enough_trials'], 'filename', ['excluded_' erp_name '_not_enough_trials.erp'], 'filepath', [filepath filesep team filesep 'Excluded_ERP'], 'Warning', 'off'); %#ok<*NASGU>
         exclusions(id_rows, :).ERP_excluded = [1; 1];
     else
         exclusions(id_rows, :).ERP_excluded = [0; 0];
-        if pipeline == "Original" || pipeline == "ICA"
-            ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');
-
-        elseif pipeline == "Resample" || pipeline == "ICA+Resample"
-            ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');
-            epoched_small = sprintf('%s_participant%02i_%s_epoched_small.set', team, participant_nr, pipeline);
-
-            % Creating a smaller dataset for permutation
-            EEG_small = pop_eegchanoperator(EEG, ...
-                {sprintf('nch1 = ch%i label PO7', PO7_index), ...
-                sprintf('nch2 = ch%i label PO8', PO8_index)}, ...
-                'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on', 'Saveas', 'off');
-            EEG_small = pop_rejepoch(EEG_small, EEG_small.reject.rejmanual, 0);
-            EEG_small  = pop_resetrej( EEG_small , 'ResetArtifactFields', 'on' );
-            EEG_small = pop_selectevent( EEG_small, ...
-                'bini', [1 2 4 5 7 8 10 11], ...
-                'deleteevents','off', ...
-                'deleteepochs','on', ...
-                'invertepochs','off');
-
-            EEG_small = pop_saveset(EEG_small, 'filename', epoched_small, 'filepath', [filepath filesep team filesep 'EEG']);
+        ERP = pop_savemyerp(ERP, 'erpname', erp_name, 'filename', [erp_name '.erp'], 'filepath', [filepath filesep team filesep 'ERP' filesep char(pipeline)], 'Warning', 'off');
+        if pipeline == "Original" || pipeline == "Resample"
+            epoched_small = sprintf('%s_participant%02i_Resample_epoched_small.set', team, participant_nr);
+        elseif pipeline == "ICA" || pipeline == "ICA+Resample"
+            epoched_small = sprintf('%s_participant%02i_ICA+Resample_epoched_small.set', team, participant_nr);
         end
+        % Creating a smaller dataset for permutation
+        EEG_small = pop_eegchanoperator(EEG, ...
+            {sprintf('nch1 = ch%i label PO7', PO7_index), ...
+            sprintf('nch2 = ch%i label PO8', PO8_index)}, ...
+            'ErrorMsg', 'popup', 'KeepChLoc', 'on', 'Warning', 'on', 'Saveas', 'off');
+        EEG_small = pop_rejepoch(EEG_small, EEG_small.reject.rejmanual, 0);
+        EEG_small  = pop_resetrej( EEG_small , 'ResetArtifactFields', 'on' );
+        EEG_small = pop_selectevent( EEG_small, ...
+            'bini', [1 2 4 5 7 8 10 11], ...
+            'deleteevents','off', ...
+            'deleteepochs','on', ...
+            'invertepochs','off');
+
+        EEG_small = pop_saveset(EEG_small, 'filename', epoched_small, 'filepath', [filepath filesep team filesep 'EEG']);
     end
     writetable(exclusions, [filepath filesep team filesep team '_' charpipe '_rejections.csv']);
 end

@@ -176,7 +176,7 @@ function import_data(participant_nr, filepath, team)
                 EEG = pop_chanedit(EEG, 'changefield', {1, 'labels', 'LO2'}, 'changefield', {2, 'labels', 'LO1'}, 'changefield', {3, 'labels', 'SO2'}, 'changefield', {4, 'labels', 'IO2'}, 'changefield', {5, 'labels', 'M1'}, 'changefield', {6, 'labels', 'M2'}, 'append', 31, 'changefield', {32, 'labels', 'FCz'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:32', 'FCz'}, 'eval', '', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);', 'convert', {'cart2all'});
                 EEG.VEOG_side = "right";
 
-            case 'GroupLC'
+            case 'ZJU'
                 filename_eeg = sprintf('%s_EEG_Eimer1996_Sub%02i', team, participant_nr);
                 filename_behavior = sprintf('%s_Behavior_Eimer1996_Sub%02i.csv', team, participant_nr);
                 filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg '.bdf'];

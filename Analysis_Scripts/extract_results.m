@@ -57,7 +57,7 @@ function extract_results(filepath, team, pipeline)
         save(sprintf('%sresults_correct.mat', results_path), 'mean_correct_comparison', 'between_ci_correct_comparison', 'within_ci_correct_comparison', 'stats_correct_comparison');
 
     end
-    
+
 
     if pipeline == "Original" || pipeline == "ICA"
         onset = 220;
@@ -88,7 +88,7 @@ function extract_results(filepath, team, pipeline)
 
         onset = round(mean([onset_forms, onset_colors]));
         offset = round(mean([offset_forms, offset_colors]));
-        force_bootstrap = true;
+        force_bootstrap = false;
         if ~exist(sprintf('%spvalues_bootstrap.mat', results_path), 'file') || force_bootstrap
             [pval_forms, pval_colors, pval_difference] = non_parametric_tests(filepath, team, participant_list, pipeline, onset, offset)
         else
@@ -138,6 +138,22 @@ function extract_results(filepath, team, pipeline)
     colors_contra_amp = colors_amp(1,:)';
     colors_ipsi_amp = colors_amp(2,:)';
 
+    all_col_ipsi = zeros(141, length(ALLERP));
+    all_col_contra = zeros(141, length(ALLERP));
+    all_forms_ipsi = zeros(141, length(ALLERP));
+    all_forms_contra = zeros(141, length(ALLERP));
+
+    for e = 1:length(ALLERP)
+        all_col_ipsi(:, e) = ALLERP(e).bindata(ERP.PO7_8_index, :, 17)';
+        all_col_contra(:, e)  = ALLERP(e).bindata(ERP.PO7_8_index, :, 16)';
+        all_forms_ipsi(:, e)  = ALLERP(e).bindata(ERP.PO7_8_index, :, 14)';
+        all_forms_contra(:, e)  = ALLERP(e).bindata(ERP.PO7_8_index, :, 13)';
+    end
+    save([results_path 'colors_ipsi.mat'], "all_col_ipsi");
+    save([results_path 'colors_contra.mat'], "all_col_contra");
+    save([results_path 'forms_ipsi.mat'], "all_forms_ipsi");
+    save([results_path 'forms_contra.mat'], "all_forms_contra");
+
     % Run paired-sample t-test on amplitude values
     [mean_amps_forms, between_ci_amp_forms, within_ci_amp_forms, stats_amp_forms] = custom_paired_t_test(forms_contra_amp, forms_ipsi_amp, 0.02, "less");
     [mean_amps_colors, between_ci_amp_colors, within_ci_amp_colors, stats_amp_colors] = custom_paired_t_test(colors_contra_amp, colors_ipsi_amp, 0.02, "less");
@@ -155,6 +171,7 @@ function extract_results(filepath, team, pipeline)
 
     % Export GA time series data
     GA = pop_gaverager( ALLERP , 'DQ_flag', 1, 'Erpsets', 1:length(ALLERP), 'ExcludeNullBin', 'on', 'SEM', 'on' );
+    
     time_series_table = table(GA.bindata(ERP.PO7_8_index, :, 13)', GA.bindata(ERP.PO7_8_index, :, 14)',...
         GA.bindata(ERP.PO7_8_index, :, 16)', GA.bindata(ERP.PO7_8_index, :, 17)',...
         GA.bindata(ERP.PO7_8_index, :, 15)', GA.bindata(ERP.PO7_8_index, :, 18)',...
