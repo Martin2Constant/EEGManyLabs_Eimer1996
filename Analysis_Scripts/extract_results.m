@@ -38,7 +38,7 @@ function extract_results(filepath, team, pipeline)
         % Load the existing output file and append new results to it
         behavior = readtable([filepath filesep 'Meta_analysis' filesep 'behavior.csv'], opts);
         for ID = mean_correct.ID'
-            participant_row = find(strcmpi(behavior.Team, team) & behavior.PID == ID); %#ok<EFIND>
+            participant_row = find(strcmpi(behavior.Team, team) & behavior.PID == ID); 
             if isempty(participant_row)
                 participant_row = size(behavior, 1) + 1;
             end
@@ -85,6 +85,8 @@ function extract_results(filepath, team, pipeline)
         [res, ~] = latency(cfg, ALLERP);
         onset_colors = res.onset;
         offset_colors = res.offset;
+        onset_table = table(onset_colors, offset_colors, onset_forms, offset_forms);
+        writetable(onset_table, sprintf('%s%s%s%sonsets_%s.csv', filepath, filesep, team, filesep, team));
 
         onset = round(mean([onset_forms, onset_colors]));
         offset = round(mean([offset_forms, offset_colors]));
@@ -171,7 +173,7 @@ function extract_results(filepath, team, pipeline)
 
     % Export GA time series data
     GA = pop_gaverager( ALLERP , 'DQ_flag', 1, 'Erpsets', 1:length(ALLERP), 'ExcludeNullBin', 'on', 'SEM', 'on' );
-    
+
     time_series_table = table(GA.bindata(ERP.PO7_8_index, :, 13)', GA.bindata(ERP.PO7_8_index, :, 14)',...
         GA.bindata(ERP.PO7_8_index, :, 16)', GA.bindata(ERP.PO7_8_index, :, 17)',...
         GA.bindata(ERP.PO7_8_index, :, 15)', GA.bindata(ERP.PO7_8_index, :, 18)',...

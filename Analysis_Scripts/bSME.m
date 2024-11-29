@@ -1,7 +1,7 @@
-function bSME(team, pipeline, onset, offset, filepath)
+function bSME(team, pipeline, onset, offset, filepath, collapsed_localizer)
     % Author: Martin Constant (martin.constant@unige.ch)
     rng("shuffle"); % Make sure we don't use MATLAB default's rng seed
-    if pipeline == "Original" 
+    if pipeline == "Original"
         pipeline = "Resample";
     elseif pipeline == "ICA"
         pipeline = "ICA+Resample";
@@ -16,7 +16,12 @@ function bSME(team, pipeline, onset, offset, filepath)
     % Initialize everything
     participants_idx = 1:numel(participant_list);
 
-    n_boots = 10000;
+    n_boots = 1000;
+    if collapsed_localizer == true
+        timewindow = readtable(sprintf('%s%s%s%sonsets_%s.csv', filepath, filesep, team, filesep, team));
+        onset = mean(timewindow.onset_colors, timewindow.onset_forms);
+        offset = mean(timewindow.offset_colors, timewindow.offset_forms);
+    end
     time_window = [onset; offset]; % In milliseconds
 
     n_trials_forms = zeros(1, numel(participant_list), 'double');
@@ -108,37 +113,50 @@ function bSME(team, pipeline, onset, offset, filepath)
     % Gurland & Tripathi (1971) ; https://doi.org/ntpx
     correction_colors = (sqrt(2 ./ (n_trials_colors-1)) .* gamma(n_trials_colors/2) ./ gamma((n_trials_colors-1)/2))';
     correction_forms = (sqrt(2 ./ (n_trials_forms-1)) .* gamma(n_trials_forms/2) ./ gamma((n_trials_forms-1)/2))';
-    
+
     % Doesn't seem valid when compared to the bSME, still leaving it here
     % just in case.
     aSME_unbiased_colors = (sd_colors ./ correction_colors) ./ sqrt(n_trials_colors');
     aSME_unbiased_forms =  (sd_forms ./ correction_forms) ./ sqrt(n_trials_forms');
+    n_meta = 100;
 
-    means_forms = zeros(numel(participant_list), n_boots, 'double');
-    means_colors = zeros(numel(participant_list), n_boots, 'double');
-    fprintf("Starting bSME bootstraps")
-    tic
-    parfor boot = 1:n_boots
-        mean_amp_forms  = arrayfun(@(eegs) bSME_bootstrap(eegs.dat, eegs.ntrials_left), all_eegs_forms);
-        mean_amp_colors = arrayfun(@(eegs) bSME_bootstrap(eegs.dat, eegs.ntrials_left), all_eegs_colors);
+    bSME_colors = zeros(numel(participant_list), n_meta, 'double');
+    bSME_forms = zeros(numel(participant_list), n_meta, 'double');
+    for meta = 1:n_meta
+        
+        means_forms = zeros(numel(participant_list), n_boots, 'double');
+        means_colors = zeros(numel(participant_list), n_boots, 'double');
+        fprintf("\nStarting bSME bootstrap: %i\n", meta)
+        tic
+        parfor boot = 1:n_boots
+            mean_amp_forms  = arrayfun(@(eegs) bSME_bootstrap(eegs.dat, eegs.ntrials_left), all_eegs_forms);
+            mean_amp_colors = arrayfun(@(eegs) bSME_bootstrap(eegs.dat, eegs.ntrials_left), all_eegs_colors);
 
-        means_forms(:, boot) = mean_amp_forms;
-        means_colors(:, boot) = mean_amp_colors;
+            means_forms(:, boot) = mean_amp_forms;
+            means_colors(:, boot) = mean_amp_colors;
+        end
+        toc
+
+        bSME_colors(:, meta) = std(means_forms, 0, 2);
+        bSME_forms(:, meta) = std(means_colors, 0, 2);
     end
-    toc
-    bSME_colors = std(means_forms, 0, 2);
-    bSME_forms = std(means_colors, 0, 2);
 
+    bSME_colors = median(bSME_colors, 2);
+    bSME_forms = median(bSME_forms, 2);
     % Directly computing and adding RMS to the table
     bSME_colors(end+1) = rms(bSME_colors);
     bSME_forms(end+1) = rms(bSME_forms);
-    
+
     bSME_table = table('Size', [numel(participant_list)+1, 3], ...
         'VariableNames', ["ID", "bSME_colors","bSME_forms"],...
         'VariableTypes', ["string", "double", "double"]);
     bSME_table.ID = [participant_list'; "RMS"];
     bSME_table.bSME_colors = bSME_colors;
     bSME_table.bSME_forms = bSME_forms;
-    writetable(bSME_table, [filepath filesep team filesep team '_bSME_' onset '_' offset '.csv']);
+    if collapsed_localizer
+        writetable(bSME_table, [filepath filesep team filesep team '_bSME_collapsed_localizer.csv']);
+    else
+        writetable(bSME_table, [filepath filesep team filesep team '_bSME_' num2str(onset) '_' num2str(offset) '.csv']);
+    end
 end
 
