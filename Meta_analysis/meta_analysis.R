@@ -92,7 +92,7 @@ for (pipeline in pipelines){
     meta_cond$lower = low_ci
     meta_cond$upper = high_ci
     summary(meta_cond)
-    png(width=9.5, height=6.6, units='in', res=600, file=sprintf("./forest_%s_%s.png", condition, pipeline))
+    pdf(width=9.5, height=6.6, file=sprintf("./forest_%s_%s.pdf", condition, pipeline))
     forest(meta_cond,
            sortvar=-TE,
            title=leftlab,
