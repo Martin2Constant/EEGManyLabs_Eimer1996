@@ -44,7 +44,7 @@ function extract_results_from_multiple_timewindows(filepath, team)
         cfg.timeFormat = 'ms';
         cfg.areaBase = 'zero';
         cfg.condition = 15; % Forms
-        cfg.meanWin = [onset offset]; % Search for N2pc peak between 100 and 350 ms
+        cfg.meanWin = [onset offset];
         cfg.aggregate = 'individual';
         cfg.warnings = false;
         cfg.chans = ERP.PO7_8_index;
@@ -66,35 +66,36 @@ function extract_results_from_multiple_timewindows(filepath, team)
         [~, p, ~, stats_amp_interaction] = ttest(forms_amp, colors_amp, "Tail", "left");
         stats_amp_interaction.p = p;
         stats_amp_interaction.gz.eff = stats_amp_interaction.tstat / sqrt(n) * Jv;
-    
 
-    for condition = ["colors", "forms", "interaction"]
-        team_row = find(strcmpi(multiple_time_windows.Team, team) & strcmpi(multiple_time_windows.Condition, condition) & strcmpi(multiple_time_windows.Paper, paper)); %#ok<EFIND>
-        if isempty(team_row)
-            team_row = size(multiple_time_windows, 1) + 1;
+
+        for condition = ["colors", "forms", "interaction"]
+            twin = sprintf("%i -- %i ms", onset, offset);
+            team_row = find(strcmpi(multiple_time_windows.Team, team) & strcmpi(multiple_time_windows.Condition, condition) & strcmpi(multiple_time_windows.TimeWindow, twin)); %#ok<EFIND>
+            if isempty(team_row)
+                team_row = size(multiple_time_windows, 1) + 1;
+            end
+
+            multiple_time_windows.Team(team_row) = team;
+            multiple_time_windows.Condition(team_row) = condition;
+            multiple_time_windows.Paper(team_row) = paper;
+            multiple_time_windows.TimeWindow(team_row) = twin;
+
+            if condition == "colors"
+                stat = stats_amp_colors;
+            elseif condition == "forms"
+                stat = stats_amp_forms;
+            elseif condition == "interaction"
+                stat = stats_amp_interaction;
+            end
+            if stat.p <= .02
+                multiple_time_windows.Replicated(team_row) = 1;
+            else
+                multiple_time_windows.Replicated(team_row)= 0;
+            end
+
+            multiple_time_windows.gz(team_row) = stat.gz.eff;
+
         end
-
-        multiple_time_windows.Team(team_row) = team;
-        multiple_time_windows.Condition(team_row) = condition;
-        multiple_time_windows.Paper(team_row) = paper;
-        multiple_time_windows.TimeWindow(team_row) = sprintf("%i -- %i ms", onset, offset);
-
-        if condition == "colors"
-            stat = stats_amp_colors;
-        elseif condition == "forms"
-            stat = stats_amp_forms;
-        elseif condition == "interaction"
-            stat = stats_amp_interaction;
-        end
-        if stat.p <= .02
-            multiple_time_windows.Replicated(team_row) = 1;
-        else
-            multiple_time_windows.Replicated(team_row)= 0;
-        end
-
-        multiple_time_windows.gz(team_row) = stat.gz.eff;
-
-    end
     end
     writetable(multiple_time_windows, [filepath filesep 'multiple_time_windows.csv'], 'Delimiter', ',')
 end

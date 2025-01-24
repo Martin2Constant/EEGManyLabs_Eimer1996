@@ -36,7 +36,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     eeglab; close;
     msg = 'Which team?';
     opts = ["Munich", "Krakow", "Essex", "Gent", "ONERA", "GenevaKerzel", ...
-        "GroupLC", "LSU", "Magdeburg", "Verona", "KHas", "TrierKamp", ...
+        "ZJU", "LSU", "Magdeburg", "Verona", "KHas", "TrierKamp", ...
         "UniversityofVienna", "TrierCogPsy", "Neuruppin", "Auckland", ...
         "ItierLab", "Malaga", "Hildesheim", "NCC_UGR", "UNIMORE", "GenevaKliegel"];
     if isempty(team)
@@ -59,7 +59,7 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
         mkdir(sprintf('%s%sExcluded_ERP', team, filesep));
     end
     if ~exist(sprintf('%s%sRawData', team, filesep), 'dir')
-        mkdir(sprintf('%s%sRawData', team, filesep));  % Place raw EEG and behavior file here
+        mkdir(sprintf('%s%sRawData', team, filesep));  % Place raw EEG and behavior file here (except for Auckland)
     end
     if ~exist(sprintf('%s%sAMICA', team, filesep), 'dir')
         mkdir(sprintf('%s%sAMICA', team, filesep));
@@ -86,5 +86,6 @@ function eeg_analysis(pipeline, team, participant_list, preprocess, get_results,
     end
     if get_results
         extract_results(filepath, team, pipeline)
+        bSME(team, pipeline, 170, 250, filepath, false)
     end
 end
