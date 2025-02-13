@@ -7,6 +7,9 @@ function filter_and_downsample(participant_nr, filepath, team)
         %% Check flat channels and re-reference
         switch team
             case 'Krakow'
+                % Temporary reference to POz for checking flat electrodes
+                EEG = pop_reref( EEG, {'POz'} );
+
                 % Check for flat M1, M2, PO7 or PO8.
                 % Throws an error if any are flat.
                 % Deviates from original study.
@@ -47,6 +50,9 @@ function filter_and_downsample(participant_nr, filepath, team)
                 EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}, 'keepref','on'));
 
             case 'Gent'
+                % Temporary reference to POz for checking flat electrodes
+                EEG = pop_reref( EEG, {'POz'} );
+
                 % Check for flat M1, M2, PO7 or PO8.
                 % Throws an error if any are flat.
                 % Deviates from original study.
@@ -81,6 +87,9 @@ function filter_and_downsample(participant_nr, filepath, team)
                 EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
 
             case 'ZJU'
+                % Temporary reference to POz for checking flat electrodes
+                EEG = pop_reref( EEG, {'POz'} );
+
                 % Check for flat M1, M2, PO7 or PO8.
                 % Throws an error if any are flat.
                 % Deviates from original study.
@@ -91,6 +100,9 @@ function filter_and_downsample(participant_nr, filepath, team)
                 EEG = pop_reref( EEG, {'M1' 'M2'} );
 
             case 'LSU'
+                % Temporary reference to POz for checking flat electrodes
+                EEG = pop_reref( EEG, {'POz'} );
+
                 % Check for flat M1, M2, PO7 or PO8.
                 % Throws an error if any are flat.
                 % Deviates from original study.
@@ -148,6 +160,18 @@ function filter_and_downsample(participant_nr, filepath, team)
                 EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
 
             case 'UniversityofVienna'
+                % Temporary reference to POz for checking flat electrodes
+                EEG = pop_reref( EEG, {'POz'} );
+
+                if ~ismember(participant_nr, [13, 14, 15])
+                    % Remove electrodes which don't have a 10-20 equivalent (based on BioSemi's documentation)
+                    EEG = pop_select( EEG, 'nochannel', [2:2:8 9 11:14 16:2:26 27:2:37 38 40 41 44 47:2:57 60 62 64:67 70 73 74 77 78 82 84 86 90 91 95:99 102 105:2:113 114 116 118 121 123 126 133 134 137:143]);
+                else
+                    % Remove electrodes which don't have a 10-20 equivalent
+                    % (based on BioSemi's documentation) and surnumeral
+                    % electrodes of participants 13-15 (wrong electrode layout was loaded)
+                    EEG = pop_select( EEG, 'nochannel', [2:2:8 9 11:14 16:2:26 27:2:37 38 40 41 44 47:2:57 60 62 64:67 70 73 74 77 78 82 84 86 90 91 95:99 102 105:2:113 114 116 118 121 123 126 129:256 261 262 265:271]);
+                end
                 % Check for flat M1, M2, PO7 or PO8.
                 % Throws an error if any are flat.
                 % Deviates from original study.
@@ -194,6 +218,9 @@ function filter_and_downsample(participant_nr, filepath, team)
                 EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
 
             case 'ItierLab'
+                % Temporary reference to POz for checking flat electrodes
+                EEG = pop_reref( EEG, {'POz'} );
+
                 % Check for flat M1, M2, PO7 or PO8.
                 % Throws an error if any are flat.
                 % Deviates from original study.
@@ -216,6 +243,9 @@ function filter_and_downsample(participant_nr, filepath, team)
                 EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
 
             case 'Hildesheim'
+                % Temporary reference to POz for checking flat electrodes
+                EEG = pop_reref( EEG, {'POz'} );
+
                 % Check for flat M1, M2, PO7 or PO8.
                 % Throws an error if any are flat.
                 % Deviates from original study.
@@ -250,6 +280,9 @@ function filter_and_downsample(participant_nr, filepath, team)
                 EEG = pop_reref( EEG, {'M1' 'M2'}, 'refloc', struct('labels', {ref.labels}, 'type', {ref.type}, 'theta', {ref.theta}, 'radius', {ref.radius}, 'X', {ref.X}, 'Y', {ref.Y}, 'Z', {ref.Z}, 'sph_theta', {ref.sph_theta}, 'sph_phi', {ref.sph_phi}, 'sph_radius', {ref.sph_radius}, 'urchan', {ref.urchan}, 'ref', {ref.ref}, 'datachan', {0}));
 
             case 'GenevaKliegel'
+                % Temporary reference to POz for checking flat electrodes
+                EEG = pop_reref( EEG, {'POz'} );
+                
                 % Check for flat M1, M2, PO7 or PO8.
                 % Throws an error if any are flat.
                 % Deviates from original study.

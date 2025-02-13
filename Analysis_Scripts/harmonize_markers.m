@@ -129,7 +129,7 @@ function harmonize_markers(EEG, filepath)
     end
 
     % We find the 1st marker 50 (coding for display offset)
-    % Everything marker that happens more than 2 seconds before that first
+    % Every marker that happens more than 2 seconds before that first
     % display offset must likely be artifactual.
     % This cleaning happens after removing all markers that aren't wanted
     % and if there are more than the expected amount of markers (792*2).

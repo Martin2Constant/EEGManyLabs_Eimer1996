@@ -9,12 +9,10 @@ function import_data(participant_nr, filepath, team)
                 filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
                 behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
-                % Importing with POz (chan 30) as temporary reference
-                % Re-referenced to average mastoids at a later point.
-                EEG = pop_biosig(filename_bdf, 'ref', 30, 'importannot', 'off');
+                EEG = pop_biosig(filename_bdf, 'importannot', 'off');
                 % Change electrode names to match names from the BESA template
                 % and load BESA locations
-                EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {65, 'labels', 'SO2'}, 'changefield', {66, 'labels', 'IO2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {71, 'labels', 'M1'}, 'changefield', {72, 'labels', 'M2'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:72', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+                EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {65, 'labels', 'SO2'}, 'changefield', {66, 'labels', 'IO2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {71, 'labels', 'M1'}, 'changefield', {72, 'labels', 'M2'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
                 % Remove unused electrodes
                 EEG = pop_select( EEG, 'nochannel', {'EXG5', 'EXG6'});
                 EEG.VEOG_side = "right";
@@ -54,12 +52,10 @@ function import_data(participant_nr, filepath, team)
                 filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
                 behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
-                % Importing with POz (chan 30) as temporary reference
-                % Re-referenced to average mastoids at a later point.
                 if exist([filepath filesep team filesep 'RawData' filesep filename_eeg(1:end-4) '.set'], 'file')
                     EEG = pop_loadset([filename_eeg(1:end-4) '.set'], [filepath filesep team filesep 'RawData']);
                 else
-                    EEG = pop_biosig(filename_bdf, 'ref', 30, 'importannot', 'off');
+                    EEG = pop_biosig(filename_bdf, 'importannot', 'off');
                 end
                 % Change electrode names to match names from the BESA template
                 % and load BESA locations
@@ -135,9 +131,9 @@ function import_data(participant_nr, filepath, team)
                         'changefield', {68, 'labels', 'LO2'}, ...
                         'changefield', {69, 'labels', 'SO1'}, ...
                         'changefield', {70, 'labels', 'IO1'}, ...
-                        'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:79', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+                        'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+                    
                     % Remove unused electrodes
-
                     EEG = pop_select( EEG, 'nochannel', 71:79);
 
                 else
@@ -182,12 +178,10 @@ function import_data(participant_nr, filepath, team)
                 filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg '.bdf'];
                 behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
-                % Importing with POz (chan 30) as temporary reference
-                % Re-referenced to average mastoids at a later point.
-                EEG = pop_biosig(filename_bdf, 'ref', 30, 'importannot', 'off');
+                EEG = pop_biosig(filename_bdf, 'importannot', 'off');
                 % Change electrode names to match names from the BESA template
                 % and load BESA locations
-                EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {65, 'labels', 'M1'}, 'changefield', {66, 'labels', 'M2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {69, 'labels', 'IO1'}, 'changefield', {70, 'labels', 'SO1'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:72', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+                EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {65, 'labels', 'M1'}, 'changefield', {66, 'labels', 'M2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {69, 'labels', 'IO1'}, 'changefield', {70, 'labels', 'SO1'}, 'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
                 % Remove unused electrodes
                 EEG = pop_select( EEG, 'nochannel', {'EXG7', 'EXG8'});
                 EEG.VEOG_side = "left";
@@ -198,12 +192,10 @@ function import_data(participant_nr, filepath, team)
                 filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg '.bdf'];
                 behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
-                % Importing with POz (chan 30) as temporary reference
-                % Re-referenced to average mastoids at a later point.
-                EEG = pop_biosig(filename_bdf, 'ref', 30, 'importannot', 'off');
+                EEG = pop_biosig(filename_bdf, 'importannot', 'off');
                 % Change electrode names to match names from the BESA template
                 % and load BESA locations
-                EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {66, 'labels', 'IO2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {69, 'labels', 'M1'}, 'changefield', {70, 'labels', 'M2'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:72', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+                EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {66, 'labels', 'IO2'}, 'changefield', {67, 'labels', 'LO1'}, 'changefield', {68, 'labels', 'LO2'}, 'changefield', {69, 'labels', 'M1'}, 'changefield', {70, 'labels', 'M2'}, 'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
                 % Remove unused electrodes
                 EEG = pop_select( EEG, 'nochannel', {'EXG1', 'EXG7', 'EXG8'});
                 EEG.VEOG_side = "right";
@@ -277,9 +269,7 @@ function import_data(participant_nr, filepath, team)
                 filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg '.bdf'];
                 behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
-                % Importing with POz (chan 21) as temporary reference
-                % Re-referenced to average mastoids at a later point.
-                EEG = pop_biosig(filename_bdf, 'ref', 21, 'importannot', 'off');
+                EEG = pop_biosig(filename_bdf, 'importannot', 'off');
 
                 if ~ismember(participant_nr, [13, 14, 15])
                     % Change electrode names from ABC to 10-20 and load BESA locations
@@ -354,10 +344,7 @@ function import_data(participant_nr, filepath, team)
                         'changefield', {132, 'labels', 'IO2'}, ...
                         'changefield', {135, 'labels', 'LO2'}, ...
                         'changefield', {136, 'labels', 'LO1'}, ...
-                        'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:143', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
-
-                    % Remove electrodes which don't have a 10-20 equivalent (based on BioSemi's documentation)
-                    EEG = pop_select( EEG, 'nochannel', [2:2:8 9 11:14 16:2:26 27:2:37 38 40 41 44 47:2:57 60 62 64:67 70 73 74 77 78 82 84 86 90 91 95:99 102 105:2:113 114 116 118 121 123 126 133 134 137:143]);
+                        'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
                 else
                     EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', ...
                         'changefield', {1, 'labels', 'Cz'}, ...
@@ -430,12 +417,7 @@ function import_data(participant_nr, filepath, team)
                         'changefield', {260, 'labels', 'IO2'}, ...
                         'changefield', {263, 'labels', 'LO2'}, ...
                         'changefield', {264, 'labels', 'LO1'}, ...
-                        'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:271', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
-
-                    % Remove electrodes which don't have a 10-20 equivalent
-                    % (based on BioSemi's documentation) and surnumeral
-                    % electrodes of participants 13-15 (wrong electrode layout was loaded)
-                    EEG = pop_select( EEG, 'nochannel', [2:2:8 9 11:14 16:2:26 27:2:37 38 40 41 44 47:2:57 60 62 64:67 70 73 74 77 78 82 84 86 90 91 95:99 102 105:2:113 114 116 118 121 123 126 129:256 261 262 265:271]);
+                        'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
                 end
 
                 EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:70', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
@@ -555,12 +537,10 @@ function import_data(participant_nr, filepath, team)
                 filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
                 behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
-                % Importing with POz (chan 30) as temporary reference
-                % Re-referenced to average mastoids at a later point.
-                EEG = pop_biosig(filename_bdf, 'ref', 30, 'importannot', 'off');
+                EEG = pop_biosig(filename_bdf, 'importannot', 'off');
                 % Change electrode names to match names from the BESA template
                 % and load BESA locations
-                EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {69, 'labels', 'M1'}, 'changefield', {70, 'labels', 'M2'}, 'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:73', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+                EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', 'changefield', {69, 'labels', 'M1'}, 'changefield', {70, 'labels', 'M2'}, 'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
                 % Remove unused electrodes
                 EEG = pop_select( EEG, 'nochannel', {'GSR1'});
                 EEG.VEOG_side = "left";
@@ -586,9 +566,7 @@ function import_data(participant_nr, filepath, team)
                 % Loading EEG
                 filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
 
-                % Importing with POz (chan 10) as temporary reference
-                % Re-referenced to average mastoids at a later point.
-                EEG = pop_biosig(filename_bdf, 'ref', 10, 'importannot', 'off');
+                EEG = pop_biosig(filename_bdf, 'importannot', 'off');
                 % Change electrode names to match names from the BESA template
                 % and load BESA locations
                 EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', ...
@@ -613,7 +591,7 @@ function import_data(participant_nr, filepath, team)
                     'changefield', {36, 'labels', 'IO2'}, ...
                     'changefield', {37, 'labels', 'M1'}, ...
                     'changefield', {38, 'labels', 'M2'}, ...
-                    'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:40', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+                    'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
                 % Remove unused electrodes
                 EEG = pop_select( EEG, 'nochannel', {'EXG7', 'EXG8'});
                 EEG.VEOG_side = "right";
@@ -650,9 +628,7 @@ function import_data(participant_nr, filepath, team)
                 filename_bdf = [filepath filesep team filesep 'RawData' filesep filename_eeg];
                 behavior_path = [filepath filesep team filesep 'RawData' filesep filename_behavior];
 
-                % Importing with POz (chan 30) as temporary reference
-                % Re-referenced to average mastoids at a later point.
-                EEG = pop_biosig(filename_bdf, 'ref', 30, 'importannot', 'off');
+                EEG = pop_biosig(filename_bdf, 'importannot', 'off');
                 % Change electrode names to match names from the BESA template
                 % and load BESA locations
                 EEG = pop_chanedit(EEG, 'lookup', 'standard-10-5-cap385.elp', ...
@@ -726,7 +702,7 @@ function import_data(participant_nr, filepath, team)
                     'changefield', {70, 'labels', 'SO2'}, ...
                     'changefield', {71, 'labels', 'IO2'}, ...
                     'changefield', {72, 'labels', 'LO1'}, ...
-                    'lookup', 'standard-10-5-cap385.elp', 'setref', {'1:79', 'POz'}, 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
+                    'lookup', 'standard-10-5-cap385.elp', 'convert', {'cart2all'}, 'eval', 'chans = pop_chancenter( chans, [], []);');
 
                 % Remove unused electrodes
                 EEG = pop_select( EEG, 'nochannel', [65 66 73:79]);
@@ -735,8 +711,6 @@ function import_data(participant_nr, filepath, team)
                 error('Team not found');
         end
 
-        % Transform EEG to double precision
-        EEG.data = double(EEG.data);
         EEG = eeg_checkset(EEG);
         EEG.setname = sprintf('%s_participant%02i_harmonized', team, participant_nr);
 
